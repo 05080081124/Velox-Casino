@@ -1,0 +1,34 @@
+{
+  "raffles": [
+    {
+      "active": false,
+      "description": "Каждую пятницу в 20:00 мы разыгрываем 10,000 ₴ среди всех игроков, которые сделали хотя бы одну ставку за неделю. Чем больше ставок — тем выше шанс!\n\nРозыгрыш проводится в прямом эфире на YouTube канале.",
+      "end_date": "31.03.2025",
+      "game_id": "",
+      "game_links": [],
+      "game_name": "",
+      "id": 1,
+      "short_desc": "Делай ставки — участвуй в розыгрыше",
+      "start_date": "01.03.2025",
+      "telegram": "https://t.me/veloxcasino",
+      "title": "Еженедельный розыгрыш 10,000 ₴",
+      "viber": "",
+      "youtube": "https://youtube.com/@veloxcasino"
+    },
+    {
+      "active": true,
+      "description": "Пополни баланс на сумму от 500 ₴ и автоматически получи билет на участие в розыгрыше iPhone 16 Pro Max!\n\nЧем больше пополнений — тем больше билетов. Розыгрыш 15 апреля в прямом эфире.",
+      "end_date": "15.04.2025",
+      "game_id": "",
+      "game_links": [],
+      "game_name": "",
+      "id": 2,
+      "short_desc": "Пополни на 500+ ₴ и участвуй в розыгрыше смартфона",
+      "start_date": "15.03.2025",
+      "telegram": "https://t.me/veloxcasino",
+      "title": "Розыгрыш iPhone 16 Pro",
+      "viber": "",
+      "youtube": "https://youtube.com/@veloxcasino"
+    }
+  ]
+}

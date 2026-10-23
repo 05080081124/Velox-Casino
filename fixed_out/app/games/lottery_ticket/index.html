@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gift — VELOX</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --gold:#e8b94a; --gold2:#f5d87e; --gold-dk:#8a6a10;
+  --ink:#1a1628; --cream:#f5f0e8;
+  --t1:#f0ecff; --t2:#8880aa;
+  --ff:'Syne',sans-serif; --ffd:'Playfair Display',serif;
+}
+html,body { width:100%; height:100%; overflow:hidden; background:transparent; font-family:var(--ff); color:var(--t1); }
+
+/* ── BACKDROP ── */
+#bd {
+  position:fixed; inset:0; z-index:0;
+  background:rgba(6,6,15,0);
+  backdrop-filter:blur(0px); -webkit-backdrop-filter:blur(0px);
+  transition:background .7s ease, backdrop-filter .7s ease, -webkit-backdrop-filter .7s ease;
+}
+#bd.on {
+  background:rgba(6,6,15,.78);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+}
+/* off — плавно пропадает вместе с результатом */
+#bd.off {
+  background:rgba(6,6,15,0) !important;
+  backdrop-filter:blur(0px) !important; -webkit-backdrop-filter:blur(0px) !important;
+  transition:background 1.4s ease, backdrop-filter 1.4s ease !important;
+}
+
+/* ── GIFT SCENE ── */
+#gscene {
+  position:fixed; inset:0; z-index:10;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+#groot {
+  position:relative; width:160px; height:195px;
+  transform:scale(0) translateY(40px); opacity:0;
+  transition:transform .55s cubic-bezier(.2,.8,.1,1.1), opacity .4s ease;
+}
+#groot.show { transform:scale(1) translateY(0); opacity:1; }
+#groot.hide {
+  transform:scale(.35) translateY(70px); opacity:0;
+  transition:transform .45s ease, opacity .4s ease;
+}
+
+/* wiggle */
+@keyframes wr  { 0%{transform:rotate(0)}    100%{transform:rotate(14deg) translateX(8px)} }
+@keyframes wc1 { 0%{transform:rotate(14deg) translateX(8px)}  100%{transform:rotate(0)} }
+@keyframes wl  { 0%{transform:rotate(0)}    100%{transform:rotate(-14deg) translateX(-8px)} }
+@keyframes wc2 { 0%{transform:rotate(-14deg) translateX(-8px)} 100%{transform:rotate(0)} }
+.wr  { animation:wr  .27s cubic-bezier(.4,0,.6,1) forwards }
+.wc1 { animation:wc1 .27s cubic-bezier(.4,0,.6,1) forwards }
+.wl  { animation:wl  .27s cubic-bezier(.4,0,.6,1) forwards }
+.wc2 { animation:wc2 .27s cubic-bezier(.4,0,.6,1) forwards }
+
+/* glow under box */
+#gglow {
+  position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  width:210px; height:90px;
+  background:radial-gradient(ellipse 70% 50% at 50% 100%, rgba(255,200,60,0), transparent);
+  transition:background .55s ease; pointer-events:none; z-index:1;
+}
+#gglow.burst { background:radial-gradient(ellipse 100% 85% at 50% 100%, rgba(255,225,80,.95) 0%, rgba(255,160,20,.4) 42%, transparent 68%); }
+
+/* box body */
+#gbox {
+  position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+  width:140px; height:106px;
+  background:linear-gradient(155deg,#c83030 0%,#7a1818 100%);
+  border-radius:5px 5px 8px 8px;
+  box-shadow:0 10px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,120,100,.22);
+  transition:box-shadow .5s ease; overflow:hidden; z-index:3;
+}
+#gbox::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:24px; transform:translateX(-50%); background:linear-gradient(90deg,#c4940f,#f5d020,#c4940f); }
+#gbox::after  { content:''; position:absolute; top:50%; left:0; right:0; height:24px; transform:translateY(-50%); background:linear-gradient(180deg,#c4940f,#f5d020,#c4940f); }
+#gbox.glow    { box-shadow:0 10px 90px rgba(255,225,80,.95), 0 0 120px rgba(255,175,25,.6), inset 0 1px 0 rgba(255,255,120,.7); }
+
+/* lid */
+#glid {
+  position:absolute; bottom:102px; left:50%;
+  width:152px; height:34px; transform-origin:50% 100%;
+  background:linear-gradient(155deg,#d83838 0%,#8a1f1f 100%);
+  border-radius:5px 5px 2px 2px;
+  box-shadow:0 -5px 18px rgba(0,0,0,.38); z-index:4;
+  /* start position */
+  transform:translateX(-50%);
+}
+#glid::before { content:''; position:absolute; left:50%; top:0; bottom:0; width:24px; transform:translateX(-50%); background:linear-gradient(90deg,#c4940f,#f5d020,#c4940f); }
+@keyframes lid-fly {
+  0%   { transform:translateX(-50%) rotate(0deg)   translateY(0)     scale(1);   opacity:1 }
+  18%  { transform:translateX(-50%) rotate(-9deg)  translateY(-18px) scale(1.04);opacity:1 }
+  55%  { transform:translateX(60px) rotate(-48deg) translateY(-105px) scale(.65);opacity:.8 }
+  100% { transform:translateX(135px) rotate(-78deg) translateY(-195px) scale(.22);opacity:0 }
+}
+#glid.open { animation:lid-fly .78s cubic-bezier(.3,.05,.7,.95) forwards; }
+
+/* bow */
+#gbow { position:absolute; bottom:131px; left:50%; transform:translateX(-50%); width:80px; height:52px; z-index:5; }
+@keyframes bow-fly {
+  0%   { transform:translateX(-50%) translateY(0)     scale(1);   opacity:1 }
+  18%  { transform:translateX(-50%) translateY(-22px) scale(1.04);opacity:1 }
+  55%  { transform:translateX(55px) translateY(-110px) scale(.6);  opacity:.75 }
+  100% { transform:translateX(126px) translateY(-200px) scale(.18);opacity:0 }
+}
+#gbow.open { animation:bow-fly .73s cubic-bezier(.3,.05,.7,.95) forwards; }
+
+/* ── SPARKS ── */
+.spark {
+  position:fixed; pointer-events:none; z-index:50; border-radius:50%;
+  animation:spark-out var(--sd) ease forwards;
+}
+@keyframes spark-out {
+  0%   { transform:translate(0,0) scale(1); opacity:1; }
+  100% { transform:translate(var(--sdx),var(--sdy)) scale(0); opacity:0; }
+}
+
+/* ── TICKET ── */
+#twrap {
+  position:fixed; inset:0; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+
+#tshell {
+  width:min(720px,93vw);
+  /* starts scaled down at box position */
+  transform:scale(.07) translateY(220px);
+  transform-origin:50% 88%;
+  opacity:0; pointer-events:none;
+  filter:drop-shadow(0 30px 72px rgba(0,0,0,.8));
+}
+
+/* ticket grows out of box */
+@keyframes ticket-grow {
+  0%   { transform:scale(.07) translateY(220px); opacity:0; }
+  15%  { opacity:1; }
+  70%  { transform:scale(1.04) translateY(-6px); opacity:1; }
+  100% { transform:scale(1)    translateY(0);    opacity:1; }
+}
+#tshell.grow {
+  animation:ticket-grow .9s cubic-bezier(.15,.8,.1,1.05) forwards;
+}
+#tshell.ready {
+  transform:scale(1) translateY(0); opacity:1; pointer-events:all;
+}
+
+/* ticket dissolves */
+@keyframes ticket-fade {
+  0%   { opacity:1; filter:drop-shadow(0 30px 72px rgba(0,0,0,.8)) brightness(1); }
+  35%  { filter:drop-shadow(0 0 55px rgba(255,200,50,.9)) brightness(2.2) blur(1px); }
+  65%  { opacity:.45; filter:brightness(7) blur(10px); }
+  100% { opacity:0;   filter:brightness(18) blur(28px); }
+}
+#tshell.fade { animation:ticket-fade .88s ease forwards; pointer-events:none; }
+
+/* ticket paper */
+#tinner {
+  display:flex; border-radius:18px; overflow:hidden;
+  background:var(--cream); border:2px solid rgba(232,185,74,.45);
+  position:relative;
+}
+#tinner::before {
+  content:''; position:absolute; inset:0; z-index:30; pointer-events:none; border-radius:18px;
+  background:linear-gradient(108deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);
+  background-size:200% 100%; animation:shim 4s ease-in-out infinite;
+}
+@keyframes shim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.perf { position:absolute; left:37%; top:12px; bottom:12px; width:0; border-left:2px dashed rgba(0,0,0,.12); z-index:6; }
+
+/* left panel */
+#tl {
+  width:37%; flex-shrink:0;
+  background:linear-gradient(160deg,#1c1035 0%,#0e0920 55%,#141020 100%);
+  padding:22px 16px; display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+  position:relative; overflow:hidden;
+}
+#tl::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 130% 70% at 50% 0%,rgba(232,185,74,.15),transparent 55%),radial-gradient(ellipse 90% 60% at 90% 100%,rgba(0,229,255,.07),transparent 55%); }
+#tl::after  { content:''; position:absolute; top:10px;left:10px;right:10px;bottom:10px; border:1px solid rgba(232,185,74,.13); border-radius:9px; }
+.tl-name  { font-family:var(--ffd); font-size:1.4rem; font-weight:900; color:var(--gold); letter-spacing:4px; text-shadow:0 0 28px rgba(232,185,74,.5); position:relative; z-index:1; }
+.tl-sub   { font-size:.55rem; letter-spacing:4px; color:rgba(232,185,74,.4); text-transform:uppercase; margin-top:3px; position:relative; z-index:1; }
+.tl-art   { position:relative; z-index:1; display:flex; justify-content:center; }
+.tl-bot   { position:relative; z-index:1; text-align:center; width:100%; }
+.tl-sn    { font-size:.54rem; letter-spacing:2px; color:rgba(232,185,74,.35); font-family:monospace; }
+.tl-once  { font-size:.5rem; letter-spacing:1.5px; color:rgba(255,255,255,.18); text-transform:uppercase; margin-top:2px; }
+.tl-stripe{ position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent); }
+
+/* right panel */
+#tr { flex:1; background:var(--cream); padding:18px 18px 13px; display:flex; flex-direction:column; gap:9px; }
+.tr-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.tr-title { font-family:var(--ffd); font-size:1.05rem; font-weight:700; color:var(--ink); line-height:1.2; }
+.tr-title em { color:var(--gold-dk); font-style:normal; }
+.tr-inst { font-size:.61rem; color:#8a8070; margin-top:4px; line-height:1.45; max-width:190px; }
+.tr-badge { flex-shrink:0; background:linear-gradient(135deg,#1c1035,#0e0920); border:1px solid rgba(232,185,74,.3); border-radius:8px; padding:7px 10px; text-align:center; }
+.tr-bdg-l { font-size:.5rem; letter-spacing:1.5px; text-transform:uppercase; color:rgba(232,185,74,.5); }
+.tr-bdg-v { font-family:var(--ffd); font-size:.9rem; font-weight:700; color:var(--gold); margin-top:2px; }
+
+/* grid */
+#cgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; flex:1; }
+.cell {
+  aspect-ratio:1; border-radius:10px; position:relative; overflow:hidden;
+  border:1.5px solid rgba(0,0,0,.1); background:linear-gradient(145deg,#eae2cc,#d8d0b5);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.09), 0 2px 8px rgba(0,0,0,.12);
+  cursor:pointer; user-select:none; transition:transform .1s;
+}
+.cell:active:not(.done):not(.blocked) { transform:scale(.94); }
+.cell.blocked { cursor:not-allowed; }
+.cell.done    { cursor:default; }
+.cell canvas  { position:absolute; inset:0; z-index:3; border-radius:9px; transition:opacity .22s; }
+.cell canvas.gone { opacity:0; pointer-events:none; }
+.cell-in { position:absolute; inset:0; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:#fff; }
+.cell-lbl { font-family:var(--ffd); font-size:.6rem; font-weight:700; color:var(--ink); text-align:center; padding:0 4px; }
+.cell.wglow { animation:wglw 1.8s ease-in-out infinite; }
+@keyframes wglw {
+  0%,100% { box-shadow:inset 0 2px 5px rgba(0,0,0,.09), 0 0 10px var(--gc,rgba(232,185,74,.5)); }
+  50%      { box-shadow:inset 0 2px 5px rgba(0,0,0,.09), 0 0 30px var(--gc,rgba(232,185,74,.9)), 0 0 55px var(--gc,rgba(232,185,74,.3)); }
+}
+
+/* counter */
+.tr-ctr { display:flex; align-items:center; gap:10px; }
+.tr-ctr-lbl { font-size:.55rem; color:#9a9080; letter-spacing:1px; text-transform:uppercase; }
+.dots { display:flex; gap:5px; }
+.dot  { width:10px; height:10px; border-radius:50%; background:#c8bfa0; transition:.3s; }
+.dot.on { background:var(--gold); box-shadow:0 0 6px rgba(232,185,74,.6); }
+.tr-foot { display:flex; align-items:center; justify-content:space-between; }
+.tr-fl,.tr-fr { font-size:.52rem; color:#9a9080; letter-spacing:.8px; }
+
+/* ── RESULT — появляется И пропадает вместе с блюром ── */
+#result {
+  position:fixed; inset:0; z-index:80;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  opacity:0; visibility:hidden;
+  transition:opacity 1.4s ease, visibility 1.4s ease;
+}
+#result.show { opacity:1; visibility:visible; }
+/* когда закрываем — result и bd.off работают одновременно */
+#result.hide {
+  opacity:0 !important; visibility:hidden !important;
+  transition:opacity 1.4s ease, visibility 1.4s ease !important;
+}
+
+.rs-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:100px; background:rgba(232,185,74,.1); border:1px solid rgba(232,185,74,.3); color:var(--gold); font-size:.62rem; letter-spacing:2px; text-transform:uppercase; }
+.rs-h { font-family:var(--ffd); font-size:clamp(1.2rem,3.5vw,1.9rem); font-weight:900; color:var(--t1); text-align:center; line-height:1.2; }
+.rs-h em { color:var(--gold); font-style:normal; }
+.rs-card { background:linear-gradient(135deg,rgba(232,185,74,.1),rgba(0,229,255,.06)); border:1px solid rgba(232,185,74,.25); border-radius:16px; padding:20px 36px; text-align:center; min-width:210px; }
+.rs-val { font-family:var(--ffd); font-size:1.5rem; font-weight:700; color:var(--gold); margin-top:8px; }
+.rs-typ { font-size:.61rem; color:var(--t2); letter-spacing:1.5px; text-transform:uppercase; margin-top:4px; }
+
+/* ── USED ── */
+#used { position:fixed; inset:0; z-index:90; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; background:rgba(6,6,15,.97); }
+#used.show { display:flex; }
+#used p { color:var(--t2); text-align:center; font-size:.88rem; line-height:1.6; }
+.rs-btn { padding:12px 38px; border:none; border-radius:12px; background:var(--gold); color:var(--ink); font-family:var(--ff); font-size:.88rem; font-weight:700; letter-spacing:.5px; cursor:pointer; transition:.2s; }
+.rs-btn:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(232,185,74,.4); }
+</style>
+</head>
+<body>
+
+<div id="bd"></div>
+
+<!-- gift box -->
+<div id="gscene">
+  <div id="groot">
+    <div id="gglow"></div>
+    <div id="gbow">
+      <svg viewBox="0 0 80 52" fill="none" width="80" height="52">
+        <path d="M40 27C22 13,2 11,4 24C6 35,24 33,40 27Z" fill="url(#bg)" opacity=".95"/>
+        <path d="M40 27C58 13,78 11,76 24C74 35,56 33,40 27Z" fill="url(#bg)" opacity=".95"/>
+        <ellipse cx="40" cy="27" rx="8" ry="6" fill="#f5d020"/>
+        <ellipse cx="40" cy="27" rx="4.5" ry="3.5" fill="#fde85a"/>
+        <path d="M37 32C35 39,30 43,33 47" stroke="#e8c010" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>
+        <path d="M43 32C45 39,50 43,47 47" stroke="#e8c010" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>
+        <defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde85a"/><stop offset="55%" stop-color="#f0c820"/><stop offset="100%" stop-color="#b88c10"/></linearGradient></defs>
+      </svg>
+    </div>
+    <div id="glid"></div>
+    <div id="gbox"></div>
+  </div>
+</div>
+
+<!-- ticket -->
+<div id="twrap">
+  <div id="tshell">
+    <div id="tinner">
+      <div class="perf"></div>
+      <div id="tl">
+        <div style="position:relative;z-index:1;text-align:center">
+          <div class="tl-name">VELOX</div>
+          <div class="tl-sub" id="tl-sub"></div>
+        </div>
+        <div class="tl-art">
+          <svg width="118" height="118" viewBox="0 0 148 148" fill="none">
+            <circle cx="74" cy="74" r="68" stroke="rgba(232,185,74,.12)" stroke-width="1" stroke-dasharray="5 5"/>
+            <circle cx="74" cy="74" r="60" fill="url(#g1)" stroke="rgba(232,185,74,.3)" stroke-width="1.5"/>
+            <g stroke="rgba(232,185,74,.3)" stroke-width="1" stroke-linecap="round">
+              <line x1="74" y1="14" x2="74" y2="26"/><line x1="74" y1="122" x2="74" y2="134"/>
+              <line x1="14" y1="74" x2="26" y2="74"/><line x1="122" y1="74" x2="134" y2="74"/>
+              <line x1="32" y1="32" x2="40" y2="40"/><line x1="108" y1="108" x2="116" y2="116"/>
+              <line x1="116" y1="32" x2="108" y2="40"/><line x1="40" y1="108" x2="32" y2="116"/>
+            </g>
+            <polygon points="74,32 80,58 107,58 85,74 93,100 74,86 55,100 63,74 41,58 68,58"
+              fill="url(#g2)" stroke="rgba(232,185,74,.55)" stroke-width="1" stroke-linejoin="round"/>
+            <circle cx="74" cy="72" r="17" fill="url(#g3)" stroke="rgba(255,220,80,.4)" stroke-width="1.5"/>
+            <text x="74" y="79" text-anchor="middle" font-size="17" font-family="Georgia,serif" font-weight="900" fill="#1a1628">🎁</text>
+            <defs>
+              <radialGradient id="g1" cx="38%" cy="33%"><stop offset="0%" stop-color="#271a45"/><stop offset="100%" stop-color="#0d0820"/></radialGradient>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f9e87a"/><stop offset="50%" stop-color="#e8b94a"/><stop offset="100%" stop-color="#a07a1a"/></linearGradient>
+              <radialGradient id="g3" cx="33%" cy="28%"><stop offset="0%" stop-color="#fdf4b0"/><stop offset="60%" stop-color="#e8b94a"/><stop offset="100%" stop-color="#b08820"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="tl-bot">
+          <div class="tl-sn" id="tl-sn">SN-000000</div>
+          <div class="tl-once" id="tl-once"></div>
+        </div>
+        <div class="tl-stripe"></div>
+      </div>
+      <div id="tr">
+        <div class="tr-head">
+          <div>
+            <div class="tr-title" id="tr-title"></div>
+            <div class="tr-inst"  id="tr-inst"></div>
+          </div>
+          <div class="tr-badge">
+            <div class="tr-bdg-l" id="tr-bdg-l"></div>
+            <div class="tr-bdg-v" id="tr-bdg-v"></div>
+          </div>
+        </div>
+        <div id="cgrid"></div>
+        <div class="tr-ctr">
+          <span class="tr-ctr-lbl" id="tr-ctr-lbl"></span>
+          <div class="dots">
+            <div class="dot" id="d0"></div>
+            <div class="dot" id="d1"></div>
+            <div class="dot" id="d2"></div>
+          </div>
+        </div>
+        <div class="tr-foot">
+          <span class="tr-fl" id="tr-fl"></span>
+          <span class="tr-fr" id="tr-fr"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- result (no button — auto dismiss) -->
+<div id="result">
+  <div class="rs-pill">
+    <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2l2.4 5 5.6.8-4 3.9 1 5.5L10 14.5 5 17.2l1-5.5L2 7.8l5.6-.8z"/></svg>
+    <span id="rs-pill-txt"></span>
+  </div>
+  <div class="rs-h" id="rs-h"></div>
+  <div class="rs-card">
+    <div id="rs-ico" style="display:flex;justify-content:center"></div>
+    <div class="rs-val" id="rs-val"></div>
+    <div class="rs-typ" id="rs-typ"></div>
+  </div>
+</div>
+
+<!-- used -->
+<div id="used">
+  <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+    <circle cx="25" cy="25" r="24" stroke="rgba(232,185,74,.25)" stroke-width="1.5"/>
+    <path d="M15 25 l7 7 13-13" stroke="rgba(232,185,74,.4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <p style="font-size:1rem;color:#e0d8f0;font-family:var(--ffd)" id="used-title"></p>
+  <p id="used-text"></p>
+  <button class="rs-btn" onclick="closeGift()">OK</button>
+</div>
+
+<script>
+/* ═══ LANG ════════════════════════════════════════════════════════════════════
+   Load ticket language and resolve user locale.
+   Priority: parent V._lang -> localStorage -> browser locale -> 'en'
+═══════════════════════════════════════════════════════════════════════════════ */
+let TL = {};
+
+async function loadTicketLang() {
+  let langCode = 'en';
+  try {
+    // parent window can be unavailable in sandbox/cross-origin cases
+    const pV = window.parent && window.parent !== window ? window.parent.V : null;
+    if (pV && pV._lang) {
+      langCode = String(pV._lang).toLowerCase();
+    } else {
+      const saved = localStorage.getItem('velox_lang');
+      if (saved) {
+        langCode = String(saved).toLowerCase();
+      } else if (navigator.language) {
+        langCode = String(navigator.language).toLowerCase();
+      }
+    }
+  } catch (_) {}
+
+  const normalized = String(langCode).toLowerCase().replace('_', '-');
+  const baseCode = normalized.split('-')[0];
+  const map = { ru:'ru', ua:'ua', uk:'ua', us:'us', en:'us' };
+  const key = map[normalized] || map[baseCode] || 'us';
+
+  try {
+    const r = await fetch('/api/config/ticket_lang', { credentials:'include' });
+    if (r.ok) {
+      const all = await r.json();
+      TL = all[key] || all['us'] || all['en'] || all['ru'] || {};
+      document.documentElement.lang = key === 'us' ? 'en' : key;
+    }
+  } catch (_) {}
+}
+
+function t(k) { return TL[k] ?? k; }
+
+/* ═══ CONFIG ══════════════════════════════════════════════════════════════════ */
+const FB_REW = [
+  {id:'r5',label:'50 FS',type:'freespin',value:50,color:'#06b6d4',weight:2},
+  {id:'r6',label:'25 FS',type:'freespin',value:25,color:'#06b6d4',weight:5},
+  {id:'r7',label:'10 FS',type:'freespin',value:10,color:'#06b6d4',weight:10},
+];
+const FB_CON = [{label:'10 FS',type:'freespin',value:10,color:'#06b6d4'}];
+let CFG = { rewards:FB_REW, consolation:FB_CON };
+let WIN=null, cells=[], revealed=0, over=false, scratchEnabled=false;
+
+function wPick(arr) {
+  const tot = arr.reduce((s,r)=>s+(r.weight||1),0);
+  let rnd = Math.random()*tot;
+  for (const r of arr) { rnd-=(r.weight||1); if(rnd<=0) return r; }
+  return arr[arr.length-1];
+}
+
+/* ═══ ICONS ════════════════════════════════════════════════════════════════════ */
+function ico(r, s=30) {
+  const c=r.color, sym=t('currency_sym')||'V';
+  if (r.type==='balance')
+    return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" fill="${c}1a" stroke="${c}" stroke-width="1.5"/><text x="17" y="22" text-anchor="middle" font-size="13" font-family="Georgia,serif" font-weight="900" fill="${c}">${sym}</text></svg>`;
+  if (r.type==='freespin')
+    return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" fill="none"><rect x="4" y="7" width="26" height="20" rx="3" fill="${c}18" stroke="${c}" stroke-width="1.5"/><rect x="9" y="7" width="5" height="20" fill="${c}12"/><rect x="16" y="7" width="5" height="20" fill="${c}12"/><path d="M4 15h26" stroke="${c}" stroke-width="1" opacity=".4"/></svg>`;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 34 34" fill="none"><polygon points="17,3 21,13 31,13 23,20 26,31 17,25 8,31 11,20 3,13 13,13" fill="${c}18" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+}
+
+/* ═══ LOAD ═════════════════════════════════════════════════════════════════════ */
+async function loadAll() {
+  await Promise.all([
+    loadTicketLang(),
+    fetch('/api/lottery/config',{credentials:'include'})
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{ if(d?.rewards) CFG=d; })
+      .catch(()=>{}),
+  ]);
+}
+
+async function checkStatus() {
+  try {
+    const r = await fetch('/api/auth/ticket/status',{credentials:'include'});
+    const d = await r.json();
+    if (d.logged_in===false) { closeGift(); return false; }
+    if (d.ticket_used)       { showUsed();  return false; }
+  } catch (_) {}
+  return true;
+}
+
+/* ═══ APPLY LANG ═══════════════════════════════════════════════════════════════ */
+function applyLang() {
+  const $=id=>document.getElementById(id);
+  $('tl-sub').textContent      = t('title');
+  $('tl-once').textContent     = t('one_time');
+  $('tr-inst').textContent     = t('ticket_inst');
+  $('tr-bdg-l').textContent    = t('max_label');
+  $('tr-ctr-lbl').textContent  = t('opened');
+  $('tr-fl').textContent       = t('footer_l');
+  $('tr-fr').textContent       = t('footer_r');
+  $('rs-pill-txt').textContent = t('congrats');
+  $('rs-h').innerHTML          = t('prize_received_html') || t('prize_received');
+  $('used-title').textContent  = t('used_title');
+  $('used-text').textContent   = t('used_text');
+  $('tr-title').innerHTML      = `${t('ticket_title_line1')}<br><em>${t('ticket_title_line2')}</em>`;
+}
+
+/* ═══ BUILD GRID ════════════════════════════════════════════════════════════════ */
+function buildGrid() {
+  const rws = CFG.rewards || FB_REW;
+  const sym = t('currency_sym') || 'V';
+  const fixLabel = lbl => (lbl||'').replace(/₴/g, sym);
+
+  const maxR = rws.reduce((m,r)=>(r.weight||1)<(m.weight||1)?r:m, rws[0]);
+  document.getElementById('tr-bdg-v').textContent = fixLabel(maxR.label);
+
+  WIN = wPick(rws);
+  const others = Array.from({length:6}, ()=>rws[Math.floor(Math.random()*rws.length)]);
+  cells = [WIN,WIN,WIN,...others].sort(()=>Math.random()-.5);
+  document.getElementById('tl-sn').textContent = 'SN-'+Math.random().toString(36).substring(2,8).toUpperCase();
+
+  const grid = document.getElementById('cgrid');
+  grid.innerHTML='';
+  cells.forEach((r,i)=>{
+    const r2 = {...r, label:fixLabel(r.label)};
+    const cell=document.createElement('div');
+    cell.className='cell'; cell.id=`c${i}`; cell.dataset.i=i;
+    const inner=document.createElement('div'); inner.className='cell-in';
+    inner.innerHTML=`${ico(r2)}<div class="cell-lbl" style="color:${r2.color}">${r2.label}</div>`;
+    cell.appendChild(inner);
+    const cv=document.createElement('canvas'); cell.appendChild(cv);
+    cell.addEventListener('click',()=>scratch(i));
+    grid.appendChild(cell);
+    paintCell(cell,cv);
+  });
+}
+
+function paintCell(cell,cv) {
+  requestAnimationFrame(()=>{
+    const w=cell.offsetWidth||108, h=cell.offsetHeight||108;
+    const dpr=devicePixelRatio||1;
+    cv.width=w*dpr; cv.height=h*dpr;
+    cv.style.width=w+'px'; cv.style.height=h+'px';
+    const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+    const g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#cec6a8'); g.addColorStop(.5,'#bcb490'); g.addColorStop(1,'#aaa280');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<55;i++){
+      ctx.fillStyle=`rgba(0,0,0,${Math.random()*.035})`;
+      ctx.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);
+    }
+    const sym=t('currency_sym')||'V';
+    ctx.font=`bold ${Math.round(h*.27)}px Georgia,serif`;
+    ctx.fillStyle='rgba(70,60,30,.25)';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(sym, w/2, h/2);
+    const hint=t('scratch_hint')||'◀ SCRATCH ▶';
+    ctx.font=`${Math.round(h*.076)}px 'Syne',sans-serif`;
+    ctx.fillStyle='rgba(70,60,30,.18)';
+    ctx.fillText(hint, w/2, h*.8);
+  });
+}
+
+/* ═══ SCRATCH ═══════════════════════════════════════════════════════════════════ */
+function scratch(idx) {
+  if (!scratchEnabled || over) return;  // заблокировано пока билет ещё анимируется
+  const cell=document.getElementById(`c${idx}`);
+  if (cell.classList.contains('done')) return;
+  if (revealed>=3) {
+    cell.classList.add('blocked'); cell.style.transform='scale(.95)';
+    setTimeout(()=>{cell.style.transform='';cell.classList.remove('blocked');},220);
+    return;
+  }
+  revealed++;
+  cell.classList.add('done');
+  document.getElementById(`d${revealed-1}`)?.classList.add('on');
+
+  const cv=cell.querySelector('canvas'), ctx=cv.getContext('2d');
+  const w=cv.width/devicePixelRatio, h=cv.height/devicePixelRatio;
+  let p=0;
+  const timer=setInterval(()=>{
+    p+=.055;
+    ctx.save(); ctx.globalCompositeOperation='destination-out';
+    const rad=Math.hypot(w,h)*p*1.15;
+    const gr=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,rad);
+    gr.addColorStop(0,'rgba(0,0,0,1)');
+    gr.addColorStop(.65,'rgba(0,0,0,.95)');
+    gr.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gr; ctx.fillRect(0,0,w,h); ctx.restore();
+    if(p>=1){ clearInterval(timer); cv.classList.add('gone'); onRevealed(); }
+  },16);
+
+  if(cells[idx].id===WIN.id){
+    setTimeout(()=>{
+      cell.style.setProperty('--gc',cells[idx].color+'90');
+      cell.classList.add('wglow');
+    },280);
+  }
+}
+
+function onRevealed() {
+  const winCnt=[...document.querySelectorAll('.cell.done')]
+    .filter(c=>cells[+c.dataset.i].id===WIN.id).length;
+
+  if (winCnt>=3 && !over) {
+    over=true;
+    setTimeout(finish, 700);
+
+  } else if (revealed>=3 && !over) {
+    over=true;
+    // Consolation — reveal rest, pick min prize
+    const cons=CFG.consolation||FB_CON;
+    WIN=cons[Math.floor(Math.random()*cons.length)];
+    let d=0;
+    cells.forEach((_,i)=>{
+      const c=document.getElementById(`c${i}`);
+      if(!c.classList.contains('done')){
+        setTimeout(()=>{ c.classList.add('done'); c.querySelector('canvas').classList.add('gone'); },d);
+        d+=95;
+      }
+    });
+    setTimeout(finish, d+550);
+  }
+}
+
+/* ═══ FINISH ════════════════════════════════════════════════════════════════════
+   Тайминг:
+   0ms   — спарки + билет начинает растворяться
+   880ms — билет исчез
+   900ms — показываем result (fade-in 1.4s)
+           ОДНОВРЕМЕННО запускаем bd.off (fade-out 1.4s)
+   3200ms — result + блюр уже 2.3s видны → начинаем закрытие
+   4600ms — всё исчезло, вызываем closeGift
+═══════════════════════════════════════════════════════════════════════════════ */
+async function finish() {
+  // 1. Sparks
+  const sr=document.getElementById('tshell').getBoundingClientRect();
+  spawnSparks(sr.left+sr.width/2, sr.top+sr.height/2, 30);
+
+  // 2. Ticket dissolves
+  const shell=document.getElementById('tshell');
+  shell.classList.add('fade');
+  await sleep(900);
+  shell.style.display='none';
+
+  // 3. Save to DB (fire-and-forget, не ждём)
+  fetch('/api/auth/ticket/use',{
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type:WIN.type, value:WIN.value, label:WIN.label})
+  }).catch(()=>{});
+
+  // 4. Показываем result И одновременно запускаем fade-out блюра
+  showResult();
+  const bd=document.getElementById('bd');
+  bd.classList.remove('on');
+  bd.classList.add('off');  // transition 1.4s — синхронно с result fade-in
+
+  // 5. Ждём пока пользователь видит результат (~2.8s), потом плавно прячем
+  await sleep(2800);
+
+  // 6. Прячем result (та же длительность что и bd.off)
+  document.getElementById('result').classList.add('hide');
+
+  // 7. Ждём завершения transition и закрываем
+  await sleep(1450);
+  closeGift();
+}
+
+function showResult() {
+  const sym=t('currency_sym')||'V';
+  const fixLabel=lbl=>(lbl||'').replace(/₴/g,sym);
+  document.getElementById('rs-ico').innerHTML=ico({...WIN,label:fixLabel(WIN.label)},42);
+  document.getElementById('rs-val').textContent=fixLabel(WIN.label||'');
+  const m={balance:'prize_balance',freespin:'prize_freespin',mult:'prize_mult',dep_mult:'prize_dep_mult',dep_pct:'prize_dep_pct'};
+  document.getElementById('rs-typ').textContent=t(m[WIN.type]||'prize_credited');
+  document.getElementById('result').classList.add('show');
+}
+
+function showUsed() {
+  document.getElementById('used').classList.add('show');
+}
+
+/* ═══ CLOSE ══════════════════════════════════════════════════════════════════
+   postMessage — самый надёжный способ общения с родительским окном,
+   работает даже если parent.V напрямую недоступен из-за особенностей iframe.
+   Родитель слушает 'velox:gift:close' и вызывает closeGiftTicket().
+═══════════════════════════════════════════════════════════════════════════════ */
+function closeGift() {
+  // 1. postMessage — работает всегда между одним доменом
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage('velox:gift:close', '*');
+      return;
+    }
+  } catch (_) {}
+
+  // 2. Прямой вызов (запасной, если postMessage не сработал)
+  try {
+    const pV = window.parent && window.parent !== window ? window.parent.V : null;
+    if (pV && typeof pV.closeGiftTicket === 'function') {
+      pV.closeGiftTicket();
+      return;
+    }
+  } catch (_) {}
+
+  // 3. Открыт напрямую в браузере (не в iframe) — идём на главную
+  if (window.self === window.top) {
+    window.location.replace('/');
+  }
+}
+
+/* ═══ SPARKS ════════════════════════════════════════════════════════════════════ */
+function spawnSparks(cx,cy,n=28) {
+  const colors=['#e8b94a','#f9e87a','#00e5ff','#ff7070','#a78bfa'];
+  for(let i=0;i<n;i++){
+    const el=document.createElement('div'); el.className='spark';
+    const angle=(i/n)*Math.PI*2+Math.random()*.5;
+    const dist=70+Math.random()*260;
+    const sdx=(Math.cos(angle)*dist).toFixed(0), sdy=(Math.sin(angle)*dist).toFixed(0);
+    const sz=3+Math.random()*6;
+    const c=colors[Math.floor(Math.random()*colors.length)];
+    const sd=(.35+Math.random()*.7).toFixed(2);
+    el.style.cssText=`left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${c};--sdx:${sdx}px;--sdy:${sdy}px;--sd:${sd}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),(parseFloat(sd)+.2)*1000);
+  }
+}
+
+/* ═══ BOX ANIMATION ═════════════════════════════════════════════════════════════ */
+function waitAE(el,ms) {
+  return new Promise(res=>{ el.addEventListener('animationend',res,{once:true}); setTimeout(res,ms+50); });
+}
+
+async function runBox() {
+  const bd    = document.getElementById('bd');
+  const gr    = document.getElementById('groot');
+  const lid   = document.getElementById('glid');
+  const bow   = document.getElementById('gbow');
+  const gbox  = document.getElementById('gbox');
+  const glow  = document.getElementById('gglow');
+  const shell = document.getElementById('tshell');
+
+  // ① Блюр
+  bd.classList.add('on');
+  await sleep(480);
+
+  // ② Коробка появляется
+  gr.classList.add('show');
+  await sleep(680);
+
+  // ③ Wiggle × 2
+  gr.classList.add('wr');  await waitAE(gr,280);
+  gr.classList.replace('wr','wc1'); await waitAE(gr,280); gr.classList.remove('wc1');
+  await sleep(55);
+  gr.classList.add('wl');  await waitAE(gr,280);
+  gr.classList.replace('wl','wc2'); await waitAE(gr,280); gr.classList.remove('wc2');
+  await sleep(140);
+
+  // ④ Крышка улетает
+  lid.classList.add('open');
+  bow.classList.add('open');
+  await sleep(320);
+
+  // ⑤ Свет из коробки
+  glow.classList.add('burst');
+  gbox.classList.add('glow');
+  await sleep(180);
+
+  // ⑥ Билет растёт из коробки
+  shell.classList.add('grow');
+  await sleep(920);  // анимация grow длится .9s
+  shell.classList.remove('grow');
+  shell.classList.add('ready');
+
+  // ⑦ Коробка уходит за билет
+  gr.classList.add('hide');
+
+  // ⑧ +1.5 сек билет виден перед тем как разрешить стирать
+  await sleep(1500);
+  scratchEnabled = true;   // теперь можно стирать
+
+  // ⑨ Строим сетку и применяем переводы
+  buildGrid();
+  applyLang();
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* ═══ INIT ══════════════════════════════════════════════════════════════════════ */
+async function init() {
+  await loadAll();
+  const ok = await checkStatus();
+  if (!ok) return;
+  await runBox();
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

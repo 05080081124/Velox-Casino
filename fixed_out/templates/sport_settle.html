@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sport Settle — Admin</title>
+  <style>
+    :root {
+      --bg:    #0d0e14;
+      --bg2:   #161820;
+      --bg3:   #1e2030;
+      --bg4:   #262840;
+      --bdr:   rgba(255,255,255,.08);
+      --t1:    #f0f0f5;
+      --t2:    #8a8aaa;
+      --t3:    #555570;
+      --gold:  #f5c542;
+      --green: #2ecf7a;
+      --red:   #ff4560;
+      --blue:  #4f8ef7;
+      --a:     #7c5cfc;
+      --r:     8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--t1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; min-height: 100vh; }
+
+    .topbar { background: var(--bg2); border-bottom: 1px solid var(--bdr); padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .topbar-logo { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700; color: var(--gold); }
+    .topbar-logo svg { color: var(--gold); }
+    .topbar-sub { font-size: 12px; color: var(--t2); background: var(--bg3); padding: 3px 10px; border-radius: 99px; }
+    .topbar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: var(--r); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+    .btn-primary { background: var(--a); color: #fff; }
+    .btn-primary:hover { background: #6a4ce0; }
+    .btn-outline { background: transparent; color: var(--t2); border: 1px solid var(--bdr); }
+    .btn-outline:hover { color: var(--t1); border-color: var(--t2); }
+    .btn-green  { background: rgba(46,207,122,.15); color: var(--green); border: 1px solid rgba(46,207,122,.25); }
+    .btn-green:hover { background: rgba(46,207,122,.25); }
+    .btn-red    { background: rgba(255,69,96,.12); color: var(--red); border: 1px solid rgba(255,69,96,.2); }
+    .btn-red:hover { background: rgba(255,69,96,.22); }
+    .btn-void   { background: rgba(245,197,66,.1); color: var(--gold); border: 1px solid rgba(245,197,66,.2); }
+    .btn-void:hover { background: rgba(245,197,66,.2); }
+    .btn-sm { padding: 5px 11px; font-size: 12px; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+    .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .section-head h2 { font-size: 17px; font-weight: 700; }
+    .badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 99px; background: var(--bg4); color: var(--t2); }
+    .badge-live { background: rgba(255,69,96,.15); color: var(--red); }
+    .badge-ok   { background: rgba(46,207,122,.12); color: var(--green); }
+
+    .refresh-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .refresh-bar .status { font-size: 12px; color: var(--t2); }
+
+    .match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .match-card { background: var(--bg2); border: 1px solid var(--bdr); border-radius: 12px; padding: 18px; transition: border-color .2s; }
+    .match-card:hover { border-color: rgba(124,92,252,.4); }
+    .match-card.settling { border-color: var(--gold); opacity: .75; }
+
+    .mc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .mc-sport-ico { width: 32px; height: 32px; border-radius: 8px; background: var(--bg4); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .mc-meta { flex: 1; min-width: 0; }
+    .mc-league { font-size: 11px; color: var(--t3); text-transform: uppercase; letter-spacing: .5px; }
+    .mc-teams  { font-size: 14px; font-weight: 700; color: var(--t1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mc-id     { font-size: 10px; color: var(--t3); font-family: monospace; margin-top: 1px; }
+
+    .mc-stats { display: flex; gap: 14px; margin-bottom: 14px; }
+    .mc-stat  { text-align: center; }
+    .mc-stat-val { font-size: 15px; font-weight: 700; color: var(--t1); }
+    .mc-stat-lbl { font-size: 10px; color: var(--t3); margin-top: 1px; text-transform: uppercase; }
+    .mc-stat-val.gold { color: var(--gold); }
+
+    .mc-markets { margin-bottom: 14px; }
+    .mc-markets-title { font-size: 11px; color: var(--t2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .4px; }
+
+    .market-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--bg3); border-radius: 7px; margin-bottom: 6px; flex-wrap: wrap; }
+    .market-key { flex: 1; font-size: 12px; color: var(--t2); min-width: 120px; }
+    .market-btns { display: flex; gap: 5px; flex-shrink: 0; }
+
+    .result-select { display: none; align-items: center; gap: 7px; padding: 9px 12px; background: var(--bg4); border-radius: 8px; margin-bottom: 12px; }
+    .result-select.show { display: flex; }
+    .result-select span { font-size: 12px; color: var(--t2); flex: 1; }
+
+    .mc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { background: var(--bg2); border: 1px solid var(--bdr); border-radius: 10px; padding: 12px 16px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; max-width: 340px; pointer-events: all; box-shadow: 0 8px 30px rgba(0,0,0,.5); animation: toastIn .22s ease; }
+    .toast.green { border-color: rgba(46,207,122,.3); }
+    .toast.red   { border-color: rgba(255,69,96,.3); }
+    .toast-ico   { font-size: 16px; flex-shrink: 0; }
+    .toast-body  { flex: 1; }
+    .toast-title { font-weight: 700; margin-bottom: 2px; }
+    .toast-msg   { color: var(--t2); font-size: 12px; line-height: 1.5; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--t2); }
+    .empty-state .ico { font-size: 40px; margin-bottom: 14px; }
+    .empty-state h3 { font-size: 16px; color: var(--t1); margin-bottom: 6px; }
+    .empty-state p  { font-size: 13px; }
+
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--bdr); border-top-color: var(--a); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider { height: 1px; background: var(--bdr); margin: 24px 0; }
+
+    /* Manual settle form */
+    .manual-box { background: var(--bg2); border: 1px solid var(--bdr); border-radius: 12px; padding: 20px; margin-bottom: 28px; }
+    .manual-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .manual-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+    .fg { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .fg label { font-size: 11px; color: var(--t2); text-transform: uppercase; letter-spacing: .4px; }
+    .fg input, .fg select { background: var(--bg3); border: 1px solid var(--bdr); border-radius: var(--r); padding: 9px 12px; color: var(--t1); font-size: 13px; outline: none; width: 100%; transition: border-color .15s; }
+    .fg input:focus, .fg select:focus { border-color: var(--a); }
+    .fg select option { background: var(--bg3); }
+    .audit-list { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow:auto; }
+    .audit-item { background:var(--bg3); border:1px solid var(--bdr); border-radius:8px; padding:9px 10px; font-size:12px; }
+    .audit-item .t { color:var(--t2); margin-bottom:4px; }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Sport Settle
+  </div>
+  <span class="topbar-sub">Admin Panel</span>
+  <div class="topbar-right">
+    <a href="/" class="btn btn-outline" style="text-decoration:none">← На сайт</a>
+    <button class="btn btn-primary" onclick="loadPending()">
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 1 0 1.5-3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 6v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Обновить
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Manual single-bet settle -->
+  <div class="manual-box">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 4h12M4 8h8M4 12h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Ручной расчёт отдельной ставки
+    </h3>
+    <div class="manual-form">
+      <div class="fg">
+        <label>Bet ID</label>
+        <input type="number" id="manual-bet-id" placeholder="например: 42" min="1">
+      </div>
+      <div class="fg">
+        <label>Результат</label>
+        <select id="manual-result">
+          <option value="won">✅ Выигрыш (won)</option>
+          <option value="lost">❌ Проигрыш (lost)</option>
+          <option value="void">↩ Возврат (void)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Сумма выплаты (необязательно)</label>
+        <input type="number" id="manual-win-amount" placeholder="авто = ставка × коэф." min="0" step="0.01">
+      </div>
+      <button class="btn btn-primary" onclick="manualSettle()">Расчитать ставку</button>
+      <button class="btn btn-outline" onclick="rollbackSettle()">Откатить в pending</button>
+    </div>
+  </div>
+
+  <div class="manual-box">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Авто-расчёт и лимиты
+    </h3>
+    <div class="manual-form" style="margin-bottom:12px">
+      <button class="btn btn-primary" onclick="runAutoSettle()">Запустить авто-расчёт сейчас</button>
+      <button class="btn btn-outline" onclick="loadAudit()">Обновить аудит</button>
+      <div class="fg" style="min-width:220px">
+        <label>Фильтр action</label>
+        <input type="text" id="audit-action" placeholder="например settled">
+      </div>
+      <div class="fg" style="min-width:220px">
+        <label>Поиск</label>
+        <input type="text" id="audit-q" placeholder="bet_id / match_id / payload">
+      </div>
+    </div>
+    <div class="manual-form">
+      <div class="fg"><label>Мин. ставка</label><input type="number" id="lim-min" min="0" step="0.01"></div>
+      <div class="fg"><label>Макс. ставка</label><input type="number" id="lim-max" min="0" step="0.01"></div>
+      <div class="fg"><label>Макс. исходов</label><input type="number" id="lim-picks" min="1" step="1"></div>
+      <div class="fg"><label>Макс. коэффициент</label><input type="number" id="lim-coef" min="1" step="0.01"></div>
+      <button class="btn btn-primary" onclick="saveLimits()">Сохранить лимиты</button>
+    </div>
+    <div style="margin-top:14px">
+      <div class="section-head" style="margin-bottom:8px"><h2 style="font-size:14px">Audit log</h2></div>
+      <div id="audit-list" class="audit-list"></div>
+    </div>
+  </div>
+
+  <!-- Pending matches -->
+  <div class="refresh-bar">
+    <div class="section-head" style="margin-bottom:0">
+      <h2>Pending-матчи</h2>
+      <span class="badge" id="pending-count">…</span>
+    </div>
+    <div class="status" id="last-refresh-status">Загрузка…</div>
+  </div>
+
+  <div id="match-grid" class="match-grid">
+    <div class="empty-state">
+      <div class="ico">⏳</div>
+      <h3>Загрузка ставок…</h3>
+      <p>Секунду</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let _matches   = [];
+// matchId → { marketKey → 'won'|'lost'|'void'|null }
+let _picks     = {};
+
+const sportEmoji = {
+  football:'⚽', soccer:'⚽', basketball:'🏀', tennis:'🎾', hockey:'🏒',
+  mma:'🥊', boxing:'🥊', kickboxing:'🥋', esports:'🎮', baseball:'⚾',
+  volleyball:'🏐', rugby:'🏉', golf:'⛳',
+};
+function _emoji(s = '') {
+  s = s.toLowerCase();
+  for (const [k, v] of Object.entries(sportEmoji)) {
+    if (s.includes(k)) return v;
+  }
+  return '🏆';
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+function toast(title, msg, type = 'green') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<div class="toast-ico">${type === 'green' ? '✅' : '❌'}</div>
+    <div class="toast-body"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+// ── Load pending ───────────────────────────────────────────────────────────────
+async function loadPending() {
+  const status = document.getElementById('last-refresh-status');
+  status.innerHTML = '<span class="spinner"></span> Загружаю…';
+  try {
+    const r = await fetch('/api/sport/pending', { credentials: 'include' });
+    if (r.status === 403) {
+      document.getElementById('match-grid').innerHTML =
+        `<div class="empty-state"><div class="ico">🔒</div><h3>Доступ запрещён</h3><p>Войдите как администратор</p></div>`;
+      status.textContent = 'Нет доступа';
+      document.getElementById('pending-count').textContent = '—';
+      return;
+    }
+    const data = await r.json();
+    _matches = data.matches || [];
+    document.getElementById('pending-count').textContent = _matches.length;
+    status.textContent = `Обновлено: ${new Date().toLocaleTimeString()}`;
+    renderMatches();
+  } catch (e) {
+    status.textContent = 'Ошибка: ' + e.message;
+    document.getElementById('match-grid').innerHTML =
+      `<div class="empty-state"><div class="ico">⚠️</div><h3>Ошибка загрузки</h3><p>${e.message}</p></div>`;
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function renderMatches() {
+  const grid = document.getElementById('match-grid');
+  if (!_matches.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="ico">🎉</div><h3>Нет pending-ставок</h3><p>Все ставки уже расчитаны</p></div>`;
+    return;
+  }
+  grid.innerHTML = _matches.map(m => renderMatchCard(m)).join('');
+}
+
+function renderMatchCard(m) {
+  const mid   = m.match_id;
+  const picks = _picks[mid] || {};
+  const allSet = m.markets.length > 0 && m.markets.every(mk => picks[mk]);
+
+  const marketsHtml = m.markets.map(mk => {
+    const val = picks[mk];
+    const wonActive  = val === 'won'  ? 'style="opacity:1"' : 'style="opacity:.5"';
+    const lostActive = val === 'lost' ? 'style="opacity:1"' : 'style="opacity:.5"';
+    const voidActive = val === 'void' ? 'style="opacity:1"' : 'style="opacity:.5"';
+    return `<div class="market-row">
+      <span class="market-key">${mk}</span>
+      <div class="market-btns">
+        <button class="btn btn-green btn-sm" ${wonActive} onclick="setPick('${esc(mid)}','${esc(mk)}','won')">✅ Win</button>
+        <button class="btn btn-red btn-sm"   ${lostActive} onclick="setPick('${esc(mid)}','${esc(mk)}','lost')">❌ Lose</button>
+        <button class="btn btn-void btn-sm"  ${voidActive} onclick="setPick('${esc(mid)}','${esc(mk)}','void')">↩ Void</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const homeTeam = m.home_team || '—';
+  const awayTeam = m.away_team || '—';
+  const league   = m.league   || '';
+  const tag      = (homeTeam + ' ' + awayTeam + ' ' + league).toLowerCase();
+
+  return `<div class="match-card" id="mc-${esc(mid)}">
+    <div class="mc-head">
+      <div class="mc-sport-ico">${_emoji(tag)}</div>
+      <div class="mc-meta">
+        <div class="mc-league">${league}</div>
+        <div class="mc-teams">${homeTeam} vs ${awayTeam}</div>
+        <div class="mc-id">ID: ${mid}</div>
+      </div>
+    </div>
+    <div class="mc-stats">
+      <div class="mc-stat">
+        <div class="mc-stat-val">${m.bets_count}</div>
+        <div class="mc-stat-lbl">Ставок</div>
+      </div>
+      <div class="mc-stat">
+        <div class="mc-stat-val gold">${m.total_stake.toFixed(2)}</div>
+        <div class="mc-stat-lbl">Суммарно</div>
+      </div>
+      <div class="mc-stat">
+        <div class="mc-stat-val">${m.markets.length}</div>
+        <div class="mc-stat-lbl">Маркетов</div>
+      </div>
+    </div>
+    <div class="mc-markets">
+      <div class="mc-markets-title">Исходы</div>
+      ${marketsHtml || '<div style="font-size:12px;color:var(--t3)">Нет активных маркетов</div>'}
+    </div>
+    <div class="mc-actions">
+      <button class="btn btn-primary" ${allSet ? '' : 'disabled'} onclick="settleMatch('${esc(mid)}')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M3 10l5 5 9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Расчитать матч
+      </button>
+      <button class="btn btn-red" onclick="settleMatchAll('${esc(mid)}','lost')">Все — Lost</button>
+      <button class="btn btn-void" onclick="settleMatchAll('${esc(mid)}','void')">Все — Void</button>
+    </div>
+  </div>`;
+}
+
+function esc(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+// ── Pick selection ─────────────────────────────────────────────────────────────
+function setPick(mid, market, result) {
+  if (!_picks[mid]) _picks[mid] = {};
+  _picks[mid][market] = result;
+  // Re-render just this card
+  const m = _matches.find(x => x.match_id === mid);
+  if (!m) return;
+  const card = document.getElementById('mc-' + mid);
+  if (card) card.outerHTML = renderMatchCard(m);
+}
+
+// ── Settle match ───────────────────────────────────────────────────────────────
+async function settleMatch(mid) {
+  const m = _matches.find(x => x.match_id === mid);
+  if (!m) return;
+  const pick_result = _picks[mid] || {};
+  await _doSettle(mid, pick_result, m);
+}
+
+async function settleMatchAll(mid, result) {
+  const m = _matches.find(x => x.match_id === mid);
+  if (!m) return;
+  const pick_result = {};
+  m.markets.forEach(mk => { pick_result[mk] = result; });
+  await _doSettle(mid, pick_result, m);
+}
+
+async function _doSettle(mid, pick_result, m) {
+  const card = document.getElementById('mc-' + mid);
+  if (card) card.classList.add('settling');
+  try {
+    const r = await fetch('/api/sport/settle/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ match_id: mid, pick_result }),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Ошибка сервера');
+    const n  = data.settled?.length || 0;
+    const ne = data.errors?.length  || 0;
+    const wins = data.settled?.filter(x => x.result === 'won').length  || 0;
+    const losses = data.settled?.filter(x => x.result === 'lost').length || 0;
+    const voids  = data.settled?.filter(x => x.result === 'void').length || 0;
+    toast(
+      `✅ Матч расчитан (${n} ставок)`,
+      `Выиграно: ${wins} | Проигрыш: ${losses} | Возврат: ${voids}${ne ? ` | Ошибок: ${ne}` : ''}`,
+      'green'
+    );
+    // Remove from list
+    _matches = _matches.filter(x => x.match_id !== mid);
+    delete _picks[mid];
+    document.getElementById('pending-count').textContent = _matches.length;
+    renderMatches();
+  } catch (e) {
+    if (card) card.classList.remove('settling');
+    toast('Ошибка', e.message, 'red');
+  }
+}
+
+// ── Manual single settle ───────────────────────────────────────────────────────
+async function manualSettle() {
+  const betId     = document.getElementById('manual-bet-id').value;
+  const result    = document.getElementById('manual-result').value;
+  const winAmount = document.getElementById('manual-win-amount').value;
+  if (!betId) { toast('Ошибка', 'Введите Bet ID', 'red'); return; }
+
+  const body = { bet_id: parseInt(betId, 10), result };
+  if (winAmount) body.win_amount = parseFloat(winAmount);
+
+  try {
+    const r = await fetch('/api/sport/settle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Ошибка сервера');
+    toast(`Ставка #${betId} расчитана`, `Результат: ${result}${data.credited ? ' | Выплачено: ' + data.credited : ''}`, 'green');
+    document.getElementById('manual-bet-id').value = '';
+    document.getElementById('manual-win-amount').value = '';
+    setTimeout(loadPending, 800);
+  } catch (e) {
+    toast('Ошибка', e.message, 'red');
+  }
+}
+
+async function rollbackSettle() {
+  const betId = document.getElementById('manual-bet-id').value;
+  if (!betId) { toast('Ошибка', 'Введите Bet ID', 'red'); return; }
+  try {
+    const r = await fetch('/api/sport/settle/rollback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ bet_id: parseInt(betId, 10) }),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Ошибка rollback');
+    toast(`Rollback #${betId}`, `Откат выполнен, списано: ${data.debited || 0}`, 'green');
+    loadPending();
+    loadAudit();
+  } catch (e) {
+    toast('Rollback', e.message, 'red');
+  }
+}
+
+async function runAutoSettle() {
+  try {
+    const r = await fetch('/api/sport/settle/auto', { method:'POST', credentials:'include' });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Ошибка авто-расчёта');
+    toast('Авто-расчёт', `Settled: ${data.settled?.length||0}, skipped: ${data.skipped||0}`, 'green');
+    setTimeout(loadPending, 500);
+    loadAudit();
+  } catch (e) {
+    toast('Ошибка', e.message, 'red');
+  }
+}
+
+async function loadLimits() {
+  try {
+    const r = await fetch('/api/sport/limits', { credentials:'include' });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Не удалось загрузить лимиты');
+    const x = data.limits || {};
+    document.getElementById('lim-min').value = x.min_stake ?? 1;
+    document.getElementById('lim-max').value = x.max_stake ?? 100000;
+    document.getElementById('lim-picks').value = x.max_picks ?? 20;
+    document.getElementById('lim-coef').value = x.max_total_coef ?? 10000;
+  } catch(e) {
+    toast('Лимиты', e.message, 'red');
+  }
+}
+
+async function saveLimits() {
+  try {
+    const payload = {
+      limits: {
+        min_stake: Number(document.getElementById('lim-min').value || 1),
+        max_stake: Number(document.getElementById('lim-max').value || 100000),
+        max_picks: Number(document.getElementById('lim-picks').value || 20),
+        max_total_coef: Number(document.getElementById('lim-coef').value || 10000),
+      }
+    };
+    const r = await fetch('/api/sport/limits', {
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Не удалось сохранить лимиты');
+    toast('Лимиты', 'Сохранено', 'green');
+    loadAudit();
+  } catch(e) {
+    toast('Лимиты', e.message, 'red');
+  }
+}
+
+async function loadAudit() {
+  const wrap = document.getElementById('audit-list');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="audit-item">Загрузка…</div>';
+  try {
+    const action = encodeURIComponent(document.getElementById('audit-action')?.value?.trim() || '');
+    const q = encodeURIComponent(document.getElementById('audit-q')?.value?.trim() || '');
+    const r = await fetch(`/api/sport/audit?limit=50&action=${action}&q=${q}`, { credentials:'include' });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Не удалось загрузить аудит');
+    const rows = data.logs || [];
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="audit-item">Пусто</div>';
+      return;
+    }
+    wrap.innerHTML = rows.map(x => `<div class="audit-item"><div class="t">${x.created_at || ''} · ${x.action || ''} · ${x.entity_id || ''}</div><div>${typeof x.payload === 'string' ? x.payload : JSON.stringify(x.payload || {})}</div></div>`).join('');
+  } catch(e) {
+    wrap.innerHTML = `<div class="audit-item">Ошибка: ${e.message}</div>`;
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+loadPending();
+loadLimits();
+loadAudit();
+// Auto-refresh every 60s
+setInterval(loadPending, 60_000);
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Payments — VELOX Support{% endblock %}
+{% block page_id %}payments_queue{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('payments_queue') }}
+  <div class="panel-main">
+    {{ topbar('payments.title', 'Payments Queue') }}
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="tbl-filter-btn active" data-status="pending" data-t="payments.pending">Pending</button>
+        <button class="tbl-filter-btn" data-status="processing" data-t="payments.processing">Processing</button>
+        <button class="tbl-filter-btn" data-status="completed" data-t="payments.completed">Completed</button>
+        <button class="tbl-filter-btn" data-status="failed" data-t="payments.failed">Failed</button>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="payments.title">Payment Orders</div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th data-t="payments.col_id">ID</th>
+              <th data-t="payments.col_user">User</th>
+              <th data-t="payments.col_type">Type</th>
+              <th data-t="payments.col_provider">Provider</th>
+              <th data-t="payments.col_amount">Amount</th>
+              <th data-t="payments.col_status">Status</th>
+              <th data-t="payments.col_date">Date</th>
+            </tr>
+          </thead>
+          <tbody id="payments-body">
+            <tr><td colspan="7" class="loading-center"><span class="spinner"></span></td></tr>
+          </tbody>
+        </table>
+        <div id="payments-pagination" class="tbl-pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

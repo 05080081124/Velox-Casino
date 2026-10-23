@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Settings — VELOX Support{% endblock %}
+{% block page_id %}settings{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('settings') }}
+  <div class="panel-main">
+    {{ topbar('settings.title', 'Account Settings') }}
+    <div class="panel-body">
+
+      <!-- Admin ID card -->
+      <div class="info-card" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div class="ps-av" style="width:48px;height:48px;font-size:18px;border-radius:10px;
+               background:linear-gradient(135deg,#a855f7,#00e5ff);
+               display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--ffd);font-weight:700">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:600" id="s-nickname">—</div>
+            <div style="font-size:11px;color:var(--t3);margin-top:3px">
+              <span data-t="settings.public_id_label">Admin ID</span>:
+              <span style="font-family:var(--ffd);color:var(--a);letter-spacing:2px"
+                    id="s-public-id">—</span>
+            </div>
+            <div style="font-size:11px;color:var(--t3);margin-top:2px"
+                 data-t="settings.public_id_hint">Use this ID for complaint references</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+
+        <!-- Nickname -->
+        <div class="settings-section">
+          <h3 class="settings-section-title" data-t="settings.nickname_section">Display Name</h3>
+          <div id="nick-ok"  class="auth-success hidden"></div>
+          <div id="nick-err" class="auth-error hidden"></div>
+          <div class="auth-field">
+            <label data-t="settings.nickname_label">Nickname</label>
+            <input id="s-nick-input" type="text" class="auth-input" placeholder="VELOX SUPPORT"/>
+          </div>
+          <button id="nick-save-btn" class="settings-btn" data-t="settings.nickname_save">Save</button>
+        </div>
+
+        <!-- Email change -->
+        <div class="settings-section">
+          <h3 class="settings-section-title" data-t="settings.email_section">Email Address</h3>
+          <div id="email-ok"  class="auth-success hidden"></div>
+          <div id="email-err" class="auth-error hidden"></div>
+          <div class="auth-field">
+            <label data-t="settings.email_label">New Email</label>
+            <input id="s-email-input" type="email" class="auth-input" placeholder="new@example.com"/>
+          </div>
+          <div class="auth-field">
+            <label data-t="settings.email_otp_label">Verification Code</label>
+            <div class="otp-row">
+              <input id="s-email-otp" type="text" class="auth-input"
+                     data-tp="settings.otp_placeholder" placeholder="9-digit code"
+                     maxlength="9" inputmode="numeric"/>
+              <button id="email-otp-btn" class="otp-send-btn"
+                      data-t="settings.email_send_otp">Get code</button>
+            </div>
+            <div id="email-otp-hint" style="font-size:11px;color:var(--t3);margin-top:5px"></div>
+          </div>
+          <button id="email-save-btn" class="settings-btn" data-t="settings.email_save">Update Email</button>
+        </div>
+
+        <!-- Password change -->
+        <div class="settings-section">
+          <h3 class="settings-section-title" data-t="settings.password_section">Change Password</h3>
+          <div id="pw-ok"  class="auth-success hidden"></div>
+          <div id="pw-err" class="auth-error hidden"></div>
+          <div class="auth-field">
+            <label data-t="settings.password_current">Current Password</label>
+            <input id="s-pw-current" type="password" class="auth-input" placeholder="••••••••"/>
+          </div>
+          <div class="auth-field">
+            <label data-t="settings.password_new">New Password</label>
+            <input id="s-pw-new" type="password" class="auth-input" placeholder="min. 8 chars"/>
+          </div>
+          <div class="auth-field">
+            <label data-t="settings.password_otp_label">Verification Code</label>
+            <div class="otp-row">
+              <input id="s-pw-otp" type="text" class="auth-input"
+                     data-tp="settings.otp_placeholder" placeholder="9-digit code"
+                     maxlength="9" inputmode="numeric"/>
+              <button id="pw-otp-btn" class="otp-send-btn"
+                      data-t="settings.password_send_otp">Get code</button>
+            </div>
+            <div id="pw-otp-hint" style="font-size:11px;color:var(--t3);margin-top:5px"></div>
+          </div>
+          <p style="font-size:11px;color:var(--t3);margin-bottom:12px"
+             data-t="settings.password_note">A code will be sent to your email.</p>
+          <button id="pw-save-btn" class="settings-btn settings-btn-warn"
+                  data-t="settings.password_save">Change Password</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

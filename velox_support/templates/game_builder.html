@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Game Builder — VELOX Support{% endblock %}
+{% block page_id %}game_builder{% endblock %}
+{% block body %}
+<style>
+  .gb-card {
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border: 1px solid var(--bdr);
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .gb-section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--t3);
+    margin-bottom: 8px;
+  }
+  .gb-upload-row { display:flex; align-items:center; gap:10px; }
+  .gb-upload-btn {
+    height:36px; padding:0 14px; border-radius:10px; border:1px solid rgba(0,229,255,.35);
+    background:rgba(0,229,255,.10); color:var(--a); font-weight:600; cursor:pointer;
+  }
+  .gb-upload-btn:hover { background:rgba(0,229,255,.16); }
+  .gb-upload-name { font-size:12px; color:var(--t2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gb-switch {
+    display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 10px; border-radius:10px;
+    border:1px solid var(--bdr); background:var(--bg2);
+  }
+  .gb-switch input[type="checkbox"] { width:16px; height:16px; accent-color: #00e5ff; margin:0; }
+</style>
+<div class="panel-wrap">
+  {{ sidebar('game_builder') }}
+  <div class="panel-main">
+    {{ topbar('games_builder.title', 'Game Builder') }}
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="tbl-filter-btn active" id="gb-tab-casino-btn" data-tab="casino" data-t="games_builder.provider_tab">Casino provider games</button>
+        <button class="tbl-filter-btn" id="gb-tab-sport-btn" data-tab="sport" data-t="games_builder.sport_tab">Sport events</button>
+      </div>
+
+      <div class="tbl-wrap" id="gb-casino-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="games_builder.provider_tab">Current casino games</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn" id="gb-casino-refresh-btn" data-t="banners.btn_refresh">Refresh</button>
+          <button class="panel-btn panel-btn--primary" id="gb-casino-open-form-btn">+ <span data-t="games_builder.add_game_btn">Add</span></button>
+        </div>
+        <div id="gb-casino-list"><div class="loading-center"><span class="spinner"></span></div></div>
+      </div>
+
+      <div class="tbl-wrap hidden" id="gb-casino-form-wrap" style="margin-top:14px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" id="gb-casino-form-title" data-t="games_builder.create_title">Provider game constructor</div>
+          <button class="btn-icon" id="gb-casino-close-form-btn" data-t="common.back">← Back</button>
+        </div>
+        <div style="padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+          <input type="hidden" id="gb-pg-id">
+          <div><label class="panel-label" data-t="games_builder.field_name">Name</label><input class="panel-inp" id="gb-pg-name"></div>
+          <div><label class="panel-label" data-t="games_builder.field_provider">Provider</label><input class="panel-inp" id="gb-pg-provider"></div>
+          <div><label class="panel-label" data-t="games_builder.field_provider_tag">Provider tag</label><input class="panel-inp" id="gb-pg-provider-tag"></div>
+          <div><label class="panel-label" data-t="games_builder.field_game_tag">Game tag</label><input class="panel-inp" id="gb-pg-game-tag"></div>
+          <div><label class="panel-label" data-t="games_builder.field_type_badge">Badge type</label><select class="panel-inp" id="gb-pg-type"><option>new</option><option>hit</option><option>top</option><option>popular</option></select></div>
+          <div><label class="panel-label" data-t="games_builder.field_category">Category</label><input class="panel-inp" id="gb-pg-category" value="slots"></div>
+          <div><label class="panel-label" data-t="games_builder.field_rtp">RTP (0..1)</label><input class="panel-inp" id="gb-pg-rtp" type="number" step="0.001" value="0.96"></div>
+          <div><label class="panel-label" data-t="games_builder.field_api_key">API key</label><input class="panel-inp" id="gb-pg-api-key"></div>
+          <div><label class="panel-label" data-t="games_builder.field_endpoint">Endpoint</label><input class="panel-inp" id="gb-pg-endpoint"></div>
+          <div><label class="panel-label" data-t="games_builder.field_game_url">Game URL</label><input class="panel-inp" id="gb-pg-url"></div>
+          <div><label class="panel-label" data-t="games_builder.field_game_code">Provider game code</label><input class="panel-inp" id="gb-pg-game-code"></div>
+          <div><label class="panel-label" data-t="games_builder.field_provider_table_id">Provider table id</label><input class="panel-inp" id="gb-pg-table-id"></div>
+          <div><label class="panel-label" data-t="games_builder.field_cover_url">Cover URL</label><input class="panel-inp" id="gb-pg-cover"></div>
+          <div><label class="panel-label" data-t="games_builder.field_logo">Logo URL</label><input class="panel-inp" id="gb-pg-logo"></div>
+          <div><label class="panel-label" data-t="games_builder.field_icon">Icon (emoji)</label><input class="panel-inp" id="gb-pg-icon" value="🎰" style="font-size:18px;width:60px"></div>
+          <div style="grid-column:1/-1"><label class="panel-label" data-t="games_builder.field_description">Description</label><textarea class="panel-inp" id="gb-pg-desc" rows="2"></textarea></div>
+        </div>
+        <div style="padding:0 18px 18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="panel-btn panel-btn--primary" id="gb-casino-save-btn" data-t="games_builder.btn_save">Save game</button>
+          <button class="panel-btn" id="gb-casino-cancel-btn" data-t="games_builder.btn_cancel">Cancel</button>
+          <div id="gb-casino-msg" style="font-size:12px"></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap hidden" id="gb-sport-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="games_builder.sport_tab">Current sport events</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn" id="gb-sport-refresh-btn" data-t="banners.btn_refresh">Refresh</button>
+          <button class="panel-btn panel-btn--primary" id="gb-sport-open-form-btn">+ <span data-t="games_builder.add_event_btn">Add</span></button>
+        </div>
+        <div id="gb-sport-list"><div class="loading-center"><span class="spinner"></span></div></div>
+
+        <div class="gb-card" style="margin-top:14px">
+          <div class="gb-section-title" data-t="games_builder.provider_catalog_title">Provider line</div>
+          <p style="font-size:12px;color:var(--t2);margin:0 0 10px;line-height:1.45" data-t="games_builder.provider_catalog_hint">
+            Preview from Odds API / merged feed. “Show” publishes a match on the casino site when visibility is set to “Only selected”.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+            <select class="panel-inp" id="gb-prov-mode" style="max-width:280px">
+              <option value="all" data-t="games_builder.provider_mode_all">Entire provider line on site</option>
+              <option value="listed" data-t="games_builder.provider_mode_listed">Only matches marked Show</option>
+            </select>
+            <button type="button" class="tbl-filter-btn" id="gb-prov-refresh-btn" data-t="banners.btn_refresh">Refresh</button>
+          </div>
+          <div id="gb-sport-provider-list"><div class="loading-center"><span class="spinner"></span></div></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap hidden" id="gb-sport-form-wrap" style="margin-top:14px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="games_builder.add_event_btn">Sport event constructor</div>
+          <button class="btn-icon" id="gb-sport-close-form-btn" data-t="common.back">← Back</button>
+        </div>
+        <div style="padding:18px;display:grid;gap:12px">
+          <div class="gb-card">
+            <div class="gb-section-title">Base info</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+              <div><label class="panel-label" data-t="games_builder.field_event_id_optional">Event ID (optional)</label><input class="panel-inp" id="gb-sp-id"></div>
+              <div><label class="panel-label" data-t="games_builder.field_league">League</label><input class="panel-inp" id="gb-sp-league"></div>
+              <div><label class="panel-label" data-t="games_builder.field_tag">Tag (sport key)</label><input class="panel-inp" id="gb-sp-tag" value="football" placeholder="football / basketball / ufc"></div>
+              <div><label class="panel-label">Category</label><input class="panel-inp" id="gb-sp-category" placeholder="Football"></div>
+              <div><label class="panel-label">Country</label><input class="panel-inp" id="gb-sp-country" placeholder="Spain"></div>
+              <div><label class="panel-label">Sport type</label><select class="panel-inp" id="gb-sp-sport-type"><option value="sport">sport</option><option value="esport">esport</option></select></div>
+            </div>
+          </div>
+          <div class="gb-card">
+            <div class="gb-section-title">Teams and schedule</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+              <div><label class="panel-label" data-t="games_builder.field_home_team">Home team</label><input class="panel-inp" id="gb-sp-home"></div>
+              <div><label class="panel-label" data-t="games_builder.field_away_team">Away team</label><input class="panel-inp" id="gb-sp-away"></div>
+              <div><label class="panel-label" data-t="games_builder.field_datetime_utc">Date/Time (UTC)</label><input class="panel-inp" id="gb-sp-time" type="datetime-local"></div>
+              <div style="display:flex;align-items:flex-end"><label class="gb-switch"><input id="gb-sp-live" type="checkbox"> <span>Live stream match</span></label></div>
+              <div style="display:flex;align-items:flex-end"><label class="gb-switch"><input id="gb-sp-top-match" type="checkbox"> <span>Top match of the day</span></label></div>
+              <div><label class="panel-label">Mode</label><select class="panel-inp" id="gb-sp-mode"><option value="manual">manual</option><option value="auto">auto</option></select></div>
+            </div>
+          </div>
+          <div class="gb-card">
+            <div class="gb-section-title">Media and stream</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+              <div><label class="panel-label" data-t="games_builder.field_banner_cover_url">Banner/Cover URL (background)</label><input class="panel-inp" id="gb-sp-cover" placeholder="https://... or /static/uploads/bukmaking/matches/..."></div>
+              <div>
+                <label class="panel-label">Upload banner/cover</label>
+                <div class="gb-upload-row">
+                  <button class="gb-upload-btn" type="button" id="gb-sp-cover-trigger">Choose file</button>
+                  <div class="gb-upload-name" id="gb-sp-cover-file-name">No file selected</div>
+                </div>
+                <input class="hidden" id="gb-sp-cover-file" type="file" accept=".png,.jpg,.jpeg,.webp,.gif">
+              </div>
+              <div><label class="panel-label" data-t="games_builder.field_icon_url">Icon URL</label><input class="panel-inp" id="gb-sp-icon"></div>
+              <div><label class="panel-label" data-t="games_builder.field_live_stream_url">Live stream URL</label><input class="panel-inp" id="gb-sp-stream"></div>
+              <div><label class="panel-label">Upload sport icon (PNG/SVG)</label><div class="gb-upload-row"><button class="gb-upload-btn" type="button" id="gb-sp-icon-trigger">Choose icon</button><div class="gb-upload-name" id="gb-sp-icon-file-name">No file selected</div></div><input class="hidden" id="gb-sp-icon-file" type="file" accept=".png,.svg,.webp"></div>
+            </div>
+            <div id="gb-sp-auto-fields" style="display:none;margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+              <div><label class="panel-label">Auto source URL (score/odds feed)</label><input class="panel-inp" id="gb-sp-auto-source" placeholder="https://api.example.com/match-feed"></div>
+              <div><label class="panel-label">Auto refresh (sec)</label><input class="panel-inp" id="gb-sp-auto-refresh" type="number" min="5" step="1" value="15"></div>
+              <div style="grid-column:1/-1"><label class="panel-label">Notes for auto mode</label><input class="panel-inp" id="gb-sp-auto-notes" placeholder="Optional mapping notes"></div>
+            </div>
+          </div>
+          <div class="gb-card">
+            <div class="gb-section-title">Odds</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+              <div><label class="panel-label" data-t="games_builder.field_odds_home">Odds home</label><input class="panel-inp" id="gb-sp-odd-home" type="number" step="0.01" value="2.10"></div>
+              <div><label class="panel-label" data-t="games_builder.field_odds_draw">Odds draw</label><input class="panel-inp" id="gb-sp-odd-draw" type="number" step="0.01" value="3.20"></div>
+              <div><label class="panel-label" data-t="games_builder.field_odds_away">Odds away</label><input class="panel-inp" id="gb-sp-odd-away" type="number" step="0.01" value="2.90"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 18px 18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="panel-btn panel-btn--primary" id="gb-sport-save-btn" data-t="games_builder.btn_save">Save event</button>
+          <button class="panel-btn" id="gb-sport-cancel-btn" data-t="games_builder.btn_cancel">Cancel</button>
+          <div id="gb-sport-msg" style="font-size:12px"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+

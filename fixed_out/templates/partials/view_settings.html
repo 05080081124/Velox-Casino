@@ -1,0 +1,290 @@
+<div id="view-settings" class="view">
+
+  <!-- Hero профиля -->
+  <div class="set-hero">
+    <div class="set-hero-bg"></div>
+    <div class="set-hero-inner">
+      <div class="set-hero-av" id="set-hero-av" onclick="V.modal('avatar')" style="cursor:pointer" title="Изменить аватарку">V</div>
+      <div class="set-hero-info">
+        <div class="set-hero-name" id="set-uname">User</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+          <div class="set-hero-meta" id="set-meta">—</div>
+          <span class="profile-vip-badge" id="profile-vip-badge" style="display:none"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Быстрые статы -->
+  <div class="set-stats-row" id="set-stats-row">
+    <div class="set-stat">
+      <div class="set-stat-ico">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/></svg>
+      </div>
+      <div class="set-stat-val" id="set-stat-bal">—</div>
+      <div class="set-stat-lbl" id="set-stat-lbl-balance">Баланс</div>
+    </div>
+    <div class="set-stat">
+      <div class="set-stat-ico">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.47 5.01L18 8.18l-4 3.9.94 5.5L10 14.77l-4.94 2.81.94-5.5L2 8.18l5.53-.17L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="set-stat-val" id="set-stat-ver">—</div>
+      <div class="set-stat-lbl" id="set-stat-lbl-verified">Верификация</div>
+    </div>
+    <div class="set-stat">
+      <div class="set-stat-ico">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 0 1 5 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="7" r="2" fill="currentColor"/></svg>
+      </div>
+      <div class="set-stat-val" id="set-stat-2fa">—</div>
+      <div class="set-stat-lbl" id="set-stat-lbl-tfa">2FA</div>
+    </div>
+    <div class="set-stat">
+      <div class="set-stat-ico">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </div>
+      <div class="set-stat-val" id="set-stat-date">—</div>
+      <div class="set-stat-lbl" id="set-stat-lbl-date">Дата регистрации</div>
+    </div>
+  </div>
+
+  <!-- Таббар + контент -->
+  <div class="set-wrap">
+    <div class="stabs">
+      <button class="stab on" id="stab-profile" onclick="V.stab(this,'set-gen')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span id="stab-profile-lbl">Профіль</span>
+      </button>
+      <button class="stab" id="stab-security" onclick="V.stab(this,'set-sec')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span id="stab-security-lbl">Безопасность</span>
+      </button>
+      <button class="stab" id="stab-history" onclick="V.stab(this,'set-hist');V.loadGameHistory()">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span id="stab-history-lbl" data-i18n="settings.tab_history">История</span>
+      </button>
+      <button class="stab" id="stab-policy" onclick="V.stab(this,'set-pol')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span id="stab-policy-lbl">Политика</span>
+      </button>
+      <button class="stab" id="stab-tickets" onclick="V.stab(this,'set-tickets');V.loadMyTickets()">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M2 8a2 2 0 0 0 0 4v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-4V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span id="stab-tickets-lbl">Тикеты</span>
+      </button>
+    </div>
+
+    <!-- Вкладка: Профиль -->
+    <div class="stab-p on" id="set-gen">
+      <div class="set-grid">
+        <!-- Редактирование профиля -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17H3v-3L14.5 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span id="set-edit-title">Редактировать профиль</span>
+          </div>
+          <div class="fg"><label id="set-uname-lbl">Имя пользователя</label><input type="text" class="inp" id="set-uname-inp" placeholder="Новое имя"></div>
+          <!-- Валюта убрана из UI — задаётся языком интерфейса автоматически -->
+          <input type="hidden" id="set-cur" value="UAH">
+          <button class="btn-p w100" id="set-save-btn" onclick="V.saveProfile()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10l5 5 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="set-save-btn-text">Сохранить изменения</span>
+          </button>
+        </div>
+
+        <!-- Контактная информация -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 7l8 5 8-5" stroke="currentColor" stroke-width="1.3"/></svg>
+            <span id="set-contact-title">Контактная информация</span>
+          </div>
+          <div class="set-info-row">
+            <span class="set-info-lbl">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M2 7l8 5 8-5" stroke="currentColor" stroke-width="1.2"/></svg><span id="set-email-lbl">Почта</span>
+            </span>
+            <span class="set-info-val" id="set-email">—</span>
+          </div>
+          <div class="fg set-contact-edit">
+            <label id="set-email-new-lbl">Новая почта</label>
+            <div class="set-contact-edit-row">
+              <input type="email" class="inp" id="set-email-new" placeholder="name@example.com" oninput="V.profileContactInputChanged()">
+              <button class="btn-ghost" type="button" id="set-email-send-btn" onclick="V.sendEmailChangeOtp()" style="display:none">Отправить код</button>
+            </div>
+            <div class="set-contact-edit-row">
+              <input type="text" class="inp" id="set-email-code" placeholder="Код из письма" maxlength="6" inputmode="numeric" oninput="V.profileContactInputChanged()">
+              <button class="btn-p" type="button" id="set-email-verify-btn" onclick="V.verifyEmailChangeOtp()" style="display:none">Подтвердить</button>
+            </div>
+            <div class="set-contact-hint" id="set-email-hint"></div>
+          </div>
+          <div class="set-info-row">
+            <span class="set-info-lbl">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 2h4l1.5 4-2 1.5c1 2 2.5 3.5 4.5 4.5L13.5 10 17 11.5V15c0 1.1-.9 2-2 2C7.2 17 3 12.8 3 7.5A4.5 4.5 0 0 1 4 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="set-phone-lbl">Телефон</span>
+            </span>
+            <span class="set-info-val" id="set-phone">—</span>
+          </div>
+          <div class="fg set-contact-edit">
+            <label id="set-phone-new-lbl">Номер телефона</label>
+            <div class="set-contact-edit-row">
+              <input type="tel" class="inp" id="set-phone-new" placeholder="+380501234567" inputmode="tel" oninput="V.profileContactInputChanged()">
+              <button class="btn-ghost" type="button" id="set-phone-save-btn" onclick="V.savePhoneProfile()" style="display:none">Сохранить</button>
+            </div>
+          </div>
+          <div class="set-info-row" style="border:none">
+            <span class="set-info-lbl">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span id="set-ver-lbl">Верификация</span>
+            </span>
+            <span id="set-ver" class="badge-pend">Ожидание</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Курсы валют -->
+      <div class="set-block set-block--full" id="currency-rates-block" style="margin-top:12px">
+        <div class="set-block-title">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v1.5M10 12.5V14M7.5 8.5C7.5 7.1 8.6 6 10 6s2.5 1.1 2.5 2.5c0 1.4-2.5 2-2.5 3.5 0 1.4 1.1 2.5 2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span id="set-rates-title">Курсы валют</span>
+          <span id="rates-freshness-badge" style="margin-left:auto;font-size:11px;padding:2px 7px;border-radius:6px"></span>
+        </div>
+        <div id="rates-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px">
+          <div class="rate-card" style="background:var(--bg2);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:11px;color:var(--t2)">USD</div>
+            <div style="font-size:18px;font-weight:600;color:var(--t1)" id="rate-usd">—</div>
+            <div style="font-size:10px;color:var(--t3)" id="rate-usd-lbl">₴ за $1</div>
+          </div>
+          <div class="rate-card" style="background:var(--bg2);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:11px;color:var(--t2)">EUR</div>
+            <div style="font-size:18px;font-weight:600;color:var(--t1)" id="rate-eur">—</div>
+            <div style="font-size:10px;color:var(--t3)" id="rate-eur-lbl">₴ за €1</div>
+          </div>
+          <div class="rate-card" style="background:var(--bg2);border-radius:8px;padding:10px 12px;text-align:center">
+            <div style="font-size:11px;color:var(--t2)">USDT</div>
+            <div style="font-size:18px;font-weight:600;color:var(--t1)" id="rate-usdt">—</div>
+            <div style="font-size:10px;color:var(--t3)" id="rate-usdt-lbl">₴ за ₮1</div>
+          </div>
+        </div>
+        <div id="rates-updated" style="font-size:11px;color:var(--t3);margin-top:8px;text-align:right"></div>
+      </div>
+    </div>
+    <div class="stab-p" id="set-sec">
+      <div class="set-grid">
+        <!-- Смена пароля -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="1.2" fill="currentColor"/></svg>
+            <span id="set-pw-title">Смена пароля</span>
+          </div>
+          <div class="fg"><label id="set-pw-cur-lbl">Текущий пароль</label><input type="password" class="inp" id="pw-cur" placeholder="Введите текущий пароль"></div>
+          <div class="fg"><label id="set-pw-new-lbl">Новый пароль</label><input type="password" class="inp" id="pw-new" placeholder="Минимум 6 символов"></div>
+          <div class="fg"><label id="set-pw-cnf-lbl">Подтвердить</label><input type="password" class="inp" id="pw-cnf" placeholder="Повторите новый пароль"></div>
+          <button class="btn-ghost w100" id="set-changepw-btn" onclick="V.changePw()">Сменить пароль</button>
+        </div>
+
+        <!-- Защита аккаунта -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span id="set-sec-title">Защита аккаунта</span>
+          </div>
+
+          <!-- 2FA toggle -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico set-feature-ico--cyan">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-tfa-name">2FA защита</div>
+              <div class="set-feature-desc" id="set-tfa-desc">Дополнительная защита при входе</div>
+            </div>
+            <label class="tog"><input type="checkbox" id="tfa-tog" onchange="V.tfa(this)"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Верификация -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico set-feature-ico--gold">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="10" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M11 8h4M11 10h3M11 12h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-doc-ver-name">Верификация документов</div>
+              <div class="set-feature-desc" id="set-doc-ver-desc">Открывает полный вывод средств</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.modal('verify')">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Ответственная игра -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico" style="background:rgba(234,88,12,.15)">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2z" stroke="#ea580c" stroke-width="1.4"/><path d="M10 6v4l3 3" stroke="#ea580c" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-rg-name">Ответственная игра</div>
+              <div class="set-feature-desc" id="set-rg-desc">Лимиты депозитов и самоисключение</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.rgOpen()">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Реферальная программа -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico" style="background:rgba(99,153,34,.15)">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="#639922" stroke-width="1.4"/><circle cx="14" cy="5" r="2" stroke="#639922" stroke-width="1.3"/><path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#639922" stroke-width="1.4" stroke-linecap="round"/><path d="M14 11c1.7 0 3 1.3 3 3" stroke="#639922" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-aff-name">Реферальная программа</div>
+              <div class="set-feature-desc" id="set-aff-desc">Приглашай друзей — получай бонусы</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.affOpen()">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вкладка: История игр -->
+    <div class="stab-p" id="set-hist">
+      <div class="set-block set-block--full">
+        <div class="set-block-title">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span id="set-hist-title" data-i18n="settings.history_title">История игр</span>
+        </div>
+        <div id="game-history-list" class="game-hist-wrap">
+          <div class="game-hist-empty" id="game-hist-loading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вкладка: Политика -->
+    <div class="stab-p" id="set-pol">
+      <div class="set-block set-block--full">
+        <div class="set-block-title">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span id="set-pol-title">Политика казино</span>
+        </div>
+        <div id="set-pol-text" class="set-pol-body">Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- Вкладка: Тикеты -->
+    
+
+    <div class="stab-p" id="set-tickets">
+      <div class="set-block set-block--full">
+        <div class="set-block-title">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M2 8a2 2 0 0 0 0 4v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-4V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <span id="set-tickets-title">Мои тикеты</span>
+        </div>
+        <div id="tickets-list-wrap"></div>
+      </div>
+    </div>
+
+  </div><!-- /.set-wrap -->
+</div>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Tournament Builder — VELOX Support{% endblock %}
+{% block page_id %}tournament_builder{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('tournament_builder') }}
+  <div class="panel-main">
+    {{ topbar('tournament_builder.title', 'Tournament Builder') }}
+    <div class="panel-body">
+      <div class="tb-grid">
+        <section class="tbl-wrap tb-create-card">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="tournament_builder.create_title">Create season</div>
+          </div>
+          <div class="tb-form">
+            <div>
+              <label class="panel-label" data-t="tournament_builder.field_title">Title</label>
+              <input id="tb-title" class="panel-inp" data-tp="tournament_builder.field_title_ph" placeholder="Weekly Championship #12">
+            </div>
+            <div>
+              <label class="panel-label" data-t="tournament_builder.field_description">Description</label>
+              <textarea id="tb-description" class="panel-inp" rows="3" data-tp="tournament_builder.field_description_ph" placeholder="Event details for users..."></textarea>
+            </div>
+            <div class="tb-row">
+              <div>
+                <label class="panel-label" data-t="tournament_builder.field_period">Preset</label>
+                <select id="tb-period" class="panel-inp">
+                  <option value="day">day (1 day)</option>
+                  <option value="week" selected>week (7 days)</option>
+                  <option value="month">month (30 days)</option>
+                  <option value="all">long (3650 days)</option>
+                  <option value="custom">custom (manual dates)</option>
+                </select>
+              </div>
+              <div>
+                <label class="panel-label" data-t="tournament_builder.field_prize_pool">Prize pool</label>
+                <input id="tb-prize-pool" class="panel-inp" type="number" step="0.01" min="0" value="2500">
+              </div>
+            </div>
+            <div class="tb-row">
+              <div>
+                <label class="panel-label" data-t="tournament_builder.field_starts_at">Starts at</label>
+                <input id="tb-starts-at" class="panel-inp" type="datetime-local">
+              </div>
+              <div>
+                <label class="panel-label" data-t="tournament_builder.field_ends_at">Ends at</label>
+                <input id="tb-ends-at" class="panel-inp" type="datetime-local">
+              </div>
+            </div>
+            <div>
+              <label class="panel-label" data-t="tournament_builder.field_glow_color">Season glow color</label>
+              <div class="tb-color-wrap">
+                <div class="tb-color-preview" id="tb-glow-preview" style="--tb-glow:#f5c451"></div>
+                <input id="tb-glow-hex" class="panel-inp tb-color-hex" value="#f5c451" maxlength="7">
+                <button type="button" class="btn-icon tb-color-btn" id="tb-glow-open" title="Open color picker">🎨</button>
+                <input id="tb-glow-color" class="tb-color-native" type="color" value="#f5c451" aria-hidden="true" tabindex="-1">
+              </div>
+              <div class="tb-color-swatches" id="tb-glow-swatches">
+                <button type="button" class="tb-color-swatch active" data-color="#f5c451" style="--sw:#f5c451"></button>
+                <button type="button" class="tb-color-swatch" data-color="#ffd166" style="--sw:#ffd166"></button>
+                <button type="button" class="tb-color-swatch" data-color="#f97316" style="--sw:#f97316"></button>
+                <button type="button" class="tb-color-swatch" data-color="#00e5ff" style="--sw:#00e5ff"></button>
+                <button type="button" class="tb-color-swatch" data-color="#22c55e" style="--sw:#22c55e"></button>
+                <button type="button" class="tb-color-swatch" data-color="#a855f7" style="--sw:#a855f7"></button>
+                <button type="button" class="tb-color-swatch" data-color="#f43f5e" style="--sw:#f43f5e"></button>
+                <button type="button" class="tb-color-swatch" data-color="#e2e8f0" style="--sw:#e2e8f0"></button>
+              </div>
+            </div>
+            <div>
+              <label class="panel-label" data-t="tournament_builder.field_games">Games (optional)</label>
+              <input id="tb-games-search" class="panel-inp" data-tp="tournament_builder.games_search_ph" placeholder="Search game...">
+              <div id="tb-games-list" class="tb-games-list"></div>
+              <div id="tb-games-selected" class="tb-games-selected"></div>
+            </div>
+            <button class="panel-btn panel-btn--primary" id="tb-create-btn" data-t="tournament_builder.create_btn">Create season</button>
+            <div id="tb-msg" class="empty-state hidden"></div>
+          </div>
+        </section>
+
+        <section class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="tournament_builder.list_title">Seasons</div>
+            <div class="tbl-spacer"></div>
+            <button class="tbl-filter-btn" id="tb-reload-btn" data-t="common.loading">Reload</button>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th data-t="tournament_builder.col_title">Title</th>
+                <th data-t="tournament_builder.col_period">Period</th>
+                <th data-t="tournament_builder.col_prize">Prize</th>
+                <th data-t="tournament_builder.col_status">Status</th>
+                <th data-t="tournament_builder.col_dates">Dates</th>
+                <th data-t="tournament_builder.col_actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tb-table-body">
+              <tr><td colspan="6" class="loading-center"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{
+  "_info": "Права доступа по ролям. tabs_all=true — роль видит все вкладки включая новые. Редактируй этот файл для управления доступом.",
+  "roles": {
+    "ceo": {
+      "tabs_all": true,
+      "tabs": [],
+      "features": {
+        "balance_topup": true, "give_vip": true, "one_time_bonus": true,
+        "give_freespins": true, "deposit_boost": true, "extend_vip": true,
+        "get_db": true, "create_promo": true, "manage_banners": true,
+        "game_tags": true, "game_visibility": true, "site_mode": true,
+        "view_analytics": true, "view_payments": true, "manage_team": true
+      }
+    },
+    "admin": {
+      "tabs_all": false,
+      "tabs": ["dashboard","tickets","users","analytics","payments_queue","team","bans","broadcast","game_builder","chat","reports","soc","banners","campaigns","site","tournament_builder"],
+      "features": {
+        "balance_topup": true, "give_vip": true, "one_time_bonus": true,
+        "give_freespins": true, "deposit_boost": true, "extend_vip": true,
+        "get_db": true, "create_promo": true, "manage_banners": true,
+        "game_tags": true, "game_visibility": true, "site_mode": true,
+        "view_analytics": true, "view_payments": true, "manage_team": true
+      }
+    },
+    "soc": {
+      "tabs_all": false,
+      "tabs": ["dashboard","tickets","analytics","soc","bans","chat","reports"],
+      "features": {
+        "get_db": true, "view_analytics": true
+      }
+    },
+    "helper": {
+      "tabs_all": false,
+      "tabs": ["dashboard","tickets","users","chat","reports"],
+      "features": {
+        "get_db": true
+      }
+    },
+    "marketing": {
+      "tabs_all": false,
+      "tabs": ["dashboard","users","banners","campaigns","chat","reports","tournament_builder"],
+      "features": {
+        "give_vip": true, "one_time_bonus": true, "give_freespins": true,
+        "deposit_boost": true, "extend_vip": true,
+        "create_promo": true, "manage_banners": true
+      }
+    },
+    "dealer": {
+      "tabs_all": false,
+      "tabs": ["dashboard","game_builder","chat","reports","tournament_builder"],
+      "features": {
+        "create_promo": true, "deposit_boost": true, "game_tags": true
+      }
+    },
+    "gm": {
+      "tabs_all": false,
+      "tabs": ["dashboard","game_builder","analytics","payments_queue","chat","reports","tournament_builder"],
+      "features": {
+        "view_analytics": true, "view_payments": true,
+        "game_tags": true, "game_visibility": true, "create_games": true
+      }
+    },
+    "developer": {
+      "tabs_all": false,
+      "tabs": ["dashboard","analytics","chat","reports","campaigns","site"],
+      "features": {
+        "site_mode": true, "view_analytics": true
+      }
+    }
+  }
+}

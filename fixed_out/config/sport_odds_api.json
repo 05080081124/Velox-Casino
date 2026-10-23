@@ -1,0 +1,85 @@
+{
+  "_readme": {
+    "ru": "Несколько провайдеров: sources[] — каждый со своим env_key. Ключи также читаются из config/sport_odds_credentials.json (скопируйте из sport_odds_credentials.example.json), если в .env пусто. The Odds API v4: auto_discover_sports + sport_keys [\"auto\"] подтягивает активные виды через GET /sports (лимит auto_discover_max). Odds-API.io: provider odds_api_io, sport_slugs.",
+    "en": "Multiple feeds: sources[] each with env_key. Keys also load from sport_odds_credentials.json if .env is empty. The Odds API: auto_discover_sports with sport_keys [\"auto\"] loads active sports via GET /sports (cap auto_discover_max).",
+    "docs_odds_io": "https://docs.odds-api.io/quickstart",
+    "docs_the_odds": "https://the-odds-api.com/liveapi/guides/v4/"
+  },
+  "enabled": true,
+  "base_url": "https://api.the-odds-api.com/v4",
+  "odds_api_io_base_url": "https://api.odds-api.io/v3",
+  "cache_ttl_sec": 120,
+  "regions": "eu",
+  "markets": "h2h",
+  "merge_with_file": true,
+  "request_timeout_sec": 25,
+  "auto_discover_max_sports": 14,
+  "sources": [
+    {
+      "id": "odds_api_io_main",
+      "label": "Odds-API.io",
+      "enabled": true,
+      "provider": "odds_api_io",
+      "env_key": "ODDS_API_IO_KEY",
+      "sport_slugs": ["football", "basketball"],
+      "tag_by_sport_slug": {
+        "football": "football",
+        "basketball": "basketball"
+      },
+      "events_limit": 25,
+      "_note_status": "Поле events_status=pending расширяется сервером до pending+live. Только прематч: events_statuses: [\"pending\"].",
+      "events_status": "pending",
+      "bookmakers": "Bet365"
+    },
+    {
+      "id": "the_odds_api_extra",
+      "label": "The Odds API (пример второго источника)",
+      "enabled": false,
+      "provider": "the_odds_api",
+      "env_key": "SPORT_ODDS_API_KEY",
+      "sport_keys": ["soccer_uefa_champs_league", "basketball_nba"],
+      "tag_by_sport_key": {
+        "soccer_uefa_champs_league": "football",
+        "basketball_nba": "basketball"
+      }
+    },
+    {
+      "id": "the_odds_auto_example",
+      "label": "The Odds API — авто-виды (включите enabled:true для теста)",
+      "enabled": false,
+      "provider": "the_odds_api",
+      "env_key": "SPORT_ODDS_API_KEY",
+      "auto_discover_sports": true,
+      "auto_discover_max": 12,
+      "sport_keys": ["auto"],
+      "tag_by_sport_key": {},
+      "_note_groups": "Опционально auto_discover_groups: [\"Soccer\",\"Basketball\"] — только эти группы."
+    },
+    {
+      "id": "sportsrc_v2_main",
+      "label": "SportSRC v2 (streams + scores)",
+      "enabled": false,
+      "provider": "sportsrc",
+      "env_key": "SPORTSRC_API_KEY",
+      "base_url": "https://api.sportsrc.org/v2",
+      "sports": ["football", "basketball", "esports", "mma", "boxing"],
+      "tag_by_sport": {
+        "football": "football",
+        "basketball": "basketball",
+        "esports": "esports",
+        "mma": "mma",
+        "ufc": "mma",
+        "boxing": "boxing"
+      },
+      "live_only_detail": true,
+      "per_sport_limit": 20
+    }
+  ],
+  "_legacy_single_provider": "Если sources пустой — верхний provider + sport_keys + ключ из .env или sport_odds_credentials.json.",
+  "provider": "the_odds_api",
+  "sport_keys": ["soccer_uefa_champs_league", "basketball_nba"],
+  "tag_by_sport_key": {
+    "soccer_uefa_champs_league": "football",
+    "basketball_nba": "basketball"
+  }
+}

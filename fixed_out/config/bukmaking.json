@@ -1,0 +1,337 @@
+{
+  "_readme": {
+    "description": "Алиас-конфиг для спортивных матчей (bookmaking/bukmaking)",
+    "icon_default_dir": "/static/uploads/bukmaking/icons",
+    "match_background_dir": "/static/uploads/bukmaking/matches",
+    "fields": "match_today=true/false и match_td_utc=ISO UTC автоматически участвуют в Top matches of the day",
+    "kit_colors": "Опционально для ручных матчей: home_kit_primary, home_kit_secondary, away_kit_primary, away_kit_secondary — hex (#112233) или hsl(...). Если не заданы, фронт генерирует стабильные цвета формы от имени команды.",
+    "team_icons": "team_home_icon / team_away_icon — URL логотипа клуба (рядом с условной «формой» на карточке).",
+    "compatibility": "Старые поля tags/events сохранены. Новые секции используются расширенным UI букмекера."
+  },
+  "ui_filters": {
+    "modes": [
+      {
+        "id": "all",
+        "label": "All",
+        "icon": "home"
+      },
+      {
+        "id": "live",
+        "label": "LIVE",
+        "icon": "live"
+      }
+    ],
+    "types": [
+      {
+        "id": "sport",
+        "label": "Sport"
+      },
+      {
+        "id": "esport",
+        "label": "E-Sport"
+      }
+    ],
+    "top_league_label": "Top League",
+    "my_league_label": "My League",
+    "default_mode": "all",
+    "default_type": "sport"
+  },
+  "limits": {
+    "min_stake": 1,
+    "max_stake": 100000,
+    "max_picks": 20,
+    "max_total_coef": 10000
+  },
+  "auto_settle": {
+    "enabled": false,
+    "interval_sec": 120
+  },
+  "leagues_tree": [
+    {
+      "id": "top",
+      "title": "Top League",
+      "expanded": true,
+      "items": [
+        "UEFA Champions League",
+        "NBA",
+        "English Premier League",
+        "La Liga"
+      ]
+    },
+    {
+      "id": "my",
+      "title": "My League",
+      "expanded": true,
+      "items": [
+        "EuroLeague"
+      ]
+    }
+  ],
+  "sports_menu": [
+    {
+      "id": "football_menu",
+      "title": "Football",
+      "expanded": true,
+      "children": [
+        {
+          "id": "football_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "football_eu",
+          "label": "Europe",
+          "countries": [
+            "Spain",
+            "England",
+            "Germany"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basket_menu",
+      "title": "Basketball",
+      "expanded": true,
+      "children": [
+        {
+          "id": "basket_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "basket_us",
+          "label": "USA",
+          "countries": [
+            "USA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "esport_menu",
+      "title": "E-Sport",
+      "expanded": true,
+      "children": [
+        {
+          "id": "esport_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "esport_games",
+          "label": "Games",
+          "countries": [
+            "CS:GO",
+            "DOTA 2",
+            "League of Legends",
+            "Valorant"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tennis_menu",
+      "title": "Tennis",
+      "expanded": false,
+      "children": [
+        {
+          "id": "tennis_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "tennis_atp",
+          "label": "ATP",
+          "countries": [
+            "ATP"
+          ]
+        },
+        {
+          "id": "tennis_wta",
+          "label": "WTA",
+          "countries": [
+            "WTA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mma_menu",
+      "title": "MMA",
+      "expanded": false,
+      "children": [
+        {
+          "id": "mma_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "mma_ufc",
+          "label": "UFC",
+          "countries": [
+            "UFC"
+          ]
+        },
+        {
+          "id": "mma_bellator",
+          "label": "Bellator",
+          "countries": [
+            "Bellator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boxing_menu",
+      "title": "Boxing",
+      "expanded": false,
+      "children": [
+        {
+          "id": "boxing_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "boxing_wbc",
+          "label": "WBC",
+          "countries": [
+            "WBC"
+          ]
+        },
+        {
+          "id": "boxing_ibf",
+          "label": "IBF",
+          "countries": [
+            "IBF"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kickboxing_menu",
+      "title": "Kickboxing",
+      "expanded": false,
+      "children": [
+        {
+          "id": "kickboxing_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "kickboxing_glory",
+          "label": "GLORY",
+          "countries": [
+            "GLORY"
+          ]
+        },
+        {
+          "id": "kickboxing_k1",
+          "label": "K-1",
+          "countries": [
+            "K-1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hockey_menu",
+      "title": "Hockey",
+      "expanded": false,
+      "children": [
+        {
+          "id": "hockey_all",
+          "label": "All",
+          "countries": [
+            "All"
+          ]
+        },
+        {
+          "id": "hockey_nhl",
+          "label": "NHL",
+          "countries": [
+            "USA"
+          ]
+        },
+        {
+          "id": "hockey_khl",
+          "label": "KHL",
+          "countries": [
+            "Russia"
+          ]
+        },
+        {
+          "id": "hockey_ukr",
+          "label": "Ukraine",
+          "countries": [
+            "Ukraine"
+          ]
+        }
+      ]
+    }
+  ],
+  "match_center_defaults": {
+    "video_enabled": true,
+    "video_title": "Live Stream",
+    "video_embed_url": "",
+    "court_label_left": "Black Team",
+    "court_label_right": "Red Team"
+  },
+  "tags": [
+    {
+      "id": "football",
+      "label": "Football",
+      "icon_path": "/static/uploads/sports/icons/football.svg"
+    },
+    {
+      "id": "basketball",
+      "label": "Basketball",
+      "icon_path": "/static/uploads/sports/icons/basketball.svg"
+    },
+    {
+      "id": "esports",
+      "label": "E-Sport",
+      "icon_path": "/static/uploads/sports/icons/esports.svg"
+    },
+    {
+      "id": "tennis",
+      "label": "Tennis",
+      "icon_path": "/static/uploads/sports/icons/tennis.svg"
+    },
+    {
+      "id": "mma",
+      "label": "MMA",
+      "icon_path": "/static/uploads/sports/icons/mma.svg"
+    },
+    {
+      "id": "boxing",
+      "label": "Boxing",
+      "icon_path": "/static/uploads/sports/icons/boxing.svg"
+    },
+    {
+      "id": "kickboxing",
+      "label": "Kickboxing",
+      "icon_path": "/static/uploads/sports/icons/boxing.svg"
+    },
+    {
+      "id": "hockey",
+      "label": "Hockey",
+      "icon_path": "/static/uploads/sports/icons/hockey.svg"
+    }
+  ],
+  "events": []
+}

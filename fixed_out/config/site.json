@@ -1,0 +1,174 @@
+{
+  "casino_name": "VELOX",
+  "tagline": "Играй. Выигрывай. Наслаждайся.",
+  "currencies": [
+    {
+      "code": "UAH",
+      "symbol": "₴",
+      "name": "Гривня",
+      "default": true
+    },
+    {
+      "code": "USD",
+      "symbol": "$",
+      "name": "US Dollar",
+      "default": false
+    },
+    {
+      "code": "EUR",
+      "symbol": "€",
+      "name": "Euro",
+      "default": false
+    },
+    {
+      "code": "USDT",
+      "symbol": "₮",
+      "name": "Tether USDT",
+      "default": false
+    }
+  ],
+  "currency_symbols": {
+    "UAH": "₴",
+    "RUB": "₽",
+    "USD": "$",
+    "EUR": "€",
+    "USDT": "₮"
+  },
+  "phone_codes_enabled": true,
+  "phone_codes": [
+    {
+      "code": "+380",
+      "flag": "🇺🇦",
+      "country": "Украина"
+    },
+    {
+      "code": "+7",
+      "flag": "🇷🇺",
+      "country": "Россия"
+    },
+    {
+      "code": "+1",
+      "flag": "🇺🇸",
+      "country": "США"
+    }
+  ],
+  "banners": [
+    {
+      "id": 1,
+      "bg": "#1a0a2e",
+      "accent": "#c084fc",
+      "text": "Добро пожаловать в VELOX Casino",
+      "sub": "Получи 100% бонус на первый депозит",
+      "show_text": true,
+      "active": true
+    },
+    {
+      "id": 2,
+      "bg": "#0a1a2e",
+      "accent": "#38bdf8",
+      "text": "Новая игра: Crash",
+      "sub": "Ставь и забирай до краша!",
+      "show_text": true,
+      "active": true
+    },
+    {
+      "id": 3,
+      "bg": "#0a2e1a",
+      "accent": "#4ade80",
+      "text": "Ежедневные розыгрыши",
+      "sub": "10,000 ₴ среди всех игроков",
+      "show_text": true,
+      "active": true
+    },
+    {
+      "id": 4,
+      "bg": "#2e1a0a",
+      "accent": "#fb923c",
+      "text": "VIP Программа",
+      "sub": "Эксклюзивные бонусы для лучших",
+      "show_text": true,
+      "active": true
+    },
+    {
+      "id": 5,
+      "bg": "#2e0a1a",
+      "accent": "#f472b6",
+      "text": "Промокод VELOX200",
+      "sub": "Введи и получи 200 ₴ бонус",
+      "show_text": true,
+      "active": true
+    }
+  ],
+  "sidebar_banner": {
+    "_image_size_comment": "Размер: 200x100px (Full HD: 400x200px). Если image пустое — баннер скрывается.",
+    "image": "",
+    "image_example": "/static/uploads/sidebar/banner.jpg",
+    "telegram": "https://t.me/veloxcasino",
+    "viber": "",
+    "whatsapp": "",
+    "youtube": "https://youtube.com/@veloxcasino",
+    "modal_text": "Подписывайся на наши каналы!",
+    "modal_sub": "Акции, новости и стримы"
+  },
+  "social_links": {
+    "telegram": "https://t.me/veloxcasino",
+    "viber": "",
+    "whatsapp": "",
+    "youtube": "https://youtube.com/@veloxcasino"
+  },
+  "casino_policy_text": "Политика казино VELOX Casino\n\nДобро пожаловать в VELOX Casino. Пожалуйста, внимательно ознакомьтесь с данной политикой перед началом использования платформы.\n\n1. Возрастные ограничения\nИгра на платформе VELOX Casino разрешена исключительно лицам, достигшим 18-летнего возраста. Регистрируясь на сайте, вы подтверждаете своё совершеннолетие.\n\n2. Ответственная игра\nМы поддерживаем концепцию ответственной игры. Казино предоставляет инструменты для ограничения депозитов и самоисключения.\n\n3. Использование средств\nЗапрещено использование платформы для отмывания денег или любых незаконных операций.\n\n4. Конфиденциальность\nВаши персональные данные защищены и не передаются третьим лицам без вашего согласия.\n\n5. Правила бонусов\nБонусы предоставляются в соответствии с условиями конкретных акций. Злоупотребление бонусной системой может привести к блокировке аккаунта.",
+  "casino_policy_pdf": null,
+  "deposit_policy_text": "Политика пополнения баланса\n\nМинимальная сумма пополнения:\n- UAH: 50 ₴\n- RUB: 120 ₽\n- USD: $1.50\n- EUR: €1.50\n- USDT: 1.50 USDT\n\nПополнение обрабатывается мгновенно. В случае возникновения проблем обратитесь в техподдержку.",
+  "licenses_text": {
+    "games": "Лицензии на игры VELOX Casino выданы регулирующими органами в соответствии с действующим законодательством.",
+    "deposit": "Платёжные операции защищены SSL-шифрованием и соответствуют стандарту PCI DSS.",
+    "casino": "Казино работает на основании лицензии, выданной соответствующим регулирующим органом."
+  },
+  "sidebar_uploads": {
+    "_comment": "Иконки и логотип сайдбара. Папка: static/uploads/sidebar/",
+    "_logo_size": "Логотип: 160x32px (PNG с прозрачностью)",
+    "_icon_size": "Иконки кнопок: 18x18px (PNG с прозрачностью)",
+    "logo_image": "/static/uploads/sidebar/logo.png",
+    "icon_games": "/static/uploads/sidebar/icon_games.png",
+    "icon_favorites": "/static/uploads/sidebar/icon_favorites.png",
+    "icon_raffles": "/static/uploads/sidebar/icon_raffles.png",
+    "icon_promotions": "/static/uploads/sidebar/icon_promotions.png",
+    "icon_details": "/static/uploads/sidebar/icon_details.png"
+  },
+  "default_language": "US",
+  "site_language": "RU,UA,US",
+  "show_language_switcher": true,
+  "email": {
+    "_note": "Пароль SMTP и SMTP_USER — ТОЛЬКО в .env (SMTP_PASSWORD, SMTP_USER). Здесь только не-секретные поля.",
+    "smtp_host": "live.smtp.mailtrap.io",
+    "smtp_port": 587,
+    "smtp_tls": false,
+    "from_name": "VELOX",
+    "from_addr": "no-reply@demomailtrap.co",
+    "enabled": false
+  },
+  "kyc": {
+    "enabled": true,
+    "min_age": 18,
+    "require_doc": false,
+    "allowed_extensions": [
+      "jpg",
+      "jpeg",
+      "png",
+      "pdf"
+    ],
+    "max_file_mb": 10,
+    "upload_dir": "static/uploads/kyc",
+    "notify_email": "",
+    "_notify_note": "Лучше задать в .env как KYC_NOTIFY_EMAIL=admin@yourdomain.com — безопаснее чем здесь"
+  },
+  "referral": {
+    "enabled": true,
+    "bonus_per_referral": 100,
+    "currency": "UAH",
+    "min_deposit_to_trigger": 50,
+    "_note": "Bonus credited to referrer when friend makes first deposit >= min_deposit_to_trigger"
+  },
+  "default_currency": "UAH",
+  "_currencies_note": "Добавь/убери валюты здесь. default:true = валюта по умолчанию для новых пользователей. Поддерживаемые: UAH, USD, EUR, USDT"
+}

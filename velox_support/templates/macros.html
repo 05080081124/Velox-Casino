@@ -1,0 +1,148 @@
+{% macro sidebar(active_page) %}
+<aside class="panel-sidebar" id="panel-sidebar">
+  <div class="ps-logo">
+    <img id="ps-dynamic-logo" class="hidden" src="" alt="logo" style="max-width:170px;max-height:36px;object-fit:contain">
+    <div id="ps-logo-fallback">
+      <div class="ps-logo-name">VELOX</div>
+      <div class="ps-logo-sub">SUPPORT</div>
+    </div>
+  </div>
+
+  <nav class="ps-nav" id="ps-nav">
+    <button class="ps-item {% if active_page == 'dashboard' %}active{% endif %}" data-href="/panel" data-tab="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span data-t="nav.dashboard">Dashboard</span>
+    </button>
+
+    <button class="ps-item {% if active_page == 'tickets' %}active{% endif %}" data-href="/panel/tickets" data-tab="tickets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span data-t="nav.tickets">Tickets</span>
+      <span class="badge hidden" id="badge-open-tickets"></span>
+    </button>
+
+    <button class="ps-item {% if active_page == 'users' %}active{% endif %}" data-href="/panel/users" data-tab="users">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span data-t="nav.users">Users</span>
+    </button>
+
+    <div class="ps-sep"></div>
+
+    <button class="ps-item hidden {% if active_page == 'analytics' %}active{% endif %}" data-href="/panel/analytics" data-tab="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span data-t="nav.analytics">Analytics</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'payments_queue' %}active{% endif %}" data-href="/panel/payments-queue" data-tab="payments_queue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <span data-t="nav.payments_queue">Payments</span>
+      <span class="badge hidden" id="badge-pending-payments" style="background:#f0b429"></span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'team' %}active{% endif %}" data-href="/panel/team" data-tab="team">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span data-t="nav.team">Team</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'bans' %}active{% endif %}" data-href="/panel/bans" data-tab="bans">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      <span data-t="nav.bans">Ban List</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'broadcast' %}active{% endif %}" data-href="/panel/broadcast" data-tab="broadcast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.41 2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.37a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>
+      <span data-t="nav.broadcast">Broadcast</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'game_builder' %}active{% endif %}" data-href="/panel/game-builder" data-tab="game_builder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span data-t="nav.game_builder">Game Builder</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'banners' %}active{% endif %}" data-href="/panel/banners" data-tab="banners">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 15h3m4 0h3"/></svg>
+      <span data-t="nav.banners">Banners</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'campaigns' %}active{% endif %}" data-href="/panel/campaigns" data-tab="campaigns">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12.5l-8.5 8.5a2 2 0 0 1-2.83 0l-7.17-7.17a2 2 0 0 1 0-2.83L10 2.5h8a2 2 0 0 1 2 2v8z"/><circle cx="15" cy="7" r="1.5"/><path d="M8 14l6-6"/></svg>
+      <span data-t="nav.campaigns">Promotions & Raffles</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'site' %}active{% endif %}" data-href="/panel/site" data-tab="site">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 10h6"/><path d="M9 14h6"/></svg>
+      <span data-t="nav.site">Site</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'tournament_builder' %}active{% endif %}" data-href="/panel/tournament-builder" data-tab="tournament_builder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v3a5 5 0 0 1-10 0V4z"/><path d="M7 7H5a2 2 0 0 1-2-2V4h4"/><path d="M17 7h2a2 2 0 0 0 2-2V4h-4"/></svg>
+      <span data-t="nav.tournament_builder">Tournament Builder</span>
+    </button>
+
+    <div class="ps-sep"></div>
+
+    <button class="ps-item {% if active_page == 'chat' %}active{% endif %}" data-href="/panel/chat" data-tab="chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="12" y2="14"/></svg>
+      <span data-t="nav.chat">Team Chat</span>
+      <span class="badge hidden" id="badge-chat" style="background:var(--purple);"></span>
+    </button>
+
+    <button class="ps-item {% if active_page == 'reports' %}active{% endif %}" data-href="/panel/reports" data-tab="reports">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span data-t="nav.reports">My Reports</span>
+    </button>
+
+    <button class="ps-item hidden {% if active_page == 'soc' %}active{% endif %}" data-href="/panel/soc" data-tab="soc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span data-t="nav.soc">SOC</span>
+    </button>
+  </nav>
+
+  <div class="ps-profile-wrap">
+    <div class="ps-role-badge-wrap"><span class="ps-role-badge hidden" id="ps-role-badge"></span></div>
+    <button class="ps-profile-btn" id="ps-profile-btn">
+      <div class="ps-av">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="ps-profile-info">
+        <div class="ps-admin-name admin-name">VELOX SUPPORT</div>
+        <div class="ps-admin-id admin-public-id"></div>
+      </div>
+      <svg class="ps-profile-arr" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+
+    <div class="ps-profile-menu hidden" id="ps-profile-menu">
+      <button class="ps-menu-item" onclick="location.href='/panel/settings'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-t="nav.settings">Settings</span>
+      </button>
+
+      <div class="ps-menu-item ps-lang-toggle" id="ps-lang-toggle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span data-t="nav.lang">Language</span>
+        <svg class="ps-lang-arr" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="ps-lang-sub hidden" id="ps-lang-sub">
+        <button class="ps-lang-btn" data-lang="RU">🇷🇺 Русский</button>
+        <button class="ps-lang-btn" data-lang="UA">🇺🇦 Українська</button>
+        <button class="ps-lang-btn" data-lang="EN">🇺🇸 English</button>
+      </div>
+
+      <button class="ps-menu-item ps-menu-logout" id="logout-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span data-t="nav.logout">Logout</span>
+      </button>
+    </div>
+  </div>
+</aside>
+{% endmacro %}
+
+{% macro topbar(title_key, title_default) %}
+<header class="panel-topbar">
+  <button class="topbar-hamburger" id="sidebar-toggle" aria-label="Menu" onclick="toggleSidebar()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div class="pt-title" data-t="{{ title_key }}">{{ title_default }}</div>
+</header>
+{% endmacro %}

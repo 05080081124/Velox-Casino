@@ -1,0 +1,117 @@
+<div class="modal" id="modal-policy">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="m-title" id="modal-pol-title">Политика казино</div>
+    <div class="pol-scroll-hint" id="modal-pol-hint"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Прокрутите вниз, чтобы принять</div>
+    <div class="policy-box" id="pol-text" onscroll="V.polScroll(this)"></div>
+    <button class="btn-p w100" id="pol-btn" disabled onclick="V.polConfirm()" id="pol-btn" disabled onclick="V.polConfirm()">Принять и продолжить</button>
+  </div>
+</div>
+<div class="modal" id="modal-game">
+  <div class="mbox mbox-game">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="gm-inner">
+      <div class="gm-left"><div class="gm-demo" id="gm-demo"></div></div>
+      <div class="gm-right">
+        <div class="gm-badges" id="gm-badges"></div>
+        <div class="gm-name" id="gm-name"></div>
+        <div class="gm-desc" id="gm-desc"></div>
+        <div class="gm-tags" id="gm-tags"></div>
+        <div class="gm-stats">
+        </div>
+        <button class="btn-p w100 mt16" id="gm-play-btn" onclick="V.playGame()" style="padding:14px;font-size:14px"><span style="display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3l12 7-12 7V3z" rx="1"/></svg>Играть</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal-avatar">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="m-title" id="modal-av-title">Аватарка профиля</div>
+    <div style="display:flex;justify-content:center;margin:14px 0 10px">
+      <div id="av-modal-prev" style="width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,#a855f7,#00e5ff);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;font-family:var(--ffd);overflow:hidden;border:2px solid var(--bdrB)">?</div>
+    </div>
+    <div id="av-upload-zone" onclick="document.getElementById('av-file-inp').click()" ondragover="event.preventDefault();this.style.borderColor='var(--a)'" ondragleave="this.style.borderColor='var(--bdrB)'" ondrop="V.avDrop(event)" style="border:2px dashed var(--bdrB);border-radius:var(--r);padding:24px 16px;text-align:center;cursor:pointer;transition:.18s;margin-bottom:10px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style="display:block;margin:0 auto 8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--a)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="17,8 12,3 7,8" stroke="var(--a)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="var(--a)" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:3px" id="av-upload-text">Нажмите чтобы выбрать файл</div>
+      <div style="font-size:11px;color:var(--t3)" id="av-upload-hint">JPG, PNG, GIF, WEBP — до 2 МБ</div>
+      <input type="file" id="av-file-inp" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" onchange="V.avFile(this)">
+    </div>
+    <div id="av-fname" style="font-size:11px;color:var(--green);min-height:15px;margin-bottom:6px;text-align:center"></div>
+    <div class="err-msg" id="av-err"></div>
+    <button class="btn-p w100" id="av-save-btn" onclick="V.saveAvatar()" disabled>Сохранить</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-banner-info">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div id="bni-video-wrap" style="display:none;margin-bottom:14px">
+      <video id="bni-video" controls playsinline style="width:100%;border-radius:var(--r);max-height:220px;background:#000"></video>
+    </div>
+    <div id="bni-text" style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px"></div>
+    <div id="bni-btns" style="display:flex;flex-direction:column;gap:9px"></div>
+  </div>
+</div>
+<div class="modal" id="modal-tour-event">
+  <div class="mbox mbox-lg mbox-tour-event">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="tev-hero">
+      <div class="tv2-hero-bg"></div>
+      <div class="tv2-hero-particles">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="tev-hero-content">
+        <div class="tv2-hero-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true">
+            <path d="M7 4h10v3a5 5 0 0 1-5 5h0a5 5 0 0 1-5-5V4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 20h6M12 12v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M7 6H4a2 2 0 0 0 0 4h3M17 6h3a2 2 0 0 1 0 4h-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="tv2-hero-title" id="tev-title">Tournament Event</div>
+          <div class="tv2-hero-sub" id="tev-subtitle">Compete. Win. Take the prize.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tev-body">
+      <div class="tev-desc" id="tev-desc">—</div>
+      <div class="tev-game-row">
+        <button class="tev-game-logo-wrap" id="tev-game-logo-btn" type="button" onclick="V.openTournamentEventGame()">
+          <img id="tev-game-logo" alt="">
+          <span id="tev-game-logo-fallback">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+              <rect x="4" y="8" width="16" height="9" rx="4.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M8 12h4M10 10v4M15.2 11.2h.01M17.2 13.2h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="tev-game-meta">
+          <div class="tev-game-label" id="tev-game-label">Game</div>
+          <div class="tev-game-name" id="tev-game-name">—</div>
+          <button type="button" class="tev-open-game-btn" id="tev-open-game-btn" onclick="V.openTournamentEventGame()">Open game</button>
+        </div>
+      </div>
+      <div class="tev-stats">
+        <div class="tev-stat">
+          <div class="tev-stat-lbl">RTP</div>
+          <div class="tev-stat-val" id="tev-rtp">—</div>
+        </div>
+        <div class="tev-stat">
+          <div class="tev-stat-lbl" id="tev-minbet-label">MIN BET</div>
+          <div class="tev-stat-val" id="tev-min-bet">—</div>
+        </div>
+      </div>
+      <div class="tev-name-strip" id="tev-name-strip">—</div>
+      <div class="tev-players-head" id="tev-players-title">Event leaderboard</div>
+      <div class="tev-players custom-scroll" id="tev-players"></div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal-promo"><div class="mbox"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div class="m-title"><span style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M2 8a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v1a2 2 0 0 0 0 4v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1a2 2 0 0 0 0-4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span id="modal-promo-title-text">Промокод</span></span></div><div class="fg"><input type="text" class="inp" id="promo-inp" placeholder="Промокод" style="text-transform:uppercase"></div><div class="err-msg" id="promo-err"></div><div class="ok-msg" id="promo-ok"></div><button class="btn-p w100" id="promo-apply-btn" onclick="V.promo()">Применить</button></div></div>
+<div class="modal" id="modal-support"><div class="mbox"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div class="m-title"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><path d="M3 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7l-4 3V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> <span id="modal-sup-title-text">Тех-Поддержка</span></div><div class="fg"><label id="sup-contact-lbl">Контакт</label><input type="text" class="inp" id="sup-contact" placeholder="email или телефон"></div><div class="fg"><label id="sup-subject-lbl">Тема</label><input type="text" class="inp" id="sup-subj" placeholder="Кратко"></div><div class="fg"><label id="sup-desc-lbl">Описание</label><textarea class="inp inp-ta" id="sup-desc" placeholder="Подробнее..."></textarea></div><div class="fg"><label>Скриншоты (JPG/PNG, до 4 файлов)</label><div class="sup-upload-area" id="sup-upload-area" onclick="document.getElementById('sup-files').click()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Прикрепить скриншоты (необязательно)</span></div><input type="file" id="sup-files" multiple accept=".jpg,.jpeg,.png" style="display:none" onchange="V.supFilesChanged(this)"><div id="sup-files-list" class="sup-files-list"></div></div><div class="err-msg" id="sup-err"></div><div class="ok-msg" id="sup-ok"></div><button class="btn-p w100" id="sup-send-btn" onclick="V.ticket()">Отправить</button></div></div>
+<div class="modal" id="modal-faq"><div class="mbox mbox-lg"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div class="m-title"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 8c0-1.1.9-2 2-2s2 .9 2 2c0 .8-.5 1.5-1.2 1.8L10 10.5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="14" r=".8" fill="currentColor"/></svg> <span id="modal-faq-title-text">Вопрос-Ответ</span></div><div class="faq-list" id="faq-list"></div></div></div>
+<div class="modal" id="modal-licenses"><div class="mbox mbox-lg"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div class="m-title"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Лицензии</div><div class="lic-tabs"><button class="ltab on" onclick="V.licTab(this,'lic-games')">Игры</button><button class="ltab" onclick="V.licTab(this,'lic-dep')">Депозиты</button><button class="ltab" onclick="V.licTab(this,'lic-cas')">Казино</button></div><div class="lic-p on" id="lic-games"></div><div class="lic-p" id="lic-dep"></div><div class="lic-p" id="lic-cas"></div></div></div>
+<div class="modal" id="modal-sb-banner"><div class="mbox"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div id="sbb-text" style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px"></div><div id="sbb-btns" style="display:flex;flex-direction:column;gap:9px"></div></div></div>
+<div class="modal" id="modal-dep-policy"><div class="mbox mbox-lg"><button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><div class="m-title" id="modal-dep-pol-title">Политика пополнения</div><div class="policy-box" id="dep-pol-text"></div></div></div>

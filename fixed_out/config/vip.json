@@ -1,0 +1,118 @@
+{
+  "_readme": "Настройки VIP-клуба. Цены указаны в UAH (конвертируются по курсу для других валют).",
+  "enabled": true,
+  "tiers": {
+    "bronze": {
+      "label": "Bronze",
+      "color": "#b0b0b0",
+      "prices": {
+        "1": 150,
+        "3": 400,
+        "6": 700,
+        "12": 1200
+      },
+      "benefits": {
+        "cashback_percent": 3,
+        "deposit_bonus_percent": 5,
+        "win_bonus_percent": 0,
+        "free_spins_monthly": 10,
+        "withdraw_limit_daily": 50000,
+        "priority_support": false,
+        "personal_manager": false,
+        "exclusive_promos": false,
+        "withdraw_limit_monthly": 500000
+      },
+      "icon_url": "/static/uploads/vip/bronze.png"
+    },
+    "silver": {
+      "label": "Silver",
+      "color": "#c0a96e",
+      "prices": {
+        "1": 400,
+        "3": 1000,
+        "6": 1800,
+        "12": 3000
+      },
+      "benefits": {
+        "cashback_percent": 5,
+        "deposit_bonus_percent": 10,
+        "win_bonus_percent": 2,
+        "free_spins_monthly": 10,
+        "withdraw_limit_daily": 150000,
+        "priority_support": true,
+        "personal_manager": false,
+        "exclusive_promos": true,
+        "withdraw_limit_monthly": 1000000
+      },
+      "icon_url": "/static/uploads/vip/silver.png"
+    },
+    "gold": {
+      "label": "Gold",
+      "color": "#f5c518",
+      "prices": {
+        "1": 900,
+        "3": 2400,
+        "6": 4200,
+        "12": 7000
+      },
+      "benefits": {
+        "cashback_percent": 8,
+        "deposit_bonus_percent": 20,
+        "win_bonus_percent": 5,
+        "free_spins_monthly": 10,
+        "withdraw_limit_daily": 500000,
+        "priority_support": true,
+        "personal_manager": false,
+        "exclusive_promos": true,
+        "withdraw_limit_monthly": 3000000
+      },
+      "icon_url": "/static/uploads/vip/gold.png"
+    },
+    "platinum": {
+      "label": "Platinum",
+      "color": "#00e5ff",
+      "prices": {
+        "1": 2000,
+        "3": 5500,
+        "6": 9500,
+        "12": 16000
+      },
+      "benefits": {
+        "cashback_percent": 12,
+        "deposit_bonus_percent": 30,
+        "win_bonus_percent": 10,
+        "free_spins_monthly": 40,
+        "withdraw_limit_daily": 1000000,
+        "priority_support": true,
+        "personal_manager": true,
+        "exclusive_promos": true,
+        "withdraw_limit_monthly": 10000000
+      },
+      "icon_url": "/static/uploads/vip/platinum.png"
+    }
+  },
+  "durations": [
+    {
+      "months": 1,
+      "label_key": "vip.duration_1m",
+      "discount": 0
+    },
+    {
+      "months": 3,
+      "label_key": "vip.duration_3m",
+      "discount": 5
+    },
+    {
+      "months": 6,
+      "label_key": "vip.duration_6m",
+      "discount": 10
+    },
+    {
+      "months": 12,
+      "label_key": "vip.duration_12m",
+      "discount": 15
+    }
+  ],
+  "default_daily_limit": 10000,
+  "default_monthly_limit": 100000
+}

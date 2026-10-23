@@ -1,0 +1,13 @@
+{
+  "_readme": {
+    "description": "Список партнёров для блока Partners в сайдбаре",
+    "count_rule": "Считаются элементы с уникальным id и enabled != false",
+    "icon_note": "Путь к иконке партнёра в sidebar: /static/uploads/partners/<file>.png"
+  },
+  "partners": [
+    { "id": "parimatch", "enabled": true, "name": "Parimatch", "icon_path": "/static/uploads/partners/parimatch.png" },
+    { "id": "favbet", "enabled": true, "name": "Favbet", "icon_path": "/static/uploads/partners/favbet.png" },
+    { "id": "ggbet", "enabled": true, "name": "GG.BET", "icon_path": "/static/uploads/partners/ggbet.png" },
+    { "id": "bet365", "enabled": true, "name": "Bet365", "icon_path": "/static/uploads/partners/bet365.png" }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "id": "mineslot",
+  "provider_tag": "velox",
+  "provider": "VELOX Games",
+  "active": true,
+  "featured": true,
+  "hot": true,
+  "new": true,
+  "icon": "⛏️",
+  "logo": "/static/uploads/games/mineslot/mineslots.jpg",
+  "demo": "/static/uploads/games/mineslot/mineslots.jpg",
+  "bg_gradient": "linear-gradient(135deg,#050d1a 0%,#0a1628 50%,#050d1a 100%)",
+  "route": "/game/mineslot",
+  "category": "slots",
+  "field_scale": "",
+  "tags": [
+    "slots",
+    "hot",
+    "fs",
+    "velox",
+    "mineslot",
+    "RTP 96.5%"
+  ],
+  "bet": {
+    "min": 1,
+    "max": 10000,
+    "currency_min": {
+      "UAH": 1,
+      "RUB": 5,
+      "USD": 0.1,
+      "EUR": 0.1,
+      "USDT": 0.1
+    }
+  },
+  "rtp": 0.965,
+  "assets": {
+    "_note": "null = canvas-спрайт. Підставте свої шляхи. Підтримуються PNG та GIF.",
+    "bg_sky_png": "/static/uploads/games/mineslot/sky.png",
+    "bg_ground_png": null,
+    "chicken_gif": null,
+    "inv_frame_png": "/static/uploads/games/mineslot/inventory2.png",
+    "inv_slot_png": null,
+    "pick_wooden_png": "/static/uploads/games/mineslot/pick_wood.png",
+    "pick_stone_png": "/static/uploads/games/mineslot/stone_pickaxe.png",
+    "pick_golden_png": "/static/uploads/games/mineslot/pick_gold.png",
+    "pick_enchanted_png": "/static/uploads/games/mineslot/pick_diam.png",
+    "block_dirt_png": "/static/uploads/games/mineslot/dirt.png",
+    "block_dirt_broken_png": "/static/uploads/games/mineslot/bdirt.png",
+    "block_dirt2_png": "/static/uploads/games/mineslot/dirts.png",
+    "block_dirt2_broken_png": "/static/uploads/games/mineslot/b_dirts.png",
+    "bonus_icon_extra_chance_png": "/static/uploads/games/mineslot/lucky_chance.png",
+    "bonus_icon_block_bonus_png":  "/static/uploads/games/mineslot/blockbonus.png",
+    "block_stone_png": "/static/uploads/games/mineslot/stone.png",
+    "block_stone_broken_png": "/static/uploads/games/mineslot/bstone.png",
+    "block_ore_png": "/static/uploads/games/mineslot/ore.png",
+    "block_ore_broken_png": "/static/uploads/games/mineslot/bore.png",
+    "block_gold_png": "/static/uploads/games/mineslot/gold.png",
+    "block_gold_broken_png": "/static/uploads/games/mineslot/bgold.png",
+    "block_diamond_png": "/static/uploads/games/mineslot/diamond.png",
+    "block_diamond_broken_png": "/static/uploads/games/mineslot/broken_dia.png",
+    "block_obsidian_png": "/static/uploads/games/mineslot/obsidian.png",
+    "block_obsidian_broken_png": "/static/uploads/games/mineslot/bob.png",
+    "bonus_modal_bg_png": "/static/uploads/games/mineslot/buybonus.png",
+    "chest_closed_png": "/static/uploads/games/mineslot/chest.png",
+    "chest_open_gif": "/static/uploads/games/mineslot/chest_opened.png",
+    "chest_header_png": "/static/uploads/games/mineslot/dirt.png",
+    "chest_popup_png": "/static/uploads/games/mineslot/chest_opened.png",
+    "ender_eye_png": "/static/uploads/games/mineslot/end_eye.png",
+    "ench_book_png": "/static/uploads/games/mineslot/book.png",
+    "tnt_png": "/static/uploads/games/mineslot/tnt.png",
+    "floor_tile_png": "/static/uploads/games/mineslot/dirt.png",
+    "fs_modal_logo_png": null,
+    "htp_image_png": null,
+    "tnt2_png": "/static/uploads/games/mineslot/tnt2.png",
+    "fs_screen_image_png": "/static/uploads/games/mineslot/bb_modal.png"
+  },
+  "pickaxes": {
+    "wooden": {
+      "damage": 1,
+      "color": "#A07840",
+      "label": "WOOD"
+    },
+    "stone": {
+      "damage": 2,
+      "color": "#9E9E9E",
+      "label": "STONE"
+    },
+    "golden": {
+      "damage": 3,
+      "color": "#f5c518",
+      "label": "GOLD"
+    },
+    "enchanted": {
+      "damage": 5,
+      "color": "#00e5ff",
+      "label": "ENCH"
+    }
+  },
+  "pick_weights": [
+    50,
+    30,
+    15,
+    5
+  ],
+  "pick_count_weights": [
+    0,
+    38,
+    32,
+    14,
+    10,
+    6
+  ],
+  "blocks": {
+    "dirt": {
+      "hp": 1,
+      "value": 0.5,
+      "color": "#8B5E3C"
+    },
+    "stone": {
+      "hp": 2,
+      "value": 0.8,
+      "color": "#9E9E9E"
+    },
+    "ore": {
+      "hp": 4,
+      "value": 1.5,
+      "color": "#c06030"
+    },
+    "gold": {
+      "hp": 5,
+      "value": 2.2,
+      "color": "#f5c518"
+    },
+    "diamond": {
+      "hp": 6,
+      "value": 3.5,
+      "color": "#00e5ff"
+    },
+    "obsidian": {
+      "hp": 7,
+      "value": 5,
+      "color": "#2d0a4a"
+    },
+    "dirt2": {
+      "hp": 1,
+      "value": 0.5,
+      "color": "#9a7255"
+    }
+  },
+  "block_weights": [
+    35,
+    30,
+    28,
+    18,
+    10,
+    6,
+    3
+  ],
+  "chest": {
+    "multipliers": [
+      1.5,
+      2,
+      2.5,
+      3,
+      4,
+      5,
+      7.5,
+      10
+    ],
+    "mult_weights": [
+      25,
+      22,
+      18,
+      14,
+      10,
+      6,
+      3,
+      2
+    ]
+  },
+  "bonus": {
+    "slot_chance_base": 0.06,
+    "ender_eye_fs": {
+      "3": 3,
+      "4": 4,
+      "5": 5
+    },
+    "fs_multipliers": {
+      "3": 1,
+      "4": 2,
+      "5": 3
+    }
+  },
+  "speed": {
+    "normal": {
+      "inv_show_ms": 400,
+      "spin_ms": 600,
+      "drop_px": 3,
+      "hit_ms": 140,
+      "salto_ms": 420
+    },
+    "fast": {
+      "inv_show_ms": 300,
+      "spin_ms": 200,
+      "drop_px": 18,
+      "hit_ms": 40,
+      "salto_ms": 140
+    }
+  },
+  "i18n": {
+    "ru": {
+      "name": "Mine Slot",
+      "description": "Пиксельный слот в стиле Minecraft!",
+      "tag_line": "Копай. Ломай. Побеждай."
+    },
+    "ua": {
+      "name": "Mine Slot",
+      "description": "Піксельний слот у стилі Minecraft!",
+      "tag_line": "Копай. Ломай. Перемагай."
+    },
+    "us": {
+      "name": "Mine Slot",
+      "description": "Pixel Minecraft-style slot!",
+      "tag_line": "Mine. Break. Win."
+    }
+  },
+  "buy_bonus": {
+    "block_bonus": {
+      "free_spins": 5
+    }
+  },
+  "block_weights_by_row": {
+    "_note": "7 entries: [dirt, dirt2, stone, ore, gold, diamond, obsidian]",
+    "row_0": [
+      55,
+      45,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "row_1": [
+      30,
+      40,
+      30,
+      0,
+      0,
+      0,
+      0
+    ],
+    "row_2": [
+      5,
+      8,
+      50,
+      25,
+      10,
+      2,
+      0
+    ],
+    "row_3": [
+      0,
+      0,
+      10,
+      38,
+      32,
+      14,
+      6
+    ],
+    "row_4": [
+      0,
+      0,
+      2,
+      10,
+      22,
+      38,
+      28
+    ],
+    "row_5": [
+      0,
+      0,
+      0,
+      4,
+      10,
+      24,
+      62
+    ]
+  },
+  "sounds": {
+    "block_break": null,
+    "tnt_explode": null,
+    "spin_start": null,
+    "win": null,
+    "fs_trigger": null,
+    "chest_open": null,
+    "_note": "null = без звуку. Вкажіть шляхи до .ogg або .mp3 файлів. Приклад: \"/static/uploads/games/mineslot/sounds/break.ogg\""
+  }
+}

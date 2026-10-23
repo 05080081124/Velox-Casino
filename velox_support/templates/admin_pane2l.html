@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VELOX — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── Variables ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #08090D;
+  --bg2:       #0D0F17;
+  --bg3:       #12151F;
+  --bg4:       #181C28;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --accent:    #6C63FF;
+  --accent2:   #9B59B6;
+  --gold:      #FFD700;
+  --red:       #FF4B4B;
+  --green:     #00E676;
+  --cyan:      #00E5FF;
+  --orange:    #FF6B35;
+  --text:      #E8EAF0;
+  --text2:     #8892A4;
+  --text3:     #4A5268;
+  --radius:    10px;
+  --shadow:    0 8px 32px rgba(0,0,0,0.5);
+  --glow:      0 0 20px rgba(108,99,255,0.3);
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Hide number input spinners */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow: hidden; }
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+.app { display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 56px 1fr; height: 100vh; }
+
+/* ─── Topbar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  grid-column: 1/-1;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px;
+  gap: 16px;
+  position: relative; z-index: 100;
+}
+.topbar-logo {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700; font-size: 18px;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #6C63FF, #9B59B6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.topbar-logo span { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+.topbar-sep { flex: 1; }
+.role-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: 600;
+  transition: all .2s;
+}
+.role-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+.topbar-time { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text2); }
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto; overflow-x: hidden;
+  padding: 16px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; padding: 12px 8px 6px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--text2); transition: all .15s;
+  border: 1px solid transparent; position: relative;
+  white-space: nowrap; overflow: hidden;
+  user-select: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(155,89,182,0.15));
+  color: var(--text); border-color: rgba(108,99,255,0.4);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 3px; background: var(--accent); border-radius: 0 3px 3px 0;
+}
+.nav-item-icon { font-size: 16px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+
+/* ─── Main ─────────────────────────────────────────────────────────────── */
+.main {
+  overflow-y: auto; overflow-x: hidden;
+  background: var(--bg);
+  position: relative;
+}
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.page { display: none; padding: 24px; min-height: 100%; }
+.page.active { display: block; }
+
+/* ─── Page Header ─────────────────────────────────────────────────────── */
+.page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 800; }
+.page-title span { color: var(--accent); }
+.page-desc { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.page-header-actions { margin-left: auto; display: flex; gap: 10px; }
+
+/* ─── Cards ─────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* ─── Stat Cards ─────────────────────────────────────────────────────────── */
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  position: relative; overflow: hidden;
+  transition: all .2s;
+}
+.stat-card::after {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 60px; height: 60px; border-radius: 0 var(--radius) 0 100%;
+  opacity: 0.08;
+}
+.stat-card.blue::after  { background: var(--accent); }
+.stat-card.green::after { background: var(--green); }
+.stat-card.red::after   { background: var(--red); }
+.stat-card.gold::after  { background: var(--gold); }
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
+.stat-value { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; }
+.stat-card.blue  .stat-value { color: var(--accent); }
+.stat-card.green .stat-value { color: var(--green); }
+.stat-card.red   .stat-value { color: var(--red); }
+.stat-card.gold  .stat-value { color: var(--gold); }
+.stat-sub { font-size: 11px; color: var(--text3); }
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .15s;
+  font-family: 'Syne', sans-serif; letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #6C63FF, #9B59B6);
+  color: #fff; box-shadow: 0 4px 15px rgba(108,99,255,0.35);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.5); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+.btn-secondary:hover { background: var(--bg4); border-color: var(--accent); }
+.btn-danger  { background: rgba(255,75,75,0.15); color: var(--red); border: 1px solid rgba(255,75,75,0.3); }
+.btn-danger:hover { background: rgba(255,75,75,0.25); }
+.btn-success { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+.btn-success:hover { background: rgba(0,230,118,0.25); }
+.btn-gold { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+.btn-gold:hover { background: rgba(255,215,0,0.25); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { padding: 8px; }
+
+/* ─── Inputs ─────────────────────────────────────────────────────────────── */
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); }
+
+.velox-input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--text); font-size: 14px; font-family: 'Syne', sans-serif;
+  outline: none; transition: all .15s; width: 100%;
+}
+.velox-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+.velox-input::placeholder { color: var(--text3); }
+
+/* Money input with custom controls */
+.money-input-wrap {
+  position: relative; display: flex; align-items: center;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; transition: all .15s;
+}
+.money-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+.money-input-currency {
+  padding: 10px 12px 10px 14px; font-size: 12px; font-weight: 700;
+  color: var(--text3); background: transparent; border-right: 1px solid var(--border); white-space: nowrap;
+}
+.money-input-field {
+  flex: 1; background: transparent; border: none; outline: none;
+  padding: 10px 12px; color: var(--text); font-size: 14px;
+  font-family: 'Space Mono', monospace; font-weight: 700;
+}
+.money-input-controls {
+  display: flex; flex-direction: column; padding: 2px;
+  border-left: 1px solid var(--border);
+}
+.money-ctrl {
+  width: 26px; height: 20px; background: transparent; border: none;
+  cursor: pointer; color: var(--text2); font-size: 14px; line-height: 1;
+  transition: all .1s; display: flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+}
+.money-ctrl:hover { background: var(--border2); color: var(--accent); }
+.money-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.money-quick-btn {
+  background: var(--bg4); border: 1px solid var(--border);
+  color: var(--text2); font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  transition: all .15s; font-family: 'Space Mono', monospace;
+}
+.money-quick-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.1); }
+
+/* ─── Table ─────────────────────────────────────────────────────────────── */
+.vtable-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.vtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.vtable thead { background: var(--bg3); }
+.vtable th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.vtable td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.vtable tbody tr:hover { background: rgba(255,255,255,0.02); }
+.vtable tbody tr:last-child td { border-bottom: none; }
+
+/* ─── Tags ─────────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.tag-active { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.tag-banned  { background: rgba(255,75,75,0.12); color: var(--red); border: 1px solid rgba(255,75,75,0.25); }
+.tag-pending { background: rgba(255,215,0,0.12); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+.tag-vip { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.4); }
+.tag-role { border: 1px solid; font-size: 10px; }
+
+/* ─── Modal ─────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 14px; width: 520px; max-width: 95vw;
+  max-height: 90vh; overflow-y: auto;
+  transform: scale(0.95); transition: transform .2s;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal.modal-lg { width: 700px; }
+.modal-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+}
+.modal-icon { font-size: 24px; }
+.modal-title { font-size: 18px; font-weight: 800; flex: 1; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px; background: var(--bg3);
+  border: 1px solid var(--border); cursor: pointer; color: var(--text2);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  transition: all .15s;
+}
+.modal-close:hover { background: rgba(255,75,75,0.15); color: var(--red); border-color: rgba(255,75,75,0.3); }
+.modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ─── User Profile Card ─────────────────────────────────────────────────── */
+.user-profile-card {
+  background: linear-gradient(135deg, var(--bg3), var(--bg4));
+  border: 1px solid var(--border2);
+  border-radius: 12px; padding: 20px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.user-avatar {
+  width: 56px; height: 56px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(108,99,255,0.35);
+}
+.user-info { flex: 1; }
+.user-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.user-meta { font-size: 12px; color: var(--text2); display: flex; flex-wrap: wrap; gap: 8px; }
+.user-meta span { display: flex; align-items: center; gap: 4px; }
+.user-balance { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--green); margin-top: 8px; }
+
+/* ─── Section divider ─────────────────────────────────────────────────────── */
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--text3); padding: 6px 0; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+
+/* ─── Toggle ─────────────────────────────────────────────────────────────── */
+.toggle { position: relative; width: 40px; height: 22px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--bg4);
+  border: 1px solid var(--border2); border-radius: 11px; transition: .2s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute; left: 3px; top: 3px;
+  width: 14px; height: 14px; background: var(--text3);
+  border-radius: 50%; transition: .2s;
+}
+.toggle input:checked + .toggle-slider { background: rgba(108,99,255,0.3); border-color: var(--accent); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--accent); }
+
+/* ─── Select ─────────────────────────────────────────────────────────────── */
+.velox-select {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  color: var(--text); font-size: 13px; font-family: 'Syne', sans-serif;
+  outline: none; width: 100%; cursor: pointer; transition: all .15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234A5268' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.velox-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+
+/* ─── DB Export ─────────────────────────────────────────────────────────── */
+.db-progress { background: var(--bg3); border-radius: 8px; padding: 16px; }
+.db-step {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--text2); padding: 6px 0;
+  transition: all .3s;
+}
+.db-step.done { color: var(--green); }
+.db-step.active { color: var(--accent); }
+.db-step-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--text3); transition: all .3s;
+}
+.db-step.done .db-step-dot { background: var(--green); }
+.db-step.active .db-step-dot { background: var(--accent); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+
+/* ─── Perms Grid ─────────────────────────────────────────────────────────── */
+.perms-role-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; transition: all .2s;
+}
+.perms-role-card:hover { border-color: var(--border2); }
+.perms-role-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.perms-role-icon { font-size: 20px; }
+.perms-role-name { font-size: 14px; font-weight: 800; }
+.perms-role-desc { font-size: 11px; color: var(--text2); }
+.perms-feat-list { display: flex; flex-direction: column; gap: 6px; }
+.perms-feat-row { display: flex; align-items: center; justify-content: space-between; }
+.perms-feat-name { font-size: 12px; color: var(--text2); }
+
+/* ─── Banner upload ─────────────────────────────────────────────────────── */
+.banner-upload-zone {
+  border: 2px dashed var(--border2); border-radius: 10px;
+  padding: 32px; text-align: center; cursor: pointer;
+  transition: all .2s; background: var(--bg3);
+}
+.banner-upload-zone:hover, .banner-upload-zone.dragging {
+  border-color: var(--accent); background: rgba(108,99,255,0.05);
+}
+.banner-upload-icon { font-size: 36px; margin-bottom: 12px; }
+.banner-upload-text { font-size: 14px; color: var(--text2); }
+.banner-upload-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.page.active { animation: fadeIn .2s ease; }
+
+/* ─── Access denied ─────────────────────────────────────────────────────── */
+.access-denied {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 60vh; gap: 16px; opacity: 0.5;
+}
+.access-denied-icon { font-size: 56px; }
+.access-denied-title { font-size: 20px; font-weight: 800; }
+.access-denied-sub { font-size: 14px; color: var(--text2); }
+
+/* ─── Scrollbar global ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-logo">VELOX<span>.</span></div>
+    <div style="width:1px;height:24px;background:var(--border);margin:0 4px"></div>
+    <span style="font-size:12px;color:var(--text2)">Admin Panel</span>
+    <div class="topbar-sep"></div>
+    <div class="role-badge" id="topRoleBadge">
+      <div class="dot" id="topRoleDot" style="background:#888"></div>
+      <span id="topRoleLabel">Loading...</span>
+    </div>
+    <div style="width:1px;height:24px;background:var(--border)"></div>
+    <div class="topbar-time" id="topClock">--:--:--</div>
+  </header>
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-label">Navigation</div>
+    <!-- dynamically populated -->
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- ANALYTICS -->
+    <section class="page" id="page-analytics">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📊 <span>Analytics</span></div>
+          <div class="page-desc">Real-time casino performance overview</div>
+        </div>
+      </div>
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="stat-card blue"><div class="stat-label">Total Users</div><div class="stat-value">14,823</div><div class="stat-sub">+142 today</div></div>
+        <div class="stat-card green"><div class="stat-label">Revenue (24h)</div><div class="stat-value">₴82,410</div><div class="stat-sub">+12.4% vs yesterday</div></div>
+        <div class="stat-card red"><div class="stat-label">Withdrawals</div><div class="stat-value">₴34,200</div><div class="stat-sub">18 pending</div></div>
+        <div class="stat-card gold"><div class="stat-label">Active Now</div><div class="stat-value">1,247</div><div class="stat-sub">Peak: 2,318</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Top Games by GGR</div>
+          <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Game</th><th>Bets</th><th>GGR</th><th>RTP</th></tr></thead><tbody>
+            <tr><td>⚡ Crash</td><td>8,420</td><td>₴12,840</td><td><span class="tag tag-active">96.2%</span></td></tr>
+            <tr><td>🎰 Slots Mix</td><td>5,210</td><td>₴9,340</td><td><span class="tag tag-pending">94.1%</span></td></tr>
+            <tr><td>⚽ Sport</td><td>3,890</td><td>₴7,120</td><td><span class="tag tag-active">97.0%</span></td></tr>
+            <tr><td>🃏 Blackjack</td><td>2,100</td><td>₴4,800</td><td><span class="tag tag-active">99.2%</span></td></tr>
+          </tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Transactions</div>
+          <div class="vtable-wrap"><table class="vtable"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+            <tr><td>@vsevolod_k</td><td>Deposit</td><td>₴5,000</td><td><span class="tag tag-active">Done</span></td></tr>
+            <tr><td>@marina_88</td><td>Withdraw</td><td>₴2,500</td><td><span class="tag tag-pending">Pending</span></td></tr>
+            <tr><td>@drago_pro</td><td>Bonus</td><td>₴500</td><td><span class="tag tag-active">Done</span></td></tr>
+            <tr><td>@neo_gamer</td><td>Withdraw</td><td>₴8,000</td><td><span class="tag tag-banned">Rejected</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TICKETS -->
+    <section class="page" id="page-tickets">
+      <div class="page-header">
+        <div><div class="page-title">🎫 <span>Tickets</span></div><div class="page-desc">Support tickets management</div></div>
+        <div class="page-header-actions">
+          <select class="velox-select" style="width:140px"><option>All statuses</option><option>Open</option><option>In progress</option><option>Closed</option></select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>#ID</th><th>User</th><th>Subject</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+          <tr><td><span style="font-family:monospace;color:var(--accent)">TK-8821</span></td><td>@vsevolod_k</td><td>Payment not received</td><td>16.04.2026 14:22</td><td><span class="tag tag-active">Open</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          <tr><td><span style="font-family:monospace;color:var(--accent)">TK-8820</span></td><td>@marina_88</td><td>Account verification issue</td><td>16.04.2026 13:10</td><td><span class="tag tag-pending">In Progress</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+          <tr><td><span style="font-family:monospace;color:var(--accent)">TK-8819</span></td><td>@drago_pro</td><td>Promo code not working</td><td>15.04.2026 22:44</td><td><span class="tag tag-banned">Closed</span></td><td><button class="btn btn-secondary btn-sm">View</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- USERS -->
+    <section class="page" id="page-users">
+      <div class="page-header">
+        <div><div class="page-title">👥 <span>Users</span></div><div class="page-desc">User management and profiles</div></div>
+        <div class="page-header-actions">
+          <input class="velox-input" placeholder="🔍  Search by username / email..." style="width:260px">
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Balance</th><th>VIP</th><th>Status</th><th>Actions</th></tr></thead><tbody id="usersTableBody">
+          <tr>
+            <td><span style="font-family:monospace;color:var(--text3)">#1042</span></td>
+            <td><strong>@vsevolod_k</strong></td>
+            <td>v.koval@gmail.com</td>
+            <td style="font-family:monospace;color:var(--green)">₴12,440</td>
+            <td><span class="tag tag-vip">👑 Gold</span></td>
+            <td><span class="tag tag-active">Active</span></td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-secondary btn-sm" onclick="openUserProfile(1042,'vsevolod_k',12440,'Gold','active')">Profile</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span style="font-family:monospace;color:var(--text3)">#1043</span></td>
+            <td><strong>@marina_88</strong></td>
+            <td>marina@yandex.ru</td>
+            <td style="font-family:monospace;color:var(--green)">₴3,210</td>
+            <td><span style="color:var(--text3);font-size:12px">—</span></td>
+            <td><span class="tag tag-active">Active</span></td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-secondary btn-sm" onclick="openUserProfile(1043,'marina_88',3210,null,'active')">Profile</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span style="font-family:monospace;color:var(--text3)">#1044</span></td>
+            <td><strong>@drago_pro</strong></td>
+            <td>drago@mail.ua</td>
+            <td style="font-family:monospace;color:var(--red)">₴0</td>
+            <td><span style="color:var(--text3);font-size:12px">—</span></td>
+            <td><span class="tag tag-banned">Banned</span></td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn btn-secondary btn-sm" onclick="openUserProfile(1044,'drago_pro',0,null,'banned')">Profile</button>
+              </div>
+            </td>
+          </tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- BANLIST -->
+    <section class="page" id="page-banlist">
+      <div class="page-header">
+        <div><div class="page-title">🚫 <span>Ban List</span></div><div class="page-desc">Banned accounts and IP addresses</div></div>
+      </div>
+      <div class="card">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>User</th><th>Reason</th><th>Banned At</th><th>By</th><th>Actions</th></tr></thead><tbody>
+          <tr><td>@drago_pro</td><td>Fraud attempt</td><td>15.04.2026</td><td><span class="tag tag-role" style="color:#00B4FF;border-color:#00B4FF">SOC</span></td><td><button class="btn btn-success btn-sm">Unban</button></td></tr>
+          <tr><td>@spam_bot_99</td><td>Spam / multi-account</td><td>14.04.2026</td><td><span class="tag tag-role" style="color:#FF4444;border-color:#FF4444">Admin</span></td><td><button class="btn btn-success btn-sm">Unban</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- SOC -->
+    <section class="page" id="page-soc">
+      <div class="page-header">
+        <div><div class="page-title">🔍 <span>SOC</span></div><div class="page-desc">Security Operations Center</div></div>
+      </div>
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="stat-card red"><div class="stat-label">Suspicious logins</div><div class="stat-value">7</div><div class="stat-sub">Last 24h</div></div>
+        <div class="stat-card gold"><div class="stat-label">Flagged accounts</div><div class="stat-value">12</div><div class="stat-sub">Needs review</div></div>
+        <div class="stat-card blue"><div class="stat-label">IP bans today</div><div class="stat-value">3</div><div class="stat-sub">Auto-blocked</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Security Events</div>
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Time</th><th>Event</th><th>User</th><th>IP</th><th>Severity</th></tr></thead><tbody>
+          <tr><td style="font-family:monospace;font-size:11px">14:22:10</td><td>Multiple failed logins</td><td>@unknown</td><td>185.220.101.x</td><td><span class="tag tag-banned">High</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:11px">13:55:02</td><td>Large withdrawal attempt</td><td>@drago_pro</td><td>91.192.x.x</td><td><span class="tag tag-pending">Medium</span></td></tr>
+          <tr><td style="font-family:monospace;font-size:11px">12:11:44</td><td>New device login</td><td>@vsevolod_k</td><td>195.56.x.x</td><td><span class="tag tag-active">Low</span></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- BANNERS -->
+    <section class="page" id="page-banners">
+      <div class="page-header">
+        <div><div class="page-title">🖼️ <span>Banners</span></div><div class="page-desc">Advertising banners & promotional media</div></div>
+        <div class="page-header-actions">
+          <button class="btn btn-primary" onclick="openBannerModal()">+ Add Banner</button>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px" id="bannerList">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px">Summer Promo Banner</div>
+              <div style="font-size:12px;color:var(--text2)">ID: Ad_1 · Main page</div>
+            </div>
+            <span class="tag tag-active">Visible</span>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;margin-bottom:12px">🖼️ summer_promo.jpg</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm">Edit</button>
+            <button class="btn btn-danger btn-sm">Delete</button>
+            <label class="toggle" style="margin-left:auto"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px">VIP Club Banner</div>
+              <div style="font-size:12px;color:var(--text2)">ID: Ad_2 · Sidebar</div>
+            </div>
+            <span class="tag" style="background:rgba(74,82,104,0.3);color:var(--text3);border:1px solid var(--border)">Hidden</span>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;margin-bottom:12px">🖼️ vip_banner.jpg</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm">Edit</button>
+            <button class="btn btn-danger btn-sm">Delete</button>
+            <label class="toggle" style="margin-left:auto"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAMES -->
+    <section class="page" id="page-games">
+      <div class="page-header">
+        <div><div class="page-title">🎮 <span>Games</span></div><div class="page-desc">Game library management</div></div>
+        <div class="page-header-actions" id="gamesActions"></div>
+      </div>
+      <div class="card">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Game</th><th>Type</th><th>RTP</th><th>Tags</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+          <tr><td><strong>⚡ Crash</strong></td><td>Crash</td><td>96.2%</td><td><span class="tag" style="background:rgba(255,75,75,0.1);color:var(--red);border:1px solid rgba(255,75,75,0.3);font-size:10px">🔥 HIT</span></td><td><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td><td><button class="btn btn-secondary btn-sm" id="editGameBtn">Edit</button></td></tr>
+          <tr><td><strong>🎰 Mines</strong></td><td>Slots</td><td>97.0%</td><td><span class="tag" style="background:rgba(0,229,255,0.1);color:var(--cyan);border:1px solid rgba(0,229,255,0.3);font-size:10px">⭐ NEW</span></td><td><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+          <tr><td><strong>🃏 Blackjack</strong></td><td>Cards</td><td>99.2%</td><td><span class="tag" style="background:rgba(108,99,255,0.1);color:var(--accent);border:1px solid rgba(108,99,255,0.3);font-size:10px">📊 RTP</span></td><td><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- SPORT -->
+    <section class="page" id="page-sport">
+      <div class="page-header">
+        <div><div class="page-title">⚽ <span>Sport</span></div><div class="page-desc">Sports betting configuration</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary">+ Add Match</button></div>
+      </div>
+      <div class="card">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Match</th><th>Status</th><th>Score</th><th>H/D/A</th><th>Actions</th></tr></thead><tbody>
+          <tr><td><strong>Dynamo Kyiv vs Shakhtar</strong></td><td><span class="tag tag-active">LIVE</span></td><td style="font-family:monospace">1 : 0</td><td style="font-family:monospace;font-size:12px">1.85 / 3.40 / 4.20</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+          <tr><td><strong>Real Madrid vs Man City</strong></td><td><span class="tag tag-pending">Planned</span></td><td style="font-family:monospace">— : —</td><td style="font-family:monospace;font-size:12px">2.10 / 3.20 / 3.50</td><td><button class="btn btn-secondary btn-sm">Edit</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- FINANCE -->
+    <section class="page" id="page-finance">
+      <div class="page-header">
+        <div><div class="page-title">💰 <span>Finance</span></div><div class="page-desc">Deposits, withdrawals, bank monitoring</div></div>
+      </div>
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="stat-card green"><div class="stat-label">Bank Balance</div><div class="stat-value">₴2.4M</div><div class="stat-sub">Casino treasury</div></div>
+        <div class="stat-card blue"><div class="stat-label">Deposits today</div><div class="stat-value">₴148K</div><div class="stat-sub">342 transactions</div></div>
+        <div class="stat-card red"><div class="stat-label">Withdrawals</div><div class="stat-value">₴82K</div><div class="stat-sub">18 pending approval</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Pending Withdrawals</div>
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Requested</th><th>Actions</th></tr></thead><tbody>
+          <tr><td>@vsevolod_k</td><td style="font-family:monospace;color:var(--gold)">₴15,000</td><td>P2P</td><td>16.04 13:22</td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-sm">Approve</button><button class="btn btn-danger btn-sm">Reject</button></div></td></tr>
+          <tr><td>@marina_88</td><td style="font-family:monospace;color:var(--gold)">₴2,500</td><td>Card</td><td>16.04 12:10</td><td><div style="display:flex;gap:6px"><button class="btn btn-success btn-sm">Approve</button><button class="btn btn-danger btn-sm">Reject</button></div></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- PROMOTIONS -->
+    <section class="page" id="page-promotions">
+      <div class="page-header">
+        <div><div class="page-title">🎁 <span>Promotions</span></div><div class="page-desc">Promo codes & bonuses</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary">+ Create Promo</button></div>
+      </div>
+      <div class="card">
+        <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Uses</th><th>Expires</th><th>Actions</th></tr></thead><tbody>
+          <tr><td><span style="font-family:monospace;font-weight:700;color:var(--accent)">VELOX2026</span></td><td>Deposit +%</td><td style="color:var(--green)">+50%</td><td>124/500</td><td>30.04.2026</td><td><button class="btn btn-danger btn-sm">Disable</button></td></tr>
+          <tr><td><span style="font-family:monospace;font-weight:700;color:var(--accent)">FREESPIN50</span></td><td>Freespins</td><td style="color:var(--cyan)">50 spins</td><td>88/∞</td><td>No limit</td><td><button class="btn btn-danger btn-sm">Disable</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <!-- MAINTENANCE -->
+    <section class="page" id="page-maintenance">
+      <div class="page-header">
+        <div><div class="page-title">🔧 <span>Maintenance</span></div><div class="page-desc">Site maintenance mode</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Site Status</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <div style="font-size:16px;font-weight:700;margin-bottom:4px">Maintenance Mode</div>
+              <div style="font-size:12px;color:var(--text2)">Users will see maintenance page</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="maintToggle"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="input-group">
+            <div class="input-label">Maintenance Message</div>
+            <textarea class="velox-input" rows="3" placeholder="We're performing maintenance. Back in 30 minutes!"></textarea>
+          </div>
+          <div style="margin-top:14px"><button class="btn btn-primary">Save Changes</button></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Scheduled Downtime</div>
+          <div class="input-group" style="margin-bottom:12px">
+            <div class="input-label">Start Time</div>
+            <input type="datetime-local" class="velox-input">
+          </div>
+          <div class="input-group" style="margin-bottom:12px">
+            <div class="input-label">End Time</div>
+            <input type="datetime-local" class="velox-input">
+          </div>
+          <button class="btn btn-secondary">Schedule</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVELOPER -->
+    <section class="page" id="page-developer">
+      <div class="page-header">
+        <div><div class="page-title">💻 <span>Developer</span></div><div class="page-desc">System tools and developer options</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">System Info</div>
+          <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--text2);line-height:2">
+            <div>Flask Version: <span style="color:var(--cyan)">3.x</span></div>
+            <div>Python: <span style="color:var(--cyan)">3.11</span></div>
+            <div>DB: <span style="color:var(--cyan)">SQLite WAL</span></div>
+            <div>Uptime: <span style="color:var(--green)">14d 6h 22m</span></div>
+            <div>Memory: <span style="color:var(--gold)">284 MB / 2 GB</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Actions</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-secondary">🔄 Reload Config</button>
+            <button class="btn btn-secondary">🧹 Clear Cache</button>
+            <button class="btn btn-secondary">📋 View Logs</button>
+            <button class="btn btn-danger">⚠️ Emergency Stop</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERMS CONFIG (CEO / Admin only) -->
+    <section class="page" id="page-perms">
+      <div class="page-header">
+        <div><div class="page-title">⚙️ <span>Permissions Config</span></div><div class="page-desc">Role-based access control — /config/perms.json</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary" onclick="savePerms()">💾 Save</button></div>
+      </div>
+      <div class="grid-2" id="permsGrid">
+        <!-- dynamically populated -->
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ MODALS ═══ -->
+
+<!-- USER PROFILE MODAL -->
+<div class="modal-overlay" id="modalUserProfile">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-icon">👤</span>
+      <div class="modal-title" id="modalUserTitle">User Profile</div>
+      <button class="modal-close" onclick="closeModal('modalUserProfile')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Profile card -->
+      <div class="user-profile-card">
+        <div class="user-avatar" id="modalUserAvatar">V</div>
+        <div class="user-info">
+          <div class="user-name" id="modalUserName">Username</div>
+          <div class="user-meta">
+            <span>📧 user@email.com</span>
+            <span>📅 Reg: 01.01.2025</span>
+            <span id="modalUserVipBadge"></span>
+          </div>
+          <div class="user-balance" id="modalUserBalance">₴0.00</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <span class="tag" id="modalUserStatus"></span>
+        </div>
+      </div>
+
+      <!-- Actions based on role -->
+      <div id="modalUserActions" style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- CEO / Admin / Marketing: Balance adjustment -->
+        <div id="sectionBalance" style="display:none">
+          <div class="section-title">💰 Balance Management</div>
+          <div class="input-group">
+            <div class="input-label">Add / Subtract Balance</div>
+            <div class="money-input-wrap">
+              <div class="money-input-currency">UAH</div>
+              <input type="number" class="money-input-field" id="balanceAmount" value="1000" min="0">
+              <div class="money-input-controls">
+                <button class="money-ctrl" onclick="stepMoney('balanceAmount', 100)">▲</button>
+                <button class="money-ctrl" onclick="stepMoney('balanceAmount', -100)">▼</button>
+              </div>
+            </div>
+            <div class="money-quick-btns">
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', 500)">+500</button>
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', 1000)">+1K</button>
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', 5000)">+5K</button>
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', 10000)">+10K</button>
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', -500)">-500</button>
+              <button class="money-quick-btn" onclick="setMoney('balanceAmount', -1000)">-1K</button>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-success" onclick="adjustBalance('add')">➕ Add Balance</button>
+            <button class="btn btn-danger" onclick="adjustBalance('sub')">➖ Subtract</button>
+          </div>
+        </div>
+
+        <!-- CEO / Admin / Marketing: VIP & Bonuses -->
+        <div id="sectionVIP" style="display:none">
+          <div class="section-title">👑 VIP & Bonuses</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="openVIPModal()">👑 Give VIP</button>
+            <button class="btn btn-primary" onclick="openBonusModal()">🎁 Give Bonus</button>
+            <button class="btn btn-secondary" onclick="openFreespinModal()">🎰 Give Freespins</button>
+            <button class="btn btn-secondary" onclick="openDepositBonusModal()">💎 Deposit +%</button>
+            <button class="btn btn-secondary" onclick="openExtendVIPModal()">⏱️ Extend VIP</button>
+          </div>
+        </div>
+
+        <!-- SOC / Admin / Helper: DB Export -->
+        <div id="sectionDBExport" style="display:none">
+          <div class="section-title">🗄️ Account Data Export</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Full account log: bets, transactions, personal data, verification, VIP status, activity history.</div>
+          <button class="btn btn-secondary" onclick="startDBExport()" id="btnDBExport">
+            🗄️ GET DB — Full Export
+          </button>
+        </div>
+
+        <!-- All roles: History -->
+        <div>
+          <div class="section-title">📋 Activity History</div>
+          <div class="vtable-wrap"><table class="vtable"><thead><tr><th>Date</th><th>Action</th><th>Amount</th></tr></thead><tbody>
+            <tr><td>16.04 14:20</td><td>Deposit (P2P)</td><td style="color:var(--green)">+₴5,000</td></tr>
+            <tr><td>16.04 12:10</td><td>Bet — Crash x2.4</td><td style="color:var(--red)">-₴500</td></tr>
+            <tr><td>15.04 22:30</td><td>Withdrawal</td><td style="color:var(--gold)">-₴2,000</td></tr>
+          </tbody></table></div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnBanUser">🚫 Ban User</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalUserProfile')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIP MODAL -->
+<div class="modal-overlay" id="modalVIP">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">👑</span>
+      <div class="modal-title">VIP Club — Assign Status</div>
+      <button class="modal-close" onclick="closeModal('modalVIP')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <div class="input-label">VIP Tier</div>
+        <select class="velox-select">
+          <option value="silver">🥈 Silver</option>
+          <option value="gold" selected>🥇 Gold</option>
+          <option value="platinum">💎 Platinum</option>
+          <option value="diamond">💠 Diamond</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Duration</div>
+        <select class="velox-select">
+          <option>7 days</option>
+          <option>30 days</option>
+          <option selected>90 days</option>
+          <option>365 days</option>
+          <option>Lifetime</option>
+        </select>
+      </div>
+      <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:14px">
+        <div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:8px">🥇 Gold Benefits</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8">• Cashback: 10%<br>• Withdraw limit: ₴50,000/day<br>• Priority support<br>• Exclusive bonuses</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalVIP')">Cancel</button>
+      <button class="btn btn-gold">👑 Assign VIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- BONUS MODAL -->
+<div class="modal-overlay" id="modalBonus">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">🎁</span>
+      <div class="modal-title">Give One-time Bonus</div>
+      <button class="modal-close" onclick="closeModal('modalBonus')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--orange)">⚠️ One-time action — cannot be undone</div>
+      <div class="input-group">
+        <div class="input-label">Bonus Amount</div>
+        <div class="money-input-wrap">
+          <div class="money-input-currency">UAH</div>
+          <input type="number" class="money-input-field" id="bonusAmount" value="500" min="0">
+          <div class="money-input-controls">
+            <button class="money-ctrl" onclick="stepMoney('bonusAmount', 100)">▲</button>
+            <button class="money-ctrl" onclick="stepMoney('bonusAmount', -100)">▼</button>
+          </div>
+        </div>
+        <div class="money-quick-btns">
+          <button class="money-quick-btn" onclick="setMoney('bonusAmount',100)">100</button>
+          <button class="money-quick-btn" onclick="setMoney('bonusAmount',250)">250</button>
+          <button class="money-quick-btn" onclick="setMoney('bonusAmount',500)">500</button>
+          <button class="money-quick-btn" onclick="setMoney('bonusAmount',1000)">1000</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Reason / Note</div>
+        <input type="text" class="velox-input" placeholder="e.g. compensation, loyalty reward...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalBonus')">Cancel</button>
+      <button class="btn btn-primary">🎁 Give Bonus</button>
+    </div>
+  </div>
+</div>
+
+<!-- FREESPIN MODAL -->
+<div class="modal-overlay" id="modalFreespin">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">🎰</span>
+      <div class="modal-title">Give Freespins</div>
+      <button class="modal-close" onclick="closeModal('modalFreespin')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--orange)">⚠️ One-time action — cannot be undone</div>
+      <div class="input-group">
+        <div class="input-label">Number of Freespins</div>
+        <div class="money-input-wrap">
+          <div class="money-input-currency">#</div>
+          <input type="number" class="money-input-field" id="freespinCount" value="10" min="1">
+          <div class="money-input-controls">
+            <button class="money-ctrl" onclick="stepMoney('freespinCount', 5)">▲</button>
+            <button class="money-ctrl" onclick="stepMoney('freespinCount', -5)">▼</button>
+          </div>
+        </div>
+        <div class="money-quick-btns">
+          <button class="money-quick-btn" onclick="setMoney('freespinCount',10)">10</button>
+          <button class="money-quick-btn" onclick="setMoney('freespinCount',25)">25</button>
+          <button class="money-quick-btn" onclick="setMoney('freespinCount',50)">50</button>
+          <button class="money-quick-btn" onclick="setMoney('freespinCount',100)">100</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">For Game</div>
+        <select class="velox-select">
+          <option>Any game</option>
+          <option>⚡ Crash</option>
+          <option>🎰 Mines</option>
+          <option>🃏 Blackjack</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalFreespin')">Cancel</button>
+      <button class="btn btn-primary">🎰 Give Freespins</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT BONUS MODAL -->
+<div class="modal-overlay" id="modalDepositBonus">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">💎</span>
+      <div class="modal-title">Deposit Bonus +%</div>
+      <button class="modal-close" onclick="closeModal('modalDepositBonus')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--orange)">⚠️ One-time action — applies to next deposit only</div>
+      <div class="input-group">
+        <div class="input-label">Bonus Percent</div>
+        <div class="money-input-wrap">
+          <div class="money-input-currency">%</div>
+          <input type="number" class="money-input-field" id="depositBonusPct" value="50" min="1" max="500">
+          <div class="money-input-controls">
+            <button class="money-ctrl" onclick="stepMoney('depositBonusPct', 10)">▲</button>
+            <button class="money-ctrl" onclick="stepMoney('depositBonusPct', -10)">▼</button>
+          </div>
+        </div>
+        <div class="money-quick-btns">
+          <button class="money-quick-btn" onclick="setMoney('depositBonusPct',25)">25%</button>
+          <button class="money-quick-btn" onclick="setMoney('depositBonusPct',50)">50%</button>
+          <button class="money-quick-btn" onclick="setMoney('depositBonusPct',100)">100%</button>
+          <button class="money-quick-btn" onclick="setMoney('depositBonusPct',200)">200%</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Valid for (hours)</div>
+        <input type="number" class="velox-input" value="24" min="1">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalDepositBonus')">Cancel</button>
+      <button class="btn btn-primary">💎 Apply Bonus</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXTEND VIP MODAL -->
+<div class="modal-overlay" id="modalExtendVIP">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">⏱️</span>
+      <div class="modal-title">Extend VIP Period</div>
+      <button class="modal-close" onclick="closeModal('modalExtendVIP')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <div class="input-label">Extend by</div>
+        <select class="velox-select">
+          <option>7 days</option>
+          <option selected>30 days</option>
+          <option>90 days</option>
+          <option>365 days</option>
+        </select>
+      </div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--text2)">
+        Current VIP expires: <span style="color:var(--gold);font-weight:700">15.06.2026</span><br>
+        After extension: <span style="color:var(--green);font-weight:700">15.07.2026</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalExtendVIP')">Cancel</button>
+      <button class="btn btn-gold">⏱️ Extend VIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- DB EXPORT MODAL -->
+<div class="modal-overlay" id="modalDBExport">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">🗄️</span>
+      <div class="modal-title">DB Export — Full Account Log</div>
+      <button class="modal-close" onclick="closeModal('modalDBExport')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="db-progress" id="dbProgress">
+        <div class="db-step" id="dbStep0"><div class="db-step-dot"></div>Initiating export...</div>
+        <div class="db-step" id="dbStep1"><div class="db-step-dot"></div>Profile & verification data</div>
+        <div class="db-step" id="dbStep2"><div class="db-step-dot"></div>Transactions: deposits & withdrawals</div>
+        <div class="db-step" id="dbStep3"><div class="db-step-dot"></div>Bets: slots, crash, cards, sport</div>
+        <div class="db-step" id="dbStep4"><div class="db-step-dot"></div>Bonuses, freespins, VIP history</div>
+        <div class="db-step" id="dbStep5"><div class="db-step-dot"></div>Support tickets & activity log</div>
+        <div class="db-step" id="dbStep6"><div class="db-step-dot"></div>Compiling full report...</div>
+      </div>
+      <div id="dbExportResult" style="display:none">
+        <div style="background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:8px;padding:12px;font-size:12px;color:var(--green);margin-bottom:12px">
+          ✅ Export complete! Report ready for download.
+        </div>
+        <textarea id="dbExportJson" class="velox-input" rows="8" style="font-family:'Space Mono',monospace;font-size:10px;resize:vertical" readonly></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalDBExport')">Close</button>
+      <button class="btn btn-primary" id="btnDownloadExport" style="display:none" onclick="downloadExport()">⬇ Download JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- BANNER MODAL -->
+<div class="modal-overlay" id="modalBanner">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-icon">🖼️</span>
+      <div class="modal-title">Add / Edit Banner</div>
+      <button class="modal-close" onclick="closeModal('modalBanner')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group">
+        <div class="input-label">Banner Name</div>
+        <input type="text" class="velox-input" placeholder="e.g. Summer Promo 2026">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Placement</div>
+        <select class="velox-select">
+          <option>Main page</option>
+          <option>Sidebar</option>
+          <option>Game page</option>
+          <option>Popup / Modal</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Image / Media</div>
+        <div class="banner-upload-zone" id="bannerDropZone" onclick="document.getElementById('bannerFileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('dragging')"
+          ondragleave="this.classList.remove('dragging')"
+          ondrop="handleBannerDrop(event)">
+          <div class="banner-upload-icon">🖼️</div>
+          <div class="banner-upload-text">Click to upload or drag & drop</div>
+          <div class="banner-upload-sub">PNG, JPG, GIF, MP4 — max 10MB</div>
+          <input type="file" id="bannerFileInput" style="display:none" accept="image/*,video/mp4" onchange="handleBannerFile(this)">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600">Visible on site</span>
+        <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600">Show as modal popup</span>
+        <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modalBanner')">Cancel</button>
+      <button class="btn btn-primary">💾 Save Banner</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SCRIPTS ════ -->
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+const state = {
+  role: 'CEO',   // Will be loaded from API
+  features: {},
+  tabs: [],
+  currentUser: null,
+  dbExportData: null,
+};
+
+// Simulate loaded role (in production: fetch /api/roles/my)
+const DEMO_ROLES = {
+  CEO:       { label:'CEO',       color:'#FFD700', icon:'👑', see_all_tabs:true, tabs:['analytics','tickets','users','banlist','soc','banners','games','sport','finance','promotions','maintenance','developer','perms'], features:{ view_analytics:1,view_tickets:1,view_users:1,view_banlist:1,view_soc:1,view_banners:1,view_games:1,view_sport:1,view_finance:1,view_promotions:1,view_maintenance:1,view_developer_tools:1,edit_users:1,give_vip:1,give_bonus:1,give_freespins:1,give_deposit_bonus:1,extend_vip:1,adjust_balance:1,get_db_export:1,manage_banners:1,manage_games:1,create_games:1,toggle_games:1,edit_game_tags:1,game_deposit_percent:1,manage_promo_codes:1,manage_sport:1,site_maintenance:1,ban_users:1,unban_users:1,manage_roles:1 } },
+  Admin:     { label:'Admin',     color:'#FF4444', icon:'🛡️', tabs:['analytics','tickets','users','banlist','soc','banners','finance','promotions','maintenance'], features:{ view_analytics:1,view_tickets:1,view_users:1,view_banlist:1,view_soc:1,view_banners:1,view_finance:1,view_promotions:1,view_maintenance:1,edit_users:1,give_vip:1,give_bonus:1,give_freespins:1,give_deposit_bonus:1,extend_vip:1,adjust_balance:1,get_db_export:1,manage_banners:1,ban_users:1,unban_users:1 } },
+  SOC:       { label:'SOC',       color:'#00B4FF', icon:'🔍', tabs:['tickets','analytics','soc','banlist'], features:{ view_tickets:1,view_analytics:1,view_soc:1,view_banlist:1,view_users:1,get_db_export:1,ban_users:1 } },
+  Helper:    { label:'Helper',    color:'#00CC88', icon:'🤝', tabs:['tickets','users'], features:{ view_tickets:1,view_users:1,get_db_export:1 } },
+  Marketing: { label:'Marketing', color:'#FF6B35', icon:'📣', tabs:['promotions','banners'], features:{ view_promotions:1,view_banners:1,view_users:1,give_vip:1,give_bonus:1,give_freespins:1,give_deposit_bonus:1,extend_vip:1,manage_banners:1,manage_promo_codes:1 } },
+  Dealer:    { label:'Dealer',    color:'#9B59B6', icon:'🎲', tabs:['games','sport','promotions'], features:{ view_games:1,view_sport:1,view_promotions:1,view_promo_codes:1,manage_games:1,edit_game_tags:1,game_deposit_percent:1,manage_promo_codes:1,manage_sport:1 } },
+  GM:        { label:'GM',        color:'#E74C3C', icon:'🎮', tabs:['analytics','games','sport','finance'], features:{ view_analytics:1,view_games:1,view_sport:1,view_finance:1,view_withdrawals:1,view_deposits:1,view_bank:1,manage_games:1,create_games:1,toggle_games:1,edit_game_tags:1 } },
+  Developer: { label:'Developer', color:'#1ABC9C', icon:'💻', tabs:['analytics','maintenance','developer'], features:{ view_analytics:1,view_maintenance:1,view_developer_tools:1,site_maintenance:1 } },
+};
+
+// ── Clock ──────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('topClock').textContent = now.toLocaleTimeString('ru-RU');
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// ── Tab navigation ─────────────────────────────────────────────────────────────
+const TAB_CONFIG = {
+  analytics:   { label:'Analytics',    icon:'📊' },
+  tickets:     { label:'Tickets',      icon:'🎫', badge:3 },
+  users:       { label:'Users',        icon:'👥' },
+  banlist:     { label:'Ban List',     icon:'🚫' },
+  soc:         { label:'SOC',          icon:'🔍', badge:7 },
+  banners:     { label:'Banners',      icon:'🖼️' },
+  games:       { label:'Games',        icon:'🎮' },
+  sport:       { label:'Sport',        icon:'⚽' },
+  finance:     { label:'Finance',      icon:'💰', badge:18 },
+  promotions:  { label:'Promotions',   icon:'🎁' },
+  maintenance: { label:'Maintenance',  icon:'🔧' },
+  developer:   { label:'Developer',    icon:'💻' },
+  perms:       { label:'Permissions',  icon:'⚙️' },
+};
+
+function buildSidebar(roleData) {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '<div class="nav-label">Navigation</div>';
+
+  let tabs = roleData.see_all_tabs
+    ? Object.keys(TAB_CONFIG)
+    : roleData.tabs;
+
+  // CEO also gets perms tab
+  if (roleData.label === 'CEO' || roleData.features?.manage_roles) {
+    if (!tabs.includes('perms')) tabs = [...tabs, 'perms'];
+  }
+
+  tabs.forEach(tab => {
+    if (!TAB_CONFIG[tab]) return;
+    const cfg = TAB_CONFIG[tab];
+    const el = document.createElement('div');
+    el.className = 'nav-item';
+    el.dataset.tab = tab;
+    el.innerHTML = `<span class="nav-item-icon">${cfg.icon}</span>${cfg.label}${cfg.badge ? `<span class="nav-badge">${cfg.badge}</span>` : ''}`;
+    el.onclick = () => switchTab(tab);
+    sidebar.appendChild(el);
+  });
+
+  // Activate first tab
+  if (tabs.length) switchTab(tabs[0]);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+  document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === `page-${tab}`));
+
+  // Dynamic tab setup
+  if (tab === 'perms') buildPermsPage();
+  if (tab === 'games') setupGamesTab();
+}
+
+// ── Role initialization ────────────────────────────────────────────────────────
+function initRole(roleName) {
+  const roleData = DEMO_ROLES[roleName] || DEMO_ROLES.CEO;
+  state.role = roleName;
+  state.features = roleData.features || {};
+
+  // Update topbar badge
+  document.getElementById('topRoleDot').style.background = roleData.color;
+  document.getElementById('topRoleLabel').textContent = `${roleData.icon} ${roleData.label}`;
+
+  buildSidebar(roleData);
+}
+
+// ── Money input helpers ────────────────────────────────────────────────────────
+function stepMoney(id, delta) {
+  const el = document.getElementById(id);
+  const val = parseFloat(el.value) || 0;
+  el.value = Math.max(0, val + delta);
+}
+function setMoney(id, val) {
+  const el = document.getElementById(id);
+  if (val < 0) {
+    el.value = Math.max(0, (parseFloat(el.value) || 0) + val);
+  } else {
+    el.value = val;
+  }
+}
+
+// ── Modals ─────────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+});
+
+// ── User Profile ───────────────────────────────────────────────────────────────
+function openUserProfile(uid, username, balance, vipTier, status) {
+  state.currentUser = { uid, username, balance, vipTier, status };
+
+  document.getElementById('modalUserTitle').textContent = `@${username} — Profile`;
+  document.getElementById('modalUserAvatar').textContent = username[0].toUpperCase();
+  document.getElementById('modalUserName').textContent = `@${username}`;
+  document.getElementById('modalUserBalance').textContent = `₴${balance.toLocaleString('uk-UA')}.00`;
+
+  const statusEl = document.getElementById('modalUserStatus');
+  statusEl.className = `tag ${status === 'active' ? 'tag-active' : 'tag-banned'}`;
+  statusEl.textContent = status === 'active' ? '✓ Active' : '✕ Banned';
+
+  const vipBadge = document.getElementById('modalUserVipBadge');
+  vipBadge.innerHTML = vipTier ? `<span class="tag tag-vip">👑 ${vipTier}</span>` : '';
+
+  // Show/hide sections based on role features
+  const f = state.features;
+  document.getElementById('sectionBalance').style.display   = f.adjust_balance ? '' : 'none';
+  document.getElementById('sectionVIP').style.display       = (f.give_vip || f.give_bonus || f.give_freespins) ? '' : 'none';
+  document.getElementById('sectionDBExport').style.display  = f.get_db_export ? '' : 'none';
+
+  // Ban button
+  const btnBan = document.getElementById('btnBanUser');
+  btnBan.style.display = f.ban_users ? '' : 'none';
+  btnBan.textContent = status === 'banned' ? '✓ Unban User' : '🚫 Ban User';
+
+  openModal('modalUserProfile');
+}
+
+function adjustBalance(type) {
+  const amount = parseFloat(document.getElementById('balanceAmount').value) || 0;
+  const verb = type === 'add' ? 'Added' : 'Subtracted';
+  alert(`${verb} ₴${amount} ${type === 'add' ? 'to' : 'from'} @${state.currentUser?.username}`);
+}
+
+function openVIPModal()          { closeModal('modalUserProfile'); openModal('modalVIP'); }
+function openBonusModal()        { closeModal('modalUserProfile'); openModal('modalBonus'); }
+function openFreespinModal()     { closeModal('modalUserProfile'); openModal('modalFreespin'); }
+function openDepositBonusModal() { closeModal('modalUserProfile'); openModal('modalDepositBonus'); }
+function openExtendVIPModal()    { closeModal('modalUserProfile'); openModal('modalExtendVIP'); }
+function openBannerModal()       { openModal('modalBanner'); }
+
+// ── DB Export ──────────────────────────────────────────────────────────────────
+function startDBExport() {
+  closeModal('modalUserProfile');
+  openModal('modalDBExport');
+
+  // Reset progress
+  for (let i = 0; i <= 6; i++) {
+    const el = document.getElementById(`dbStep${i}`);
+    el.classList.remove('done', 'active');
+  }
+  document.getElementById('dbExportResult').style.display = 'none';
+  document.getElementById('btnDownloadExport').style.display = 'none';
+
+  const steps = [
+    { delay: 200,  text: 'Initiating export...' },
+    { delay: 700,  text: 'Profile & verification data' },
+    { delay: 1300, text: 'Transactions: deposits & withdrawals' },
+    { delay: 1900, text: 'Bets: slots, crash, cards, sport' },
+    { delay: 2400, text: 'Bonuses, freespins, VIP history' },
+    { delay: 2900, text: 'Support tickets & activity log' },
+    { delay: 3400, text: 'Compiling full report...' },
+  ];
+
+  steps.forEach((s, i) => {
+    setTimeout(() => {
+      if (i > 0) document.getElementById(`dbStep${i-1}`).classList.replace('active','done');
+      document.getElementById(`dbStep${i}`).classList.add('active');
+    }, s.delay);
+  });
+
+  setTimeout(() => {
+    document.getElementById('dbStep6').classList.replace('active','done');
+
+    // Mock export data
+    const exportData = {
+      _meta: { export_type: 'FULL_ACCOUNT_DB_EXPORT', generated_at: new Date().toISOString(), target_user_id: state.currentUser?.uid },
+      profile: { id: state.currentUser?.uid, username: state.currentUser?.username, balance: state.currentUser?.balance, status: state.currentUser?.status, password_hash: 'a3f2b1c4...8e2d' },
+      verification: { kyc_status: 'verified', email_verified: true, phone_verified: false },
+      vip: { tier: state.currentUser?.vipTier || 'none', expires_at: '2026-06-15' },
+      financial_summary: { total_deposited: 48200, total_withdrawn: 22000, total_wagered: 91400, total_won: 85600 },
+      bets: { summary: { total_bets: 1240, sport_count: 88, slots_count: 704, crash_count: 312, cards_count: 136 } },
+      support_tickets: [{ id: 'TK-8821', subject: 'Payment not received', status: 'open' }],
+    };
+    state.dbExportData = exportData;
+
+    document.getElementById('dbExportJson').value = JSON.stringify(exportData, null, 2);
+    document.getElementById('dbExportResult').style.display = '';
+    document.getElementById('btnDownloadExport').style.display = '';
+  }, 4000);
+}
+
+function downloadExport() {
+  if (!state.dbExportData) return;
+  const blob = new Blob([JSON.stringify(state.dbExportData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `velox_export_user_${state.currentUser?.uid || 'unknown'}_${Date.now()}.json`;
+  a.click();
+}
+
+// ── Games Tab ──────────────────────────────────────────────────────────────────
+function setupGamesTab() {
+  const f = state.features;
+  const actionsEl = document.getElementById('gamesActions');
+  actionsEl.innerHTML = '';
+  if (f.create_games) actionsEl.innerHTML += '<button class="btn btn-primary">+ Create Game</button>';
+  if (f.game_deposit_percent) actionsEl.innerHTML += '<button class="btn btn-secondary" style="margin-left:8px">💎 Set Deposit %</button>';
+
+  // Toggle visibility for GM
+  document.querySelectorAll('.vtable .toggle input').forEach(el => {
+    el.disabled = !f.toggle_games;
+  });
+
+  // Edit buttons
+  const editBtns = document.querySelectorAll('#page-games .btn-secondary');
+  editBtns.forEach(btn => {
+    btn.disabled = !f.manage_games && !f.edit_game_tags;
+    if (btn.disabled) btn.style.opacity = '0.3';
+  });
+}
+
+// ── Perms Page ─────────────────────────────────────────────────────────────────
+function buildPermsPage() {
+  const grid = document.getElementById('permsGrid');
+  const roles = DEMO_ROLES;
+  grid.innerHTML = '';
+
+  const featureLabels = {
+    view_analytics: 'View Analytics', view_tickets: 'View Tickets', view_users: 'View Users',
+    view_banlist: 'View Banlist', view_soc: 'View SOC', view_banners: 'View Banners',
+    view_games: 'View Games', view_sport: 'View Sport', view_finance: 'View Finance',
+    edit_users: 'Edit Users', give_vip: 'Give VIP', give_bonus: 'Give Bonuses',
+    give_freespins: 'Give Freespins', give_deposit_bonus: 'Deposit Bonus %', extend_vip: 'Extend VIP',
+    adjust_balance: 'Adjust Balance', get_db_export: 'DB Export',
+    manage_banners: 'Manage Banners', manage_games: 'Manage Games', create_games: 'Create Games',
+    toggle_games: 'Toggle Games', edit_game_tags: 'Edit Tags', game_deposit_percent: 'Game Deposit %',
+    manage_promo_codes: 'Promo Codes', manage_sport: 'Manage Sport',
+    site_maintenance: 'Maintenance Mode', view_developer_tools: 'Dev Tools',
+    ban_users: 'Ban Users', unban_users: 'Unban Users', manage_roles: 'Manage Roles',
+  };
+
+  Object.entries(roles).forEach(([name, data]) => {
+    const card = document.createElement('div');
+    card.className = 'perms-role-card';
+
+    const canEdit = state.role === 'CEO';
+    const featRows = Object.entries(featureLabels).map(([key, label]) => {
+      const val = data.features?.[key] ? 1 : 0;
+      return `<div class="perms-feat-row">
+        <span class="perms-feat-name">${label}</span>
+        <label class="toggle"><input type="checkbox" ${val ? 'checked' : ''} ${canEdit ? '' : 'disabled'} data-role="${name}" data-feat="${key}"><span class="toggle-slider"></span></label>
+      </div>`;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="perms-role-header">
+        <span class="perms-role-icon">${data.icon}</span>
+        <div>
+          <div class="perms-role-name" style="color:${data.color}">${data.label}</div>
+          <div class="perms-role-desc">${data.icon} ${Object.values(data.features||{}).filter(Boolean).length} features enabled</div>
+        </div>
+      </div>
+      <div class="perms-feat-list">${featRows}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function savePerms() {
+  // In production: POST /api/roles/perms
+  alert('✅ Permissions saved to /config/perms.json');
+}
+
+// ── Banner drag & drop ─────────────────────────────────────────────────────────
+function handleBannerDrop(e) {
+  e.preventDefault();
+  document.getElementById('bannerDropZone').classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if (file) updateBannerZone(file.name);
+}
+function handleBannerFile(input) {
+  if (input.files[0]) updateBannerZone(input.files[0].name);
+}
+function updateBannerZone(filename) {
+  const zone = document.getElementById('bannerDropZone');
+  zone.innerHTML = `<div class="banner-upload-icon">✅</div><div class="banner-upload-text">${filename}</div><div class="banner-upload-sub">Click to change</div>`;
+}
+
+// ── Role switcher (demo) ───────────────────────────────────────────────────────
+// Click role badge to switch (demo only)
+document.getElementById('topRoleBadge').style.cursor = 'pointer';
+document.getElementById('topRoleBadge').title = 'Click to switch role (demo)';
+
+const roleNames = Object.keys(DEMO_ROLES);
+let roleIdx = 0;
+document.getElementById('topRoleBadge').addEventListener('click', () => {
+  roleIdx = (roleIdx + 1) % roleNames.length;
+  initRole(roleNames[roleIdx]);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+initRole('CEO');
+</script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+
+<style>
+  :root {
+    --bg0:#05050e;--bg1:#09091a;--bg2:#0e0e22;--bg3:#131328;--bg4:#191932;
+    --a:#00e5ff;--ag:rgba(0,229,255,.08);--ab:rgba(0,229,255,.18);
+    --gold:#f0b429;--gdim:rgba(240,180,41,.10);--gbdr:rgba(240,180,41,.28);
+    --green:#00e676;--gdim2:rgba(0,230,118,.10);
+    --red:#ff4560;--rdim:rgba(255,69,96,.10);
+    --pur:#a855f7;--pdim:rgba(168,85,247,.12);
+    --t1:#e6e6f5;--t2:#8888aa;--t3:#44445a;
+    --bdr:rgba(255,255,255,.06);--bdrB:rgba(255,255,255,.11);
+    --r:10px;--rl:14px;--rs:6px;
+    font-family:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  .w{display:flex;height:700px;background:var(--bg0);border-radius:16px;overflow:hidden;border:1px solid var(--bdr);font-size:13px;color:var(--t1);position:relative}
+
+  /* sidebar */
+  .sb{width:210px;flex-shrink:0;background:var(--bg1);border-right:1px solid var(--bdr);display:flex;flex-direction:column}
+  .sb-logo{padding:0 18px;height:52px;display:flex;align-items:center;border-bottom:1px solid var(--bdr);gap:8px}
+  .sb-name{font-size:14px;font-weight:700;letter-spacing:4px;color:var(--a);font-family:monospace}
+  .sb-sub{font-size:8px;letter-spacing:2px;color:var(--t3);margin-top:2px;text-transform:uppercase}
+  .sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+  .sb-item{display:flex;align-items:center;gap:9px;padding:9px 16px;color:var(--t2);cursor:pointer;transition:all .15s;font-size:12px;font-weight:500;position:relative;border:none;background:none;width:100%;text-align:left}
+  .sb-item:hover{color:var(--t1);background:rgba(255,255,255,.03)}
+  .sb-item.act{color:var(--a)}
+  .sb-item.act::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--a);box-shadow:0 0 6px var(--a)}
+  .sb-item svg{width:15px;height:15px;flex-shrink:0}
+  .sb-sep{height:1px;background:var(--bdr);margin:5px 14px}
+  .sb-badge{font-family:monospace;font-size:8px;font-weight:700;letter-spacing:1.5px;padding:2px 7px;border-radius:4px;margin:4px 14px 6px;text-align:center}
+  .rb-ceo{background:rgba(230,230,245,.08);border:1px solid rgba(230,230,245,.15);color:var(--t1)}
+  .rb-soc{background:rgba(255,69,96,.1);border:1px solid rgba(255,69,96,.2);color:var(--red)}
+  .rb-mkt{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);color:var(--pur)}
+  .sb-profile{border-top:1px solid var(--bdr);padding:10px 14px;display:flex;align-items:center;gap:9px}
+  .sb-av{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#a855f7,#00e5ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+  .sb-pname{font-size:11px;font-weight:600;color:var(--t1)}
+  .sb-pid{font-size:9px;color:var(--t3);font-family:monospace;letter-spacing:1px}
+
+  /* main */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .topbar{height:52px;background:rgba(9,9,26,.95);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0}
+  .tb-title{font-size:13px;font-weight:600;letter-spacing:.5px;font-family:monospace}
+  .body{flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+
+  /* view tabs */
+  .vtabs{display:flex;gap:6px;flex-shrink:0}
+  .vtab{padding:5px 13px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:monospace}
+  .vtab:hover{border-color:var(--ab);color:var(--t1)}
+  .vtab.act{background:rgba(0,229,255,.08);border-color:var(--ab);color:var(--a)}
+
+  /* views */
+  .view{display:none;flex-direction:column;gap:14px}
+  .view.show{display:flex}
+
+  /* user profile card */
+  .upc{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden}
+  .upc-top{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--bdr);position:relative}
+  .upc-av{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(168,85,247,.3),rgba(0,229,255,.2));border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--a);font-family:monospace;flex-shrink:0}
+  .upc-name{font-size:14px;font-weight:700;color:var(--t1);font-family:monospace}
+  .upc-uid{font-size:10px;color:var(--t3);font-family:monospace;letter-spacing:1px;margin-top:2px}
+  .vip-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,rgba(240,180,41,.3),rgba(240,180,41,.1));border:1px solid var(--gbdr);color:var(--gold);font-size:8px;font-weight:700;letter-spacing:2px;padding:2px 7px;border-radius:4px;font-family:monospace}
+  .upc-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--bdr)}
+  .upc-stat{padding:12px 10px;text-align:center;border-right:1px solid var(--bdr)}
+  .upc-stat:last-child{border-right:none}
+  .upc-sv{font-family:monospace;font-size:14px;font-weight:700;color:var(--t1);margin-bottom:2px}
+  .upc-sl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+  .gold-v{color:var(--gold)}
+  .green-v{color:var(--green)}
+  .upc-fields{padding:12px 16px}
+  .upc-field{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bdr);font-size:11px}
+  .upc-field:last-child{border-bottom:none}
+  .upc-fl{color:var(--t3)}
+  .upc-fv{color:var(--t1);font-family:monospace}
+
+  /* action bar */
+  .uab{display:flex;gap:8px;flex-wrap:wrap}
+  .uab-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--r);font-size:11px;font-weight:700;font-family:monospace;letter-spacing:.5px;cursor:pointer;border:none;transition:all .2s;position:relative;overflow:hidden}
+  .uab-db{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.22);color:var(--a)}
+  .uab-db:hover{background:rgba(0,229,255,.14)}
+  .uab-vip{background:rgba(240,180,41,.1);border:1px solid var(--gbdr);color:var(--gold)}
+  .uab-vip:hover{background:rgba(240,180,41,.18)}
+  .uab-bon{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.28);color:var(--pur)}
+  .uab-bon:hover{background:rgba(168,85,247,.18)}
+
+  /* topup card */
+  .tc{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px}
+  .tc-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+  .tc-input-wrap{display:flex;align-items:center;background:var(--bg2);border:1px solid rgba(0,230,118,.3);border-radius:var(--r);overflow:hidden;margin-bottom:8px;box-shadow:0 0 0 3px rgba(0,230,118,.06)}
+  .tc-cur{padding:0 12px;font-family:monospace;font-size:14px;font-weight:700;color:var(--green);border-right:1px solid var(--bdr);flex-shrink:0}
+  .tc-inp{flex:1;background:none;border:none;color:var(--t1);font-size:19px;font-family:monospace;font-weight:600;padding:10px 12px;outline:none;width:100%;appearance:none;-webkit-appearance:none}
+  .tc-signs{display:flex;flex-direction:column;border-left:1px solid var(--bdr)}
+  .tc-sign{padding:4px 11px;font-size:14px;font-weight:700;color:var(--t3);background:none;border:none;cursor:pointer;transition:all .15s;line-height:1}
+  .tc-sign.act{color:var(--green);background:rgba(0,230,118,.06)}
+  .tc-sign-m.act{color:var(--red);background:rgba(255,69,96,.06)}
+  .tc-sign:first-child{border-bottom:1px solid var(--bdr)}
+  .tc-quick{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+  .tc-qb{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t2);font-size:10px;font-weight:600;padding:4px 9px;cursor:pointer;font-family:monospace;transition:all .15s}
+  .tc-qb:hover{border-color:rgba(0,230,118,.3);color:var(--green)}
+  .tc-reason{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t2);font-size:12px;padding:8px 11px;margin-bottom:10px;font-family:inherit;outline:none;appearance:none;-webkit-appearance:none}
+  .tc-apply{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,rgba(0,230,118,.22),rgba(0,230,118,.08));border:1px solid rgba(0,230,118,.28);color:var(--green);font-size:12px;font-weight:700;letter-spacing:1px;padding:10px;border-radius:var(--r);cursor:pointer;font-family:monospace;transition:all .2s}
+  .tc-apply:hover{background:linear-gradient(135deg,rgba(0,230,118,.32),rgba(0,230,118,.14))}
+
+  /* VIP modal */
+  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
+  .modal{background:var(--bg1);border:1px solid var(--bdrB);border-radius:var(--rl);padding:22px;width:100%;max-width:420px;position:relative}
+  .mc{position:absolute;top:12px;right:12px;width:26px;height:26px;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;color:var(--t3);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+  .mc:hover{color:var(--t1)}
+  .vip-hdr{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--bdr)}
+  .crown{font-size:30px;line-height:1}
+  .vip-ttl{font-family:monospace;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:4px}
+  .vip-sub{font-size:11px;color:var(--t3);margin-top:2px}
+  .tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px}
+  .tier{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:10px;font-weight:600;color:var(--t2);transition:all .2s;font-family:monospace}
+  .tier:hover{border-color:var(--gbdr);color:var(--t1)}
+  .tier.act{background:rgba(240,180,41,.1);border-color:var(--gbdr);color:var(--gold)}
+  .tier-ico{font-size:16px}
+  .dur-lbl{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--t3);margin-bottom:7px}
+  .durs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .dur{padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t2);font-size:11px;font-weight:600;cursor:pointer;font-family:monospace;transition:all .15s}
+  .dur:hover{border-color:var(--gbdr);color:var(--t1)}
+  .dur.act{background:rgba(240,180,41,.1);border-color:var(--gbdr);color:var(--gold)}
+  .vip-apply{width:100%;display:flex;align-items:center;justify-content:center;padding:11px;background:linear-gradient(135deg,rgba(240,180,41,.22),rgba(240,180,41,.08));border:1px solid var(--gbdr);color:var(--gold);font-size:12px;font-weight:700;letter-spacing:1px;border-radius:var(--r);cursor:pointer;font-family:monospace;transition:all .2s}
+  .vip-apply:hover{background:linear-gradient(135deg,rgba(240,180,41,.32),rgba(240,180,41,.14))}
+
+  /* DB modal */
+  .db-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bdr)}
+  .db-ttl{display:flex;align-items:center;gap:8px;font-family:monospace;font-size:13px;font-weight:700;color:var(--a);letter-spacing:1px}
+  .db-uid{font-family:monospace;font-size:10px;color:var(--t3)}
+  .db-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .db-step{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--t3);transition:color .3s}
+  .db-step.act{color:var(--a)}
+  .db-step.done{color:var(--green)}
+  .db-dot{width:7px;height:7px;border-radius:50%;background:var(--bg4);border:1px solid var(--bdr);flex-shrink:0;transition:all .3s}
+  .db-step.act .db-dot{background:var(--a);box-shadow:0 0 6px var(--a)}
+  .db-step.done .db-dot{background:var(--green)}
+  .db-out{background:var(--bg0);border:1px solid var(--bdr);border-radius:var(--r);padding:12px;font-family:monospace;font-size:10px;color:var(--t2);line-height:1.8;max-height:200px;overflow-y:auto;white-space:pre}
+  .db-sec{color:var(--a);font-weight:700;display:block}
+  .db-hash{color:var(--red)}
+
+  /* Banners view */
+  .ban-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .ban-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .ban-card{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden;transition:border-color .2s}
+  .ban-card:hover{border-color:var(--bdrB)}
+  .ban-img{width:100%;height:80px;object-fit:cover;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg3),var(--bg2));font-size:22px;color:var(--t3)}
+  .ban-body{padding:10px 12px}
+  .ban-name{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ban-meta{display:flex;align-items:center;gap:6px}
+  .ban-acts{display:flex;gap:5px;padding:0 12px 10px}
+  .drop-zone{border:2px dashed var(--bdr);border-radius:var(--rl);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg1)}
+  .drop-zone:hover{border-color:var(--ab);background:var(--ag)}
+  .drop-ico{font-size:24px;opacity:.5;margin-bottom:6px}
+  .drop-txt{font-size:12px;color:var(--t2)}
+  .drop-sub{font-size:10px;color:var(--t3);margin-top:3px}
+
+  /* perms view */
+  .perm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .perm-card{background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px;transition:border-color .2s}
+  .perm-card:hover{border-color:var(--bdrB)}
+  .perm-role{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+  .perm-rname{font-family:monospace;font-size:12px;font-weight:700;color:var(--t1)}
+  .perm-rdesc{font-size:10px;color:var(--t3);margin-top:2px}
+  .perm-tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .ptag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;font-family:monospace;letter-spacing:.5px}
+  .ptag-tab{background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.18);color:var(--a)}
+  .ptag-feat{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.18);color:var(--green)}
+  .perm-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+
+  /* role pills */
+  .rpill{display:inline-block;font-family:monospace;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px}
+  .rp-ceo{background:linear-gradient(90deg,rgba(168,85,247,.18),rgba(0,229,255,.12));color:var(--t1);border:1px solid rgba(168,85,247,.3)}
+  .rp-soc{background:rgba(255,69,96,.12);color:var(--red);border:1px solid rgba(255,69,96,.2)}
+  .rp-mkt{background:rgba(168,85,247,.12);color:var(--pur);border:1px solid rgba(168,85,247,.2)}
+  .rp-hlp{background:rgba(0,229,255,.12);color:var(--a);border:1px solid rgba(0,229,255,.2)}
+  .rp-dlr{background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.2)}
+  .rp-gm{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.2)}
+  .rp-dev{background:rgba(99,179,237,.12);color:#63b3ed;border:1px solid rgba(99,179,237,.2)}
+
+  /* badge */
+  .bdg{display:inline-flex;align-items:center;font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px;letter-spacing:.5px;font-family:monospace}
+  .bdg-on{background:rgba(0,229,255,.08);color:var(--a);border:1px solid rgba(0,229,255,.18)}
+  .bdg-off{background:rgba(255,255,255,.04);color:var(--t3);border:1px solid var(--bdr)}
+  .bdg-vip{background:rgba(240,180,41,.1);color:var(--gold);border:1px solid var(--gbdr)}
+
+  /* btn-icon */
+  .bi{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--t2);font-size:10px;padding:4px 10px;cursor:pointer;transition:all .2s;font-family:monospace}
+  .bi:hover{border-color:var(--ab);color:var(--a)}
+  .bi-red:hover{border-color:rgba(255,69,96,.3);color:var(--red)}
+
+  /* scan anim */
+  @keyframes scan{0%{left:-60%}100%{left:110%}}
+  .scanning::after{content:'';position:absolute;top:0;left:-60%;bottom:0;width:50%;background:linear-gradient(90deg,transparent,rgba(0,229,255,.25),transparent);animation:scan 1.4s ease-in-out infinite;pointer-events:none}
+
+  @keyframes pdot{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+</style>
+
+<div style="padding:1rem 0">
+<div class="w" id="app">
+
+  <div class="sb">
+    <div class="sb-logo">
+      <div><div class="sb-name">VELOX</div><div class="sb-sub">SUPPORT</div></div>
+    </div>
+    <div class="sb-nav" id="sb-nav">
+      <div class="sb-item act" onclick="setPage('users')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </div>
+      <div class="sb-item" onclick="setPage('banners')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Banners
+      </div>
+      <div class="sb-item" onclick="setPage('perms')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Roles / Perms
+      </div>
+      <div class="sb-sep"></div>
+      <div class="sb-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Tickets
+      </div>
+      <div class="sb-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics
+      </div>
+    </div>
+    <div style="padding:0 0 6px">
+      <div class="sb-badge rp-ceo" id="role-badge">CEO</div>
+    </div>
+    <div class="sb-profile">
+      <div class="sb-av">VX</div>
+      <div><div class="sb-pname" id="pname">Admin CEO</div><div class="sb-pid">VX-0001</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="topbar-title">Player Profile</div>
+      <div style="flex:1"></div>
+      <div class="vtabs">
+        <div class="vtab act" onclick="switchRole('ceo')">CEO view</div>
+        <div class="vtab" onclick="switchRole('soc')">SOC view</div>
+        <div class="vtab" onclick="switchRole('marketing')">Marketing</div>
+        <div class="vtab" onclick="switchRole('helper')">Helper</div>
+      </div>
+    </div>
+
+    <div class="body" id="body">
+
+      <!-- USERS VIEW -->
+      <div class="view show" id="view-users">
+        <div class="uab" id="uab"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <div class="upc">
+              <div class="upc-top">
+                <div class="upc-av" id="uav">ST</div>
+                <div><div class="upc-name">SteelKnight</div><div class="upc-uid">#4821</div></div>
+                <div class="vip-badge">♛ PLATINUM</div>
+              </div>
+              <div class="upc-stats">
+                <div class="upc-stat"><div class="upc-sv gold-v">$2,840</div><div class="upc-sl">Balance</div></div>
+                <div class="upc-stat"><div class="upc-sv green-v">✓ KYC</div><div class="upc-sl">Status</div></div>
+                <div class="upc-stat"><div class="upc-sv">Yes</div><div class="upc-sl">Verified</div></div>
+              </div>
+              <div class="upc-fields">
+                <div class="upc-field"><span class="upc-fl">Email</span><span class="upc-fv">steel@gmail.com</span></div>
+                <div class="upc-field"><span class="upc-fl">Phone</span><span class="upc-fv">+380 96 *** 21</span></div>
+                <div class="upc-field"><span class="upc-fl">Registered</span><span class="upc-fv">14.01.2024</span></div>
+              </div>
+            </div>
+
+            <div class="tc" id="topup-card" style="margin-top:12px">
+              <div class="tc-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Balance Adjustment
+              </div>
+              <div class="tc-input-wrap">
+                <div class="tc-cur">$</div>
+                <input class="tc-inp" type="text" inputmode="decimal" placeholder="0.00" id="topup-inp" value="500">
+                <div class="tc-signs">
+                  <button class="tc-sign act" id="sign-p">+</button>
+                  <button class="tc-sign tc-sign-m" id="sign-m">−</button>
+                </div>
+              </div>
+              <div class="tc-quick">
+                <button class="tc-qb" onclick="setAmt(10)">+10</button>
+                <button class="tc-qb" onclick="setAmt(50)">+50</button>
+                <button class="tc-qb" onclick="setAmt(100)">+100</button>
+                <button class="tc-qb" onclick="setAmt(500)">+500</button>
+                <button class="tc-qb" onclick="setAmt(1000)">+1K</button>
+              </div>
+              <input class="tc-reason" placeholder="Reason (bonus / compensation...)" value="Welcome compensation">
+              <button class="tc-apply" onclick="applyBalance()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Apply Balance
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden">
+              <div style="padding:12px 16px;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px">Recent Transactions</div>
+              <table style="width:100%;border-collapse:collapse">
+                <thead><tr style="background:var(--bg2)">
+                  <th style="padding:8px 12px;text-align:left;font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.5px">Date</th>
+                  <th style="padding:8px 12px;text-align:left;font-size:10px;color:var(--t3);font-weight:600">Type</th>
+                  <th style="padding:8px 12px;text-align:left;font-size:10px;color:var(--t3);font-weight:600">Amount</th>
+                  <th style="padding:8px 12px;text-align:left;font-size:10px;color:var(--t3);font-weight:600">Status</th>
+                </tr></thead>
+                <tbody>
+                  <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 12px;font-size:11px;color:var(--t2)">14.03.25</td><td style="padding:9px 12px;font-size:11px">deposit</td><td style="padding:9px 12px;font-size:11px;color:var(--green)">+1000</td><td style="padding:9px 12px"><span class="bdg bdg-on">done</span></td></tr>
+                  <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 12px;font-size:11px;color:var(--t2)">02.03.25</td><td style="padding:9px 12px;font-size:11px">withdraw</td><td style="padding:9px 12px;font-size:11px;color:var(--red)">-200</td><td style="padding:9px 12px"><span class="bdg bdg-on">done</span></td></tr>
+                  <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 12px;font-size:11px;color:var(--t2)">18.02.25</td><td style="padding:9px 12px;font-size:11px">bonus</td><td style="padding:9px 12px;font-size:11px;color:var(--pur)">+50 FS</td><td style="padding:9px 12px"><span class="bdg bdg-vip">vip</span></td></tr>
+                  <tr style="border-top:1px solid var(--bdr)"><td style="padding:9px 12px;font-size:11px;color:var(--t2)">01.01.25</td><td style="padding:9px 12px;font-size:11px">deposit</td><td style="padding:9px 12px;font-size:11px;color:var(--green)">+500</td><td style="padding:9px 12px"><span class="bdg bdg-on">done</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANNERS VIEW -->
+      <div class="view" id="view-banners">
+        <div class="drop-zone" onclick="fakeDrop()">
+          <div class="drop-ico">🖼</div>
+          <div class="drop-txt">Click or drag &amp; drop image</div>
+          <div class="drop-sub">PNG, JPG, GIF, WEBP — max 5MB</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:6px">Title</label>
+            <input style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t1);font-size:13px;padding:9px 12px;outline:none" placeholder="Summer Promo 2025..."></div>
+          <div><label style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:6px">Position</label>
+            <select style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t1);font-size:13px;padding:9px 12px;outline:none;cursor:pointer"><option>Main Lobby</option><option>Sidebar</option><option>Top Bar</option><option>Popup</option></select></div>
+        </div>
+        <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(0,229,255,.08);border:1px solid var(--ab);color:var(--a);font-size:12px;font-weight:700;padding:10px;border-radius:var(--r);cursor:pointer;font-family:monospace;letter-spacing:1px">Save Banner</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-top:4px">Active Banners</div>
+        <div class="ban-grid">
+          <div class="ban-card"><div class="ban-img">🎰</div><div class="ban-body"><div class="ban-name">Summer Promo</div><div class="ban-meta"><span class="bdg bdg-on">active</span><span style="font-size:9px;color:var(--t3)">main</span></div></div><div class="ban-acts"><button class="bi">Hide</button><button class="bi bi-red">Delete</button></div></div>
+          <div class="ban-card"><div class="ban-img">💰</div><div class="ban-body"><div class="ban-name">VIP Welcome Pack</div><div class="ban-meta"><span class="bdg bdg-vip">active</span><span style="font-size:9px;color:var(--t3)">sidebar</span></div></div><div class="ban-acts"><button class="bi">Hide</button><button class="bi bi-red">Delete</button></div></div>
+          <div class="ban-card"><div class="ban-img" style="opacity:.4">🎁</div><div class="ban-body"><div class="ban-name">Deposit +100%</div><div class="ban-meta"><span class="bdg bdg-off">hidden</span><span style="font-size:9px;color:var(--t3)">popup</span></div></div><div class="ban-acts"><button class="bi">Show</button><button class="bi bi-red">Delete</button></div></div>
+        </div>
+      </div>
+
+      <!-- PERMS VIEW -->
+      <div class="view" id="view-perms">
+        <div style="font-size:11px;color:var(--t3);padding:2px 0 6px">Config: <span style="font-family:monospace;color:var(--a)">/config/perms.json</span> — редактируй прямо в файле</div>
+        <div class="perm-grid">
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-ceo">CEO</span><div><div class="perm-rname">CEO</div><div class="perm-rdesc">Видит всё, всегда</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">tabs_all: true</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">balance_topup</span><span class="ptag ptag-feat">give_vip</span><span class="ptag ptag-feat">one_time_bonus</span><span class="ptag ptag-feat">get_db</span><span class="ptag ptag-feat">site_mode</span><span class="ptag ptag-feat">manage_banners</span></div>
+          </div>
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-soc">SOC</span><div><div class="perm-rname">SOC</div><div class="perm-rdesc">Безопасность</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">tickets</span><span class="ptag ptag-tab">analytics</span><span class="ptag ptag-tab">soc</span><span class="ptag ptag-tab">bans</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">get_db</span><span class="ptag ptag-feat">view_analytics</span></div>
+          </div>
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-mkt">MARKETING</span><div><div class="perm-rname">Marketing</div><div class="perm-rdesc">Промо и баннеры</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">users</span><span class="ptag ptag-tab">banners</span><span class="ptag ptag-tab">promotions</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">give_vip</span><span class="ptag ptag-feat">one_time_bonus</span><span class="ptag ptag-feat">manage_banners</span><span class="ptag ptag-feat">create_promo</span></div>
+          </div>
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-hlp">HELPER</span><div><div class="perm-rname">Helper</div><div class="perm-rdesc">Тикеты и юзеры</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">tickets</span><span class="ptag ptag-tab">users</span><span class="ptag ptag-tab">chat</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">get_db</span><span class="ptag ptag-feat">view_profile_full</span></div>
+          </div>
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-dlr">DEALER</span><div><div class="perm-rname">Dealer</div><div class="perm-rdesc">Игры и промо</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">game_builder</span><span class="ptag ptag-tab">promotions</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">create_promo</span><span class="ptag ptag-feat">deposit_boost</span><span class="ptag ptag-feat">game_tags</span></div>
+          </div>
+          <div class="perm-card">
+            <div class="perm-role"><span class="rpill rp-gm">GM</span><div><div class="perm-rname">Game Manager</div><div class="perm-rdesc">Игры и аналитика</div></div></div>
+            <div class="perm-lbl">Tabs</div>
+            <div class="perm-tabs"><span class="ptag ptag-tab">game_builder</span><span class="ptag ptag-tab">analytics</span><span class="ptag ptag-tab">payments</span></div>
+            <div class="perm-lbl" style="margin-top:6px">Features</div>
+            <div class="perm-tabs"><span class="ptag ptag-feat">game_visibility</span><span class="ptag ptag-feat">create_games</span><span class="ptag ptag-feat">view_analytics</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIP MODAL -->
+  <div class="modal-bg" id="modal-vip" style="display:none">
+    <div class="modal">
+      <div class="mc" onclick="closeModal('vip')">✕</div>
+      <div class="vip-hdr">
+        <div class="crown">♛</div>
+        <div><div class="vip-ttl">VIP CLUB</div><div class="vip-sub">Manage player VIP status</div></div>
+      </div>
+      <div class="tiers">
+        <div class="tier" onclick="selTier(this)"><div class="tier-ico">🥉</div>Bronze</div>
+        <div class="tier" onclick="selTier(this)"><div class="tier-ico">🥈</div>Silver</div>
+        <div class="tier" onclick="selTier(this)"><div class="tier-ico">🥇</div>Gold</div>
+        <div class="tier act" onclick="selTier(this)"><div class="tier-ico">💎</div>Platinum</div>
+        <div class="tier" onclick="selTier(this)"><div class="tier-ico">💠</div>Diamond</div>
+      </div>
+      <div class="dur-lbl">Duration</div>
+      <div class="durs">
+        <div class="dur" onclick="selDur(this)">7d</div>
+        <div class="dur act" onclick="selDur(this)">30d</div>
+        <div class="dur" onclick="selDur(this)">90d</div>
+        <div class="dur" onclick="selDur(this)">1yr</div>
+        <div class="dur" onclick="selDur(this)">∞</div>
+      </div>
+      <button class="vip-apply" onclick="applyVip()">Assign VIP Status</button>
+    </div>
+  </div>
+
+  <!-- DB MODAL -->
+  <div class="modal-bg" id="modal-db" style="display:none">
+    <div class="modal" style="max-width:500px">
+      <div class="mc" onclick="closeModal('db')">✕</div>
+      <div class="db-hdr">
+        <div class="db-ttl">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Account Report
+        </div>
+        <div class="db-uid">UID #4821 — SteelKnight</div>
+      </div>
+      <div class="db-steps" id="db-steps">
+        <div class="db-step act" id="dbs-1"><div class="db-dot"></div>Collecting profile data...</div>
+        <div class="db-step" id="dbs-2"><div class="db-dot"></div>Loading financial history...</div>
+        <div class="db-step" id="dbs-3"><div class="db-dot"></div>Fetching bet records...</div>
+        <div class="db-step" id="dbs-4"><div class="db-dot"></div>Building security log...</div>
+      </div>
+      <div class="db-out" id="db-out" style="display:none"></div>
+      <div id="db-copy-row" style="display:none;margin-top:10px">
+        <button class="uab-btn uab-db" onclick="copyReport()" style="font-size:11px;padding:7px 14px">Copy Full Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BONUS MODAL -->
+  <div class="modal-bg" id="modal-bonus" style="display:none">
+    <div class="modal">
+      <div class="mc" onclick="closeModal('bonus')">✕</div>
+      <div style="display:flex;align-items:center;gap:9px;font-family:monospace;font-size:14px;font-weight:700;color:var(--t1);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bdr)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+        One-Time Bonus
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--bdr)">
+        <button class="bi act" style="border-color:var(--ab);color:var(--a)" onclick="selBonusTab(this,'cash')">💰 Cash</button>
+        <button class="bi" onclick="selBonusTab(this,'fs')">🎰 Freespins</button>
+        <button class="bi" onclick="selBonusTab(this,'dep')">⚡ Deposit +%</button>
+        <button class="bi" onclick="selBonusTab(this,'vip')">♛ Extend VIP</button>
+      </div>
+      <div id="bp-cash">
+        <label style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:6px">Amount ($)</label>
+        <input style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t1);font-size:14px;padding:10px 13px;outline:none;margin-bottom:10px;appearance:none" placeholder="100.00" type="text" inputmode="decimal">
+        <label style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:6px">Note</label>
+        <input style="width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);color:var(--t1);font-size:13px;padding:9px 13px;outline:none;appearance:none" placeholder="Welcome bonus...">
+      </div>
+      <button style="width:100%;display:flex;align-items:center;justify-content:center;padding:11px;background:linear-gradient(135deg,rgba(168,85,247,.22),rgba(168,85,247,.08));border:1px solid rgba(168,85,247,.35);color:var(--pur);font-size:12px;font-weight:700;letter-spacing:1px;border-radius:var(--r);cursor:pointer;font-family:monospace;margin-top:14px" onclick="applyBonus()">Apply Bonus</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+let currentRole = 'ceo';
+let currentPage = 'users';
+let dbTimer = null;
+
+const ROLES = {
+  ceo: {
+    name:'Admin CEO', badge:'CEO', badgeClass:'rp-ceo',
+    tabs:['dashboard','tickets','analytics','payments','team','bans','broadcast','game_builder','banners','promotions','chat','reports','soc'],
+    features:{topup:true, vip:true, bonus:true, db:true}
+  },
+  soc: {
+    name:'SecOps#3', badge:'SOC', badgeClass:'rp-soc',
+    tabs:['tickets','analytics','soc','bans','chat','reports'],
+    features:{topup:false, vip:false, bonus:false, db:true}
+  },
+  marketing: {
+    name:'Mkt Manager', badge:'MARKETING', badgeClass:'rp-mkt',
+    tabs:['users','banners','promotions','chat','reports'],
+    features:{topup:false, vip:true, bonus:true, db:false}
+  },
+  helper: {
+    name:'Helper#7', badge:'HELPER', badgeClass:'rp-hlp',
+    tabs:['tickets','users','chat','reports'],
+    features:{topup:false, vip:false, bonus:false, db:true}
+  }
+};
+
+function switchRole(role) {
+  currentRole = role;
+  document.querySelectorAll('.vtab').forEach((t,i)=>{
+    const r=['ceo','soc','marketing','helper'][i];
+    t.classList.toggle('act', r===role);
+  });
+  const rd = ROLES[role];
+  document.getElementById('pname').textContent = rd.name;
+  const bdg = document.getElementById('role-badge');
+  bdg.textContent = rd.badge;
+  bdg.className = 'sb-badge rpill ' + rd.badgeClass;
+  buildActionBar(rd.features);
+  const tc = document.getElementById('topup-card');
+  if(tc) tc.style.display = rd.features.topup ? 'block' : 'none';
+}
+
+function buildActionBar(f) {
+  const bar = document.getElementById('uab');
+  bar.innerHTML = '';
+  if(f.db) {
+    const b = document.createElement('button');
+    b.className = 'uab-btn uab-db';
+    b.id = 'btn-db';
+    b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> GET — DB';
+    b.onclick = openDbModal;
+    bar.appendChild(b);
+  }
+  if(f.vip) {
+    const b = document.createElement('button');
+    b.className = 'uab-btn uab-vip';
+    b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Give VIP';
+    b.onclick = ()=>showModal('vip');
+    bar.appendChild(b);
+  }
+  if(f.bonus) {
+    const b = document.createElement('button');
+    b.className = 'uab-btn uab-bon';
+    b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg> One-Time Bonus';
+    b.onclick = ()=>showModal('bonus');
+    bar.appendChild(b);
+  }
+  if(!f.db && !f.vip && !f.bonus) {
+    bar.innerHTML = '<span style="font-size:11px;color:var(--t3);padding:8px 0">View only — no action buttons for this role</span>';
+  }
+}
+
+function setPage(p) {
+  currentPage = p;
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('act'));
+  const titles = {users:'Player Profile',banners:'Ad Banners',perms:'Roles & Permissions'};
+  document.getElementById('topbar-title').textContent = titles[p] || p;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('show'));
+  document.getElementById('view-'+p)?.classList.add('show');
+  document.querySelectorAll('.sb-item').forEach(el => {
+    const txt = el.textContent.trim().toLowerCase();
+    if((p==='users'&&txt==='users')||(p==='banners'&&txt==='banners')||(p==='perms'&&txt.includes('role'))) el.classList.add('act');
+  });
+  if(p==='perms') document.querySelectorAll('.vtab').forEach(t=>t.style.display='none');
+  else document.querySelectorAll('.vtab').forEach(t=>t.style.display='');
+}
+
+function setAmt(v) { document.getElementById('topup-inp').value = v; }
+
+document.getElementById('sign-p')?.addEventListener('click',function(){
+  this.classList.add('act'); document.getElementById('sign-m').classList.remove('act');
+});
+document.getElementById('sign-m')?.addEventListener('click',function(){
+  this.classList.add('act'); document.getElementById('sign-p').classList.remove('act');
+});
+
+function applyBalance() {
+  const v = document.getElementById('topup-inp').value || '0';
+  const isPlus = document.getElementById('sign-p').classList.contains('act');
+  const amt = parseFloat(v);
+  if(!amt || isNaN(amt)) return;
+  const sign = isPlus ? '+' : '-';
+  showToastDemo(`✓ Balance updated: ${sign}$${Math.abs(amt)}`);
+}
+
+function showToastDemo(msg) {
+  let el = document.getElementById('toast-demo');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'toast-demo';
+    el.style.cssText = 'position:absolute;bottom:16px;right:16px;background:var(--bg2);border:1px solid rgba(0,230,118,.3);border-radius:var(--r);padding:10px 16px;font-size:12px;color:var(--green);z-index:50;font-family:monospace;opacity:0;transition:opacity .25s,transform .25s;transform:translateY(8px)';
+    document.getElementById('app').appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0)';
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(8px)'},2400);
+}
+
+function showModal(id) { document.getElementById('modal-'+id).style.display='flex'; }
+function closeModal(id) { document.getElementById('modal-'+id).style.display='none'; }
+
+function selTier(el) { document.querySelectorAll('.tier').forEach(t=>t.classList.remove('act')); el.classList.add('act'); }
+function selDur(el) { document.querySelectorAll('.dur').forEach(d=>d.classList.remove('act')); el.classList.add('act'); }
+function applyVip() {
+  const tier = document.querySelector('.tier.act')?.textContent.trim() || 'Platinum';
+  const dur = document.querySelector('.dur.act')?.textContent || '30d';
+  closeModal('vip');
+  showToastDemo(`♛ VIP ${tier} / ${dur} assigned`);
+}
+
+function selBonusTab(el,type) {
+  document.querySelectorAll('.bi').forEach(b=>{b.classList.remove('act');b.style.borderColor='';b.style.color='';});
+  el.classList.add('act'); el.style.borderColor='var(--ab)'; el.style.color='var(--a)';
+}
+
+function applyBonus() {
+  closeModal('bonus');
+  showToastDemo('✓ One-time bonus applied!');
+}
+
+function openDbModal() {
+  const btn = document.getElementById('btn-db');
+  if(btn) btn.classList.add('scanning');
+  showModal('db');
+  const steps = ['dbs-1','dbs-2','dbs-3','dbs-4'];
+  steps.forEach(s => { document.getElementById(s)?.classList.remove('act','done'); });
+  document.getElementById('dbs-1')?.classList.add('act');
+  document.getElementById('db-out').style.display='none';
+  document.getElementById('db-copy-row').style.display='none';
+  document.getElementById('db-steps').style.display='flex';
+  let i = 0;
+  if(dbTimer) clearInterval(dbTimer);
+  dbTimer = setInterval(()=>{
+    if(i < steps.length) {
+      document.getElementById(steps[i])?.classList.remove('act');
+      document.getElementById(steps[i])?.classList.add('done');
+      i++;
+      if(i < steps.length) document.getElementById(steps[i])?.classList.add('act');
+    } else {
+      clearInterval(dbTimer);
+      document.getElementById('db-steps').style.display='none';
+      buildReport();
+      if(btn) btn.classList.remove('scanning');
+    }
+  }, 500);
+}
+
+function buildReport() {
+  const out = document.getElementById('db-out');
+  out.innerHTML = `<span class="db-sec">━━━ ACCOUNT PROFILE ━━━</span>  ID:              #4821
+  Username:        SteelKnight
+  Email:           steel@gmail.com
+  Phone:           +380 96 *** 21
+  Registered:      14.01.2024
+  Country:         UA / Kyiv
+<span class="db-sec">━━━ VERIFICATION ━━━</span>  KYC:             ✓ Verified
+  Email:           ✓ Confirmed
+  2FA:             ✓ Active
+<span class="db-sec">━━━ FINANCIAL ━━━</span>  Balance:         $2,840
+  Total Deposits:  $14,200
+  Total Withdrawn: $8,400
+  VIP:             ♛ Platinum (expires 14.04.2026)
+<span class="db-sec">━━━ BETTING ACTIVITY ━━━</span>  Total Bets:      2,841
+  Slots:           1,204  Crash: 387
+  Cards:           541    Sports: 709
+  Biggest Win:     $4,200
+<span class="db-sec">━━━ SECURITY ━━━</span>  Status:          ✓ ACTIVE
+  <span class="db-hash">Password Hash:   $2b$12$4821abcXXXXXXXXXXXXXXXXXXXXX...</span>
+  Reports:         0  Chargebacks: 0
+<span class="db-sec">━━━ GENERATED ━━━</span>  ${new Date().toISOString()}
+  Requested by: ${ROLES[currentRole].name} [${currentRole.toUpperCase()}]`;
+  out.style.display='block';
+  document.getElementById('db-copy-row').style.display='block';
+}
+
+function copyReport() { showToastDemo('Report copied to clipboard'); }
+
+function fakeDrop() { showToastDemo('📎 Image selected (demo)'); }
+
+buildActionBar(ROLES.ceo.features);
+</script>

@@ -1,0 +1,33 @@
+{
+  "_readme": {
+    "description": "Конфигурация спортивных событий (букмейкинг) для главной страницы",
+    "cover_note": "Обложка события: static/uploads/sports/<filename> или background из /static/uploads/bukmaking/matches",
+    "icon_note": "Иконка вида спорта: static/uploads/sports/icons/<filename> или icon_png из /static/uploads/bukmaking/icons",
+    "tag_note": "tag — отображается иконка в левом углу карточки (icon_path из tags[])",
+    "odds_note": "odds: { home, draw, away } — коэффициенты",
+    "top_matches_note": "match_today=true и match_td_utc (UTC ISO datetime) добавляют матч в Top matches of the day"
+  },
+  "tags": [
+    { "id": "football",   "label": "Футбол",      "icon_path": "/static/uploads/sports/icons/football.svg" },
+    { "id": "basketball", "label": "Баскетбол",   "icon_path": "/static/uploads/sports/icons/basketball.svg" },
+    { "id": "tennis",     "label": "Теннис",       "icon_path": "/static/uploads/sports/icons/tennis.svg" },
+    { "id": "hockey",     "label": "Хоккей",       "icon_path": "/static/uploads/sports/icons/hokkey.svg" },
+    { "id": "mma",        "label": "MMA",           "icon_path": "/static/uploads/sports/icons/boxxing.svg" },
+    { "id": "esports",    "label": "Киберспорт",   "icon_path": "/static/uploads/sports/icons/esport.svg" },
+    { "id": "boxing",     "label": "Бокс",          "icon_path": "/static/uploads/sports/icons/boxing.svg" },
+    { "id": "baseball",   "label": "Бейсбол",      "icon_path": "/static/uploads/sports/icons/baseball.svg" }
+  ],
+  "match_backgrounds": {
+    "_note": "Заготовки фонов по тегу. Файлы кладём в fixed_out/static/uploads/bukmaking/backgrounds/...",
+    "default_dir": "/static/uploads/bukmaking/backgrounds",
+    "by_tag": {
+      "football":   ["/static/uploads/bukmaking/backgrounds/football/1.jpg", "/static/uploads/bukmaking/backgrounds/football/2.png", "/static/uploads/bukmaking/backgrounds/football/3.jpg"],
+      "basketball": ["/static/uploads/bukmaking/backgrounds/basketball/1.jpg", "/static/uploads/bukmaking/backgrounds/basketball/2.jpg", "/static/uploads/bukmaking/backgrounds/basketball/3.png"],
+      "tennis":     ["/static/uploads/bukmaking/backgrounds/tennis/1.jpg", "/static/uploads/bukmaking/backgrounds/tennis/2.jpg"],
+      "hockey":     ["/static/uploads/bukmaking/backgrounds/hockey/1.jpg", "/static/uploads/bukmaking/backgrounds/hockey/2.jpg"],
+      "mma":        ["/static/uploads/bukmaking/backgrounds/mma/1.jpg", "/static/uploads/bukmaking/backgrounds/mma/2.jpg"],
+      "boxing":     ["/static/uploads/bukmaking/backgrounds/boxing/1.jpg", "/static/uploads/bukmaking/backgrounds/boxing/2.jpg"],
+      "esports":    ["/static/uploads/bukmaking/backgrounds/esports/1.jpg", "/static/uploads/bukmaking/backgrounds/esports/2.jpg", "/static/uploads/bukmaking/backgrounds/esports/3.jpg"]
+    }
+  }
+}

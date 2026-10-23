@@ -1,0 +1,58 @@
+{
+  "_how_to_connect": [
+    "1. Получите API-ключ у провайдера (Pragmatic Play, Evolution, NetEnt и т.д.)",
+    "2. Установите api_key и endpoint в соответствующем блоке ниже",
+    "3. Установите enabled: true",
+    "4. Перезапустите сервер — игры провайдера появятся автоматически",
+    "5. Добавьте логотип провайдера в static/uploads/btm_icons/<id>.png"
+  ],
+  "_readme": "Файл для подключения провайдеров игр. Заполните api_key и endpoint для каждого провайдера.",
+  "providers": [
+    {
+      "_docs": "https://developers.pragmaticplay.com/",
+      "_note": "Установите enabled: true и заполните api_key + secret после получения доступа",
+      "api_key": "",
+      "currency": "UAH",
+      "enabled": false,
+      "endpoint": "https://api.pragmaticplay.net/",
+      "environment": "staging",
+      "id": "pragmatic",
+      "label": "Pragmatic Play",
+      "secret": ""
+    },
+    {
+      "_docs": "https://casino.everi.com/api/",
+      "_note": "Требует казино-токен + API-ключ",
+      "api_key": "",
+      "casino_token": "",
+      "currency": "UAH",
+      "enabled": false,
+      "endpoint": "https://api.evolutiongaming.com/",
+      "environment": "staging",
+      "id": "evolution",
+      "label": "Evolution Gaming"
+    },
+    {
+      "_docs": "https://netent.com/partner/",
+      "_note": "Нужен operator_id от менеджера NetEnt",
+      "api_key": "",
+      "currency": "USD",
+      "enabled": false,
+      "endpoint": "https://api.netent.com/",
+      "id": "netent",
+      "label": "NetEnt",
+      "operator_id": ""
+    },
+    {
+      "_docs": "https://bgaming.com/partners",
+      "_note": "Свяжитесь с support@bgaming.com для получения доступа",
+      "api_key": "",
+      "currency": "UAH",
+      "enabled": false,
+      "endpoint": "https://api.bgaming-network.com/",
+      "id": "bgaming",
+      "label": "BGaming",
+      "partner_id": ""
+    }
+  ]
+}

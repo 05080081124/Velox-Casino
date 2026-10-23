@@ -1,0 +1,73 @@
+<div class="modal" id="modal-auth">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div id="auth-login">
+      <div class="m-logo"><span style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M11 2L4 11h7l-2 7 9-10h-7l2-6z" fill="currentColor" stroke="currentColor" stroke-width=".5" stroke-linejoin="round"/></svg>VELOX</span></div>
+      <div class="auth-tabs"><button class="at on" id="lat-e" onclick="V.authTab('email')">Почта</button><button class="at" id="lat-p" onclick="V.authTab('phone')">Телефон</button></div>
+      <div class="fg" id="l-email-w"><input type="email" class="inp" id="l-email" placeholder="Email"></div>
+      <div class="fg hidden" id="l-phone-w"><div class="phone-row"><select class="inp inp-sel phone-code" id="l-pcode"></select><input type="tel" class="inp" id="l-phone" placeholder="Номер телефона"></div></div>
+      <div class="fg"><input type="password" class="inp" id="l-pw" placeholder="Пароль"><a class="forgot-lnk" href="#" id="auth-forgot" onclick="V.openForgot(event)">Забыли пароль?</a></div>
+      <div class="fg hidden" id="l-2fa-w"><input type="text" class="inp" id="l-2fa" placeholder="2FA код"></div>
+      <div class="err-msg" id="l-err"></div>
+      <button class="btn-p w100" id="auth-login-btn" onclick="V.login()">Войти</button>
+      <p class="auth-sw"><span id="auth-no-account">Нет аккаунта?</span> <a href="#" id="auth-switch-to-reg" onclick="V.authForm('reg')">Зарегистрироваться</a></p>
+    </div>
+    <div id="auth-reg" class="hidden">
+      <div class="m-logo"><span style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M11 2L4 11h7l-2 7 9-10h-7l2-6z" fill="currentColor" stroke="currentColor" stroke-width=".5" stroke-linejoin="round"/></svg>VELOX</span></div>
+      <div class="auth-tabs"><button class="at on" id="rat-e" onclick="V.regTab('email')">Почта</button><button class="at" id="rat-p" onclick="V.regTab('phone')">Телефон</button></div>
+      <div class="fg" id="r-email-w"><input type="email" class="inp" id="r-email" placeholder="Email"></div>
+      <div class="fg hidden" id="r-phone-w"><div class="phone-row"><select class="inp inp-sel phone-code" id="r-pcode"></select><input type="tel" class="inp" id="r-phone" placeholder="Номер телефона"></div></div>
+      <div class="fg"><input type="text" class="inp" id="r-uname" placeholder="Имя пользователя"></div>
+      <div class="fg"><input type="password" class="inp" id="r-pw" placeholder="Пароль"></div>
+      <div class="fg"><input type="password" class="inp" id="r-cpw" placeholder="Повторите пароль"></div>
+      <div class="err-msg" id="r-err"></div>
+      <button class="btn-p w100" id="auth-register-btn" onclick="V.register()">Зарегистрироваться</button>
+      <p class="auth-sw"><span id="auth-has-account">Уже есть аккаунт?</span> <a href="#" id="auth-switch-to-login" onclick="V.authForm('login')">Войти</a></p>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal-forgot">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeModal('forgot')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="m-title"><span style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="9" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M11 12l7 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/></svg><span id="modal-forgot-title-text">Восстановление пароля</span></span></div>
+    <div class="m-sub" id="modal-forgot-sub">Укажи почту или телефон — создадим тикет для тех-поддержки</div>
+    <div class="fg"><label id="forgot-contact-lbl">Почта или телефон</label><input type="text" class="inp" id="forgot-contact" id="forgot-contact" placeholder="email@example.com или +380..."></div>
+    <div class="fg hidden" id="forgot-2fa-w"><label id="forgot-2fa-lbl">2FA код</label><input type="text" class="inp" id="forgot-2fa" placeholder="Ваш 2FA код"><div style="font-size:11px;color:var(--t2);margin-top:4px" id="forgot-2fa-hint">На вашем аккаунте включена 2FA защита</div></div>
+    <div class="err-msg" id="forgot-err"></div><div class="ok-msg" id="forgot-ok"></div>
+    <button class="btn-p w100" id="forgot-btn" onclick="V.forgotPw()">Отправить</button>
+  </div>
+</div>
+<!-- ── EMAIL / PHONE OTP VERIFICATION MODAL ─────────────────────────────── -->
+<div class="modal" id="modal-email-verify">
+  <div class="mbox">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="m-title" style="display:flex;align-items:center;gap:8px">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 7l8 5 8-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span id="modal-ev-title">Email Verification</span>
+    </div>
+    <div class="m-sub" id="modal-ev-sub" style="margin-bottom:18px;line-height:1.6"></div>
+    <!-- OTP input -->
+    <div class="fg" style="margin-bottom:10px">
+      <input type="text" class="inp" id="ev-code"
+             inputmode="numeric" maxlength="9" autocomplete="one-time-code"
+             placeholder="— — — — — — — — —"
+             style="text-align:center;letter-spacing:6px;font-size:20px;font-weight:700;font-family:monospace"
+             oninput="V.evCodeInput(this)">
+    </div>
+    <!-- Timer bar -->
+    <div style="height:3px;background:var(--bdrB);border-radius:3px;margin-bottom:6px;overflow:hidden">
+      <div id="ev-timer-bar" style="height:100%;background:linear-gradient(90deg,#6c3ff5,#00c8ff);width:100%;transition:width 1s linear"></div>
+    </div>
+    <div id="ev-timer-txt" style="font-size:11px;color:var(--t2);text-align:right;margin-bottom:14px">60s</div>
+    <!-- Errors / status -->
+    <div class="err-msg" id="ev-err" style="margin-bottom:10px"></div>
+    <div class="ok-msg"  id="ev-ok"  style="margin-bottom:10px"></div>
+    <!-- Verify button -->
+    <button class="btn-p w100" id="ev-verify-btn" onclick="V.evVerify()" style="margin-bottom:10px">Verify</button>
+    <!-- Resend -->
+    <button class="btn-oa w100" id="ev-resend-btn" onclick="V.evResend()" disabled style="font-size:13px">
+      <span id="ev-resend-lbl">Resend code</span>
+    </button>
+  </div>
+</div>
+

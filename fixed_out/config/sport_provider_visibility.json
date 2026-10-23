@@ -1,0 +1,9 @@
+{
+  "_readme": {
+    "ru": "mode=all — вся линия провайдера на сайте. mode=listed — только allowed_ids (id вида oddsapiio_* / oddsapi_*). Редактирование: velox_support → Game Builder → каталог провайдера.",
+    "en": "mode=all shows full provider feed. mode=listed shows only allowed_ids for external line events.",
+    "ua": "mode=all — повна лінія на сайті. mode=listed — лише allowed_ids для подій провайдера."
+  },
+  "mode": "all",
+  "allowed_ids": []
+}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Player — VELOX Support{% endblock %}
+{% block page_id %}user-detail{% endblock %}
+{% block body_attrs %}data-user-id="{{ user_id }}"{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('users') }}
+  <div class="panel-main">
+    {{ topbar('player_profile.title', 'Player Profile') }}
+    <div class="panel-body">
+
+      <a href="/panel/users" class="back-btn">← <span data-t="common.back">Назад</span></a>
+
+      <!-- Action bar -->
+      <div class="ud-action-bar" id="ud-action-bar" style="display:none">
+        <button class="ud-btn ud-btn-db hidden" id="btn-get-db">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          <span data-t="user_report.btn_download">GET — DB</span>
+          <span class="ud-btn-scan"></span>
+        </button>
+        <button class="ud-btn ud-btn-vip hidden" id="btn-give-vip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span data-t="vip_modal.btn_give">Give VIP</span>
+        </button>
+        <button class="ud-btn ud-btn-bonus hidden" id="btn-give-bonus">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          <span data-t="bonus_modal.title">One-Time Bonus</span>
+        </button>
+      </div>
+
+      <div class="user-detail-grid">
+
+        <!-- LEFT: profile card + topup -->
+        <div>
+          <div class="ud-profile-card">
+            <div class="ud-profile-head">
+              <div class="ud-avatar" id="ud-avatar">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div class="ud-head-info">
+                <div class="ud-username" id="u-name">—</div>
+                <div class="ud-uid" id="u-id">—</div>
+              </div>
+              <div class="ud-vip-tag hidden" id="ud-vip-tag">♛ VIP</div>
+            </div>
+            <div class="ud-stats-row">
+              <div class="ud-stat">
+                <div class="ud-stat-val" id="u-balance" style="color:var(--gold)">—</div>
+                <div class="ud-stat-lbl" data-t="player_profile.balance">Balance</div>
+              </div>
+              <div class="ud-stat">
+                <div class="ud-stat-val" id="u-kyc">—</div>
+                <div class="ud-stat-lbl" data-t="player_profile.kyc_status">KYC</div>
+              </div>
+              <div class="ud-stat">
+                <div class="ud-stat-val" id="u-verified">—</div>
+                <div class="ud-stat-lbl" data-t="player_profile.vip_status">VIP</div>
+              </div>
+            </div>
+            <div class="ud-fields">
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.email">Email</span><span class="ud-field-v" id="u-email">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.phone">Phone</span><span class="ud-field-v" id="u-phone">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.country">Country</span><span class="ud-field-v" id="u-country">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.vip_tier">VIP Tier</span><span class="ud-field-v" id="u-vip-tier">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.vip_expires">VIP Expires</span><span class="ud-field-v" id="u-vip-exp">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.registered">Registered</span><span class="ud-field-v" id="u-created">—</span></div>
+              <div class="ud-field"><span class="ud-field-k" data-t="player_profile.currency">Currency</span><span class="ud-field-v" id="u-currency">—</span></div>
+            </div>
+          </div>
+
+          <!-- Topup card -->
+          <div class="ud-topup-card hidden" id="topup-card">
+            <div class="ud-topup-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span data-t="users.topup_title">Balance Adjustment</span>
+            </div>
+            <div class="ud-topup-input-wrap" id="topup-input-wrap">
+              <div class="ud-topup-currency">$</div>
+              <input id="topup-amount" type="text" inputmode="decimal" placeholder="0.00" class="ud-topup-input" autocomplete="off">
+              <div class="ud-topup-signs">
+                <button class="ud-topup-sign active" id="topup-sign-p" data-sign="plus">+</button>
+                <button class="ud-topup-sign" id="topup-sign-m" data-sign="minus">−</button>
+              </div>
+            </div>
+            <div class="ud-topup-quick">
+              <button class="ud-topup-qbtn" data-val="10">+10</button>
+              <button class="ud-topup-qbtn" data-val="50">+50</button>
+              <button class="ud-topup-qbtn" data-val="100">+100</button>
+              <button class="ud-topup-qbtn" data-val="500">+500</button>
+              <button class="ud-topup-qbtn" data-val="1000">+1K</button>
+            </div>
+            <input id="topup-reason" type="text" class="ud-topup-reason" data-tp="users.topup_reason_ph" placeholder="Причина (бонус / компенсация...)">
+            <button id="topup-btn" class="ud-topup-apply">
+              <span id="topup-btn-lbl" data-t="users.topup_btn">Применить</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: transactions + game history + tickets -->
+        <div style="display:flex;flex-direction:column;gap:20px">
+
+          <!-- Transactions -->
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="users.transactions_title">Последние транзакции</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th data-t="users.tx_col_date">Дата</th>
+                  <th data-t="users.tx_col_type">Тип</th>
+                  <th data-t="users.tx_col_amount">Сумма</th>
+                  <th data-t="users.tx_col_status">Статус</th>
+                </tr>
+              </thead>
+              <tbody id="tx-body">
+                <tr><td colspan="4" class="loading-center"><span class="spinner"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Game history -->
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="player_profile.game_history_title">История игр</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th data-t="player_profile.game_col_date">Дата</th>
+                  <th data-t="player_profile.game_col_game">Игра</th>
+                  <th data-t="player_profile.game_col_bet">Ставка</th>
+                  <th data-t="player_profile.game_col_win">Выигрыш</th>
+                  <th data-t="player_profile.game_col_result">Результат</th>
+                </tr>
+              </thead>
+              <tbody id="game-history-body">
+                <tr><td colspan="5" class="loading-center"><span class="spinner"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tickets -->
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="users.player_tickets_title">Тикеты игрока</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th data-t="tickets.col_subject">Тема</th>
+                  <th data-t="tickets.col_status">Статус</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="user-tickets-body">
+                <tr><td colspan="4" class="loading-center"><span class="spinner"></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: VIP CLUB ═══ -->
+<div class="ud-modal-overlay hidden" id="modal-vip">
+  <div class="ud-modal ud-modal-vip">
+    <button class="ud-modal-close" onclick="document.getElementById('modal-vip').classList.add('hidden')">✕</button>
+    <div class="ud-vip-header">
+      <div class="ud-vip-crown">♛</div>
+      <div>
+        <div class="ud-vip-title" data-t="vip_modal.title">Grant VIP Status</div>
+        <div class="ud-vip-subtitle" data-t="vip_modal.tier_label">Select tier and duration</div>
+      </div>
+    </div>
+    <div class="ud-vip-tiers" id="vip-tiers">
+      <button class="ud-vip-tier" data-tier="bronze"><span class="ud-tier-ico">🥉</span><span data-t="vip_modal.tier_bronze">Bronze</span></button>
+      <button class="ud-vip-tier" data-tier="silver"><span class="ud-tier-ico">🥈</span><span data-t="vip_modal.tier_silver">Silver</span></button>
+      <button class="ud-vip-tier" data-tier="gold"><span class="ud-tier-ico">🥇</span><span data-t="vip_modal.tier_gold">Gold</span></button>
+      <button class="ud-vip-tier active" data-tier="platinum"><span class="ud-tier-ico">💎</span><span data-t="vip_modal.tier_platinum">Platinum</span></button>
+      <button class="ud-vip-tier" data-tier="diamond"><span class="ud-tier-ico">💠</span><span data-t="vip_modal.tier_diamond">Diamond</span></button>
+    </div>
+    <div class="ud-vip-dur-label" data-t="vip_modal.days_label">Срок</div>
+    <div class="ud-vip-durs">
+      <button class="ud-vip-dur" data-days="7" data-t="vip_modal.days_7">7 дней</button>
+      <button class="ud-vip-dur active" data-days="30" data-t="vip_modal.days_30">30 дней</button>
+      <button class="ud-vip-dur" data-days="90" data-t="vip_modal.days_90">90 дней</button>
+      <button class="ud-vip-dur" data-days="365" data-t="vip_modal.days_365">1 год</button>
+      <button class="ud-vip-dur" data-days="0" data-t="vip_modal.days_infinite">∞</button>
+    </div>
+    <button class="ud-vip-apply-btn" id="vip-apply-btn" data-t="vip_modal.btn_give">Grant VIP</button>
+    <div id="vip-result" class="hidden" style="margin-top:10px;text-align:center;font-size:13px"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: ONE-TIME BONUS ═══ -->
+<div class="ud-modal-overlay hidden" id="modal-bonus">
+  <div class="ud-modal">
+    <button class="ud-modal-close" onclick="document.getElementById('modal-bonus').classList.add('hidden')">✕</button>
+    <div class="ud-modal-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      <span data-t="bonus_modal.title">One-Time Bonus</span>
+    </div>
+    <div class="ud-bonus-tabs">
+      <button class="ud-bonus-tab active" data-type="cash">💰 <span data-t="bonus_modal.type_cash">Cash</span></button>
+      <button class="ud-bonus-tab" data-type="freespins">🎰 <span data-t="bonus_modal.type_freespins">Freespins</span></button>
+      <button class="ud-bonus-tab" data-type="deposit_boost">⚡ <span data-t="bonus_modal.type_deposit_boost">Deposit +%</span></button>
+      <button class="ud-bonus-tab" data-type="extend_vip">♛ <span data-t="bonus_modal.type_extend_vip">Extend VIP</span></button>
+    </div>
+
+    <div class="ud-bonus-panel" id="bonus-panel-cash">
+      <label class="ud-modal-label" data-t="bonus_modal.amount_label">Сумма ($)</label>
+      <input type="text" inputmode="decimal" class="ud-modal-input" id="bonus-cash-amount" placeholder="100.00">
+      <label class="ud-modal-label" style="margin-top:10px" data-t="bonus_modal.note_label">Причина</label>
+      <input type="text" class="ud-modal-input" id="bonus-cash-note" data-tp="bonus_modal.note_ph" placeholder="Welcome bonus...">
+    </div>
+    <div class="ud-bonus-panel hidden" id="bonus-panel-freespins">
+      <label class="ud-modal-label" data-t="bonus_modal.count_label">Количество фриспинов</label>
+      <input type="text" inputmode="numeric" class="ud-modal-input" id="bonus-fs-count" placeholder="50">
+      <label class="ud-modal-label" style="margin-top:10px" data-t="bonus_modal.game_label">Игра</label>
+      <input type="text" class="ud-modal-input" id="bonus-fs-game" data-tp="bonus_modal.game_ph" placeholder="Game ID...">
+    </div>
+    <div class="ud-bonus-panel hidden" id="bonus-panel-deposit_boost">
+      <label class="ud-modal-label" data-t="bonus_modal.percent_label">Процент бонуса (напр. 100 = x2)</label>
+      <input type="text" inputmode="numeric" class="ud-modal-input" id="bonus-dep-pct" placeholder="100">
+      <label class="ud-modal-label" style="margin-top:10px" data-t="bonus_modal.hours_label">Срок действия (часов)</label>
+      <input type="text" inputmode="numeric" class="ud-modal-input" id="bonus-dep-hours" placeholder="24">
+    </div>
+    <div class="ud-bonus-panel hidden" id="bonus-panel-extend_vip">
+      <label class="ud-modal-label" data-t="bonus_modal.days_label">Продлить на (дней)</label>
+      <input type="text" inputmode="numeric" class="ud-modal-input" id="bonus-vip-days" placeholder="30">
+    </div>
+
+    <button class="ud-vip-apply-btn" id="bonus-apply-btn" style="margin-top:16px;background:linear-gradient(135deg,rgba(168,85,247,.22),rgba(168,85,247,.08));border-color:rgba(168,85,247,.35);color:var(--purple)" data-t="bonus_modal.btn_give">
+      Give Bonus
+    </button>
+    <div id="bonus-result" class="hidden" style="margin-top:10px;text-align:center;font-size:13px"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: GET-DB (Account Report) ═══ -->
+<div class="ud-modal-overlay hidden" id="modal-getdb">
+  <div class="ud-modal ud-modal-db">
+    <button class="ud-modal-close" onclick="closeGetDb()">✕</button>
+    <div class="ud-db-header">
+      <div class="ud-db-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span data-t="user_report.title">Account Report</span>
+      </div>
+      <div class="ud-db-uid" id="db-uid-lbl"></div>
+    </div>
+    <div class="ud-db-progress" id="db-progress">
+      <div class="ud-db-step active" id="db-step-1"><div class="ud-db-dot"></div><span data-t="user_report.section_profile">Сбор данных профиля...</span></div>
+      <div class="ud-db-step" id="db-step-2"><div class="ud-db-dot"></div><span data-t="user_report.section_transactions">Загрузка финансов...</span></div>
+      <div class="ud-db-step" id="db-step-3"><div class="ud-db-dot"></div><span data-t="user_report.section_games">История ставок...</span></div>
+      <div class="ud-db-step" id="db-step-4"><div class="ud-db-dot"></div><span data-t="user_report.section_tickets">Лог безопасности...</span></div>
+    </div>
+    <div class="ud-db-output hidden" id="db-output"></div>
+    <div class="hidden" id="db-copy-row" style="margin-top:10px">
+      <button class="ud-btn ud-btn-db" style="font-size:11px" onclick="copyDbReport()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span data-t="user_report.btn_download">Скопировать отчёт</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+<div class="modal" id="modal-verify">
+  <div class="mbox" style="max-width:480px">
+    <button class="m-close" onclick="V.closeM()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+
+    <!-- Title -->
+    <div class="m-title" style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="10" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M11 8h4M11 10h3M11 12h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span id="modal-ver-title-text" data-i18n="kyc.kyc_modal_title">Верификация личности</span>
+    </div>
+    <div class="m-sub" id="ver-sub" data-i18n="kyc.kyc_modal_sub" style="margin-bottom:14px">Подтвердите возраст (18+) для доступа ко всем функциям</div>
+
+    <!-- Status badge (shown if already submitted) -->
+    <div id="ver-status-panel" style="display:none;margin-bottom:14px">
+      <div class="kyc-status-badge" id="kyc-status-badge"></div>
+      <div class="kyc-reason" id="kyc-reason" style="display:none"></div>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="kyc-mode-tabs" id="kyc-mode-tabs" style="display:none;margin-bottom:16px">
+      <button class="kyc-mode-tab active" id="kyc-tab-workflow" onclick="V.kycSetMode('workflow')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span id="kyc-tab-workflow-lbl" data-i18n="kyc.kyc_tab_video">Видео</span>
+      </button>
+      <button class="kyc-mode-tab" id="kyc-tab-scan" onclick="V.kycSetMode('scan')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6 10h8M6 7h4M6 13h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span id="kyc-tab-scan-lbl" data-i18n="kyc.kyc_tab_scan">Скан</span>
+      </button>
+      <button class="kyc-mode-tab" id="kyc-tab-manual" onclick="V.kycSetMode('manual')">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M13 2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7l-3-5z" stroke="currentColor" stroke-width="1.4"/><path d="M13 2v5h5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span id="kyc-tab-manual-lbl" data-i18n="kyc.kyc_tab_doc">Документ</span>
+      </button>
+    </div>
+
+    <!-- DOB (shared across all modes) -->
+    <div class="fg" style="margin-bottom:12px" id="ver-dob-wrap">
+      <label class="fg-lbl" id="ver-dob-lbl" data-i18n="kyc.kyc_dob_label" style="font-size:12px;color:var(--t2);margin-bottom:6px;display:block">Дата рождения</label>
+      <input type="date" class="inp" id="ver-dob" lang="en-GB" max="2010-01-01" style="color-scheme:dark">
+    </div>
+
+    <!-- ═══ WORKFLOW PANEL ═══════════════════════════════════════════════ -->
+    <div id="kyc-panel-workflow">
+
+      <!-- Liveness word -->
+      <div class="kyc-word-box" id="kyc-word-box">
+        <div class="kyc-word-label" id="kyc-word-label" data-i18n="kyc.kyc_word_label">Контрольное слово</div>
+        <div class="kyc-word-value" id="kyc-word-value">—</div>
+        <div class="kyc-word-timer" id="kyc-word-timer"></div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="kyc-instructions" id="kyc-instructions">
+        <div class="kyc-step"><span class="kyc-step-n">1</span><span id="kyc-step1" data-i18n="kyc.kyc_step1">Возьмите паспорт или удостоверение личности</span></div>
+        <div class="kyc-step"><span class="kyc-step-n">2</span><span id="kyc-step2" data-i18n="kyc.kyc_step2">Держите документ рядом с лицом</span></div>
+        <div class="kyc-step"><span class="kyc-step-n">3</span><span id="kyc-step3" data-i18n="kyc.kyc_step3">Чётко произнесите контрольное слово</span></div>
+        <div class="kyc-step"><span class="kyc-step-n">4</span><span id="kyc-step4" data-i18n="kyc.kyc_step4">Нажмите «Начать запись»</span></div>
+      </div>
+
+      <!-- Camera / recorder -->
+      <div class="kyc-cam-wrap" id="kyc-cam-wrap">
+        <video id="kyc-preview" autoplay muted playsinline style="width:100%;border-radius:10px;background:#000;display:none;max-height:200px;object-fit:cover"></video>
+        <video id="kyc-playback" controls style="width:100%;border-radius:10px;background:#000;display:none;max-height:200px;object-fit:cover"></video>
+        <div class="kyc-rec-indicator hidden" id="kyc-rec-dot">
+          <span class="kyc-rec-dot-inner"></span> <span id="kyc-rec-label">REC</span>
+        </div>
+      </div>
+
+      <div class="kyc-cam-btns">
+        <button class="btn-oa" id="kyc-btn-cam" onclick="V.kycStartCam()">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><rect x="1" y="5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M13 8l5-2v8l-5-2V8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <span id="kyc-btn-cam-lbl" data-i18n="kyc.kyc_open_cam">Открыть камеру</span>
+        </button>
+        <button class="btn-p" id="kyc-btn-rec" onclick="V.kycToggleRec()" style="display:none">
+          <span id="kyc-btn-rec-lbl">Начать запись</span>
+        </button>
+        <button class="btn-oa" id="kyc-btn-retry" onclick="V.kycRetry()" style="display:none">
+          Повторить
+        </button>
+      </div>
+
+      <div class="kyc-vid-info" id="kyc-vid-info"></div>
+
+    </div>
+
+    <!-- ═══ SCAN PANEL ═══════════════════════════════════════════════════ -->
+    <div id="kyc-panel-scan" style="display:none">
+      <div class="kyc-scan-info" id="kyc-scan-info">
+        " data-i18n="kyc.kyc_scan_desc">Вы будете перенаправлены на страницу автоматической верификации документов.
+      </div>
+      <div id="kyc-scan-provider-logo" style="text-align:center;margin:14px 0"></div>
+    </div>
+
+    <!-- ═══ MANUAL PANEL ═════════════════════════════════════════════════ -->
+    <div id="kyc-panel-manual" style="display:none">
+      <div class="upload-zone" onclick="document.getElementById('ver-file').click()" style="margin-bottom:8px">
+        <div class="upload-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div id="ver-upload-text" data-i18n="kyc.kyc_doc_desc">Нажмите для загрузки документа</div>
+        <div class="upload-hint" id="ver-upload-hint">JPG, PNG, PDF — до 10 МБ</div>
+        <input type="file" id="ver-file" class="hidden" accept=".jpg,.jpeg,.png,.pdf" onchange="V.verFile(this)">
+      </div>
+      <div class="fname" id="ver-fname"></div>
+    </div>
+
+    <!-- ═══ SHARED FOOTER ════════════════════════════════════════════════ -->
+    <div class="err-msg" id="ver-err" style="margin:10px 0 4px"></div>
+    <div class="ok-msg"  id="ver-ok"  style="margin:4px 0 8px"></div>
+    <button class="btn-p w100" id="ver-send-btn" onclick="V.verify()">
+      <span id="ver-send-lbl">Отправить</span>
+    </button>
+
+  </div>
+</div>

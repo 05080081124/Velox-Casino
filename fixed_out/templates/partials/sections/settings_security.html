@@ -1,0 +1,85 @@
+    <div class="stab-p" id="set-sec">
+      <div class="set-grid">
+        <!-- Смена пароля -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="1.2" fill="currentColor"/></svg>
+            <span id="set-pw-title">Смена пароля</span>
+          </div>
+          <div class="fg"><label id="set-pw-cur-lbl">Текущий пароль</label><input type="password" class="inp" id="pw-cur" placeholder="Введите текущий пароль"></div>
+          <div class="fg"><label id="set-pw-new-lbl">Новый пароль</label><input type="password" class="inp" id="pw-new" placeholder="Минимум 6 символов"></div>
+          <div class="fg"><label id="set-pw-cnf-lbl">Подтвердить</label><input type="password" class="inp" id="pw-cnf" placeholder="Повторите новый пароль"></div>
+          <button class="btn-ghost w100" id="set-changepw-btn" onclick="V.changePw()">Сменить пароль</button>
+        </div>
+
+        <!-- Защита аккаунта -->
+        <div class="set-block">
+          <div class="set-block-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span id="set-sec-title">Защита аккаунта</span>
+          </div>
+
+          <!-- 2FA toggle -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico set-feature-ico--cyan">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-tfa-name">2FA защита</div>
+              <div class="set-feature-desc" id="set-tfa-desc">Дополнительная защита при входе</div>
+            </div>
+            <label class="tog"><input type="checkbox" id="tfa-tog" onchange="V.tfa(this)"><div class="tog-track"></div><div class="tog-thumb"></div></label>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Верификация -->
+          <div class="set-feature-row" id="set-kyc-row">
+            <div class="set-feature-ico set-feature-ico--gold">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="10" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M11 8h4M11 10h3M11 12h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-doc-ver-name">Верификация документов</div>
+              <div class="set-feature-desc" id="set-doc-ver-desc">Открывает полный вывод средств</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.modal('verify')">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Ответственная игра -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico" style="background:rgba(234,88,12,.15)">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2z" stroke="#ea580c" stroke-width="1.4"/><path d="M10 6v4l3 3" stroke="#ea580c" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-rg-name">Ответственная игра</div>
+              <div class="set-feature-desc" id="set-rg-desc">Лимиты депозитов и самоисключение</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.rgOpen()">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="set-sep"></div>
+
+          <!-- Реферальная программа -->
+          <div class="set-feature-row">
+            <div class="set-feature-ico" style="background:rgba(99,153,34,.15)">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="#639922" stroke-width="1.4"/><circle cx="14" cy="5" r="2" stroke="#639922" stroke-width="1.3"/><path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#639922" stroke-width="1.4" stroke-linecap="round"/><path d="M14 11c1.7 0 3 1.3 3 3" stroke="#639922" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="set-feature-body">
+              <div class="set-feature-name" id="set-aff-name">Реферальная программа</div>
+              <div class="set-feature-desc" id="set-aff-desc">Приглашай друзей — получай бонусы</div>
+            </div>
+            <button class="set-feature-btn" onclick="V.affOpen()">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Вкладка: История игр -->

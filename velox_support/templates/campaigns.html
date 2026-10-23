@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Campaigns — VELOX Support{% endblock %}
+{% block page_id %}campaigns{% endblock %}
+
+{% block body %}
+<style>
+  .cp-wrap{display:grid;gap:14px}
+  .cp-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .cp-tab{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--t2)}
+  .cp-tab.active{border-color:var(--a-b);color:var(--a);background:var(--a-dim)}
+  .cp-builder{border:1px solid var(--bdr);border-radius:14px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.008))}
+  .cp-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .cp-form .cp-full{grid-column:1/-1}
+  .cp-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .cp-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+  .cp-thumb{height:130px;background:var(--bg3);display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12px}
+  .cp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .cp-body{padding:12px;display:grid;gap:8px}
+  .cp-title{font-size:13px;font-weight:700;color:var(--t1)}
+  .cp-desc{font-size:12px;color:var(--t2);line-height:1.5}
+  .cp-meta{font-size:11px;color:var(--t3)}
+  .cp-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .cp-link{font-size:11px;color:var(--a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cp-msg{font-size:12px}
+  .cp-upload-zone{border:1px dashed var(--bdrB);border-radius:12px;background:var(--bg2);padding:12px;display:grid;gap:10px}
+  .cp-upload-card{height:126px;border:1px solid var(--bdr);border-radius:10px;background:linear-gradient(135deg,#101028,#11172d);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .cp-upload-card img{width:100%;height:100%;object-fit:cover}
+  .cp-upload-empty{font-size:12px;color:var(--t2)}
+  .cp-upload-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cp-upload-name{font-size:12px;color:var(--t2)}
+  .cp-link-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}
+  .cp-link-board{min-height:86px;border:1px dashed var(--bdrB);border-radius:10px;background:var(--bg2);padding:10px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+  .cp-chip-bank{display:flex;gap:8px;flex-wrap:wrap}
+  .cp-chip{padding:8px 10px;border-radius:10px;border:1px solid var(--bdrB);background:var(--bg3);font-size:12px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px}
+  .cp-chip.active{border-color:rgba(0,229,255,.35);background:rgba(0,229,255,.08)}
+  .cp-chip-remove{width:18px;height:18px;border-radius:6px;border:1px solid var(--bdr);display:inline-flex;align-items:center;justify-content:center;background:var(--bg2);font-size:11px;color:var(--t2)}
+  .cp-chip-hint{font-size:11px;color:var(--t3)}
+  .cp-link-modal,.cp-edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.64);display:none;align-items:center;justify-content:center;z-index:1850}
+  .cp-link-modal.on,.cp-edit-modal.on{display:flex}
+  .cp-link-sheet{width:min(460px,92vw);background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:14px}
+  .cp-link-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+  .cp-edit-sheet{width:min(920px,94vw);max-height:88vh;overflow:auto;background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:14px;position:relative}
+  .cp-close{position:absolute;right:12px;top:12px}
+  .cp-format{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}
+  .cp-format .btn-icon{min-width:32px;height:30px;padding:0 8px}
+  @media (max-width:920px){.cp-link-layout{grid-template-columns:1fr}}
+</style>
+<div class="panel-wrap">
+  {{ sidebar('campaigns') }}
+  <div class="panel-main">
+    {{ topbar('campaigns.title', 'Promotions & Raffles') }}
+    <div class="panel-body">
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="campaigns.title">Конструктор акций и розыгрышей</div>
+        </div>
+        <div style="padding:14px">
+          <div class="cp-wrap">
+            <div class="cp-tabs">
+              <button class="cp-tab active" id="cp-tab-promotions" data-cp-tab="promotions" data-t="campaigns.tab_promotions">Promotions</button>
+              <button class="cp-tab" id="cp-tab-raffles" data-cp-tab="raffles" data-t="campaigns.tab_raffles">Raffles</button>
+            </div>
+            <div class="cp-builder">
+              <div class="cp-form">
+                <div><label class="form-label" data-t="campaigns.field_title">Название</label><input id="cp-title" class="form-input"></div>
+                <div><label class="form-label" data-t="campaigns.field_short_desc">Короткое описание</label><input id="cp-short-desc" class="form-input"></div>
+                <div><label class="form-label" data-t="campaigns.field_start_date">Дата старта</label><input id="cp-start-date" class="form-input" placeholder="2026-01-01"></div>
+                <div><label class="form-label" data-t="campaigns.field_end_date">Дата конца</label><input id="cp-end-date" class="form-input" placeholder="2026-12-31"></div>
+                <div class="cp-full">
+                  <label class="form-label" data-t="campaigns.field_desc">Описание</label>
+                  <div class="cp-format">
+                    <button type="button" class="btn-icon" data-cp-format-target="cp-description" data-cp-format="bold" title="Bold"><b>B</b></button>
+                    <button type="button" class="btn-icon" data-cp-format-target="cp-description" data-cp-format="italic" title="Italic"><i>I</i></button>
+                    <button type="button" class="btn-icon" data-cp-format-target="cp-description" data-cp-format="underline" title="Underline"><u>U</u></button>
+                    <button type="button" class="btn-icon" data-cp-format-target="cp-description" data-cp-format="strike" title="Strike"><s>S</s></button>
+                  </div>
+                  <textarea id="cp-description" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="cp-full cp-link-layout">
+                  <div>
+                    <label class="form-label" data-t="campaigns.games_board_label">Переходники на игры</label>
+                    <div id="cp-link-board" class="cp-link-board"></div>
+                    <div class="cp-chip-hint" data-t="campaigns.games_hint">Выбери игру в списке и добавь в переходники.</div>
+                  </div>
+                  <div>
+                    <label class="form-label" data-t="campaigns.games_picker_label">Подбор игр</label>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                      <select id="cp-game-select" class="form-input" style="min-width:180px;flex:1"></select>
+                      <button type="button" class="btn-icon" id="cp-game-add-btn" data-t="campaigns.btn_add_game">Добавить</button>
+                      <button type="button" class="btn-icon" id="cp-game-refresh-btn" data-t="campaigns.btn_sync_games">Синхронизировать</button>
+                    </div>
+                    <div id="cp-game-sync-info" class="cp-chip-hint"></div>
+                  </div>
+                </div>
+                <div class="cp-full cp-link-layout hidden" id="cp-raffle-links-row">
+                  <div>
+                    <label class="form-label" data-t="campaigns.links_board_label">Hyperlink кнопки</label>
+                    <div id="cp-raffle-link-board" class="cp-link-board"></div>
+                    <div class="cp-chip-hint" data-t="campaigns.links_hint">Перетаскивай чипы сюда. Двойной клик по чипу открывает редактирование URL.</div>
+                  </div>
+                  <div>
+                    <label class="form-label" data-t="campaigns.links_bank_label">Ассортимент ссылок</label>
+                    <div id="cp-raffle-link-bank" class="cp-chip-bank"></div>
+                  </div>
+                </div>
+                <div class="cp-full cp-form" id="cp-promo-stats-row">
+                  <div><label class="form-label" data-t="campaigns.field_standard_mult">Standard</label><input id="cp-standard-mult" class="form-input" placeholder="500×"></div>
+                  <div><label class="form-label" data-t="campaigns.field_promo_mult">With promo</label><input id="cp-promo-mult" class="form-input" placeholder="1000×"></div>
+                  <div><label class="form-label" data-t="campaigns.field_win_chance">Win chance</label><input id="cp-win-chance" class="form-input" placeholder="55%"></div>
+                </div>
+                <div class="cp-full">
+                  <label class="form-label" data-t="campaigns.field_image_upload">Image</label>
+                  <div class="cp-upload-zone">
+                    <div id="cp-upload-card" class="cp-upload-card"><div class="cp-upload-empty" data-t="campaigns.upload_hint">Choose image from your PC</div></div>
+                    <div class="cp-upload-actions">
+                      <button type="button" class="btn-icon" id="cp-file-trigger" data-t="campaigns.btn_browse">Browse</button>
+                      <div id="cp-file-name" class="cp-upload-name" data-t="campaigns.file_not_selected">No file selected</div>
+                    </div>
+                  </div>
+                  <input type="file" id="cp-file" class="hidden" accept="image/png,image/jpeg,image/webp,image/gif">
+                  <input type="hidden" id="cp-image-path">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cp-active" checked><label class="form-label" for="cp-active" style="margin:0" data-t="campaigns.field_active">Активно</label></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn-primary" id="cp-save-btn" data-t="campaigns.btn_save">Сохранить</button>
+              <button class="btn-icon" id="cp-reset-btn" data-t="campaigns.btn_reset">Сбросить</button>
+              <button class="btn-icon" id="cp-reload-btn" data-t="campaigns.btn_reload">Обновить</button>
+              <div id="cp-msg" class="cp-msg"></div>
+            </div>
+            <div class="cp-card-grid" id="cp-grid"><div class="loading-center"><span class="spinner"></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cp-link-modal" id="cp-link-modal">
+  <div class="cp-link-sheet">
+    <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:8px" id="cp-link-modal-title" data-t="campaigns.link_modal_title">URL</div>
+    <input id="cp-link-modal-url" class="form-input" type="url" placeholder="https://...">
+    <div class="cp-link-actions">
+      <button type="button" class="btn-icon" id="cp-link-cancel" data-t="common.cancel">Cancel</button>
+      <button type="button" class="btn-icon" style="color:var(--red)" id="cp-link-remove" data-t="campaigns.link_remove">Remove link</button>
+      <button type="button" class="btn-primary" id="cp-link-save" data-t="common.save">Save</button>
+    </div>
+  </div>
+</div>
+<div class="cp-edit-modal" id="cp-edit-modal">
+  <div class="cp-edit-sheet">
+    <button class="btn-icon cp-close" id="cp-edit-close">✕</button>
+    <div class="tbl-head" style="background:none;border:none;padding:0 0 10px 0">
+      <div class="tbl-head-title" data-t="campaigns.edit_modal_title">Edit panel</div>
+    </div>
+    <div class="cp-form">
+      <div><label class="form-label" data-t="campaigns.field_title">Title</label><input id="cp-edit-title" class="form-input"></div>
+      <div><label class="form-label" data-t="campaigns.field_short_desc">Short description</label><input id="cp-edit-short-desc" class="form-input"></div>
+      <div><label class="form-label" data-t="campaigns.field_start_date">Start date</label><input id="cp-edit-start-date" class="form-input"></div>
+      <div><label class="form-label" data-t="campaigns.field_end_date">End date</label><input id="cp-edit-end-date" class="form-input"></div>
+      <div class="cp-full">
+        <label class="form-label" data-t="campaigns.field_desc">Description</label>
+        <div class="cp-format">
+          <button type="button" class="btn-icon" data-cp-format-target="cp-edit-description" data-cp-format="bold" title="Bold"><b>B</b></button>
+          <button type="button" class="btn-icon" data-cp-format-target="cp-edit-description" data-cp-format="italic" title="Italic"><i>I</i></button>
+          <button type="button" class="btn-icon" data-cp-format-target="cp-edit-description" data-cp-format="underline" title="Underline"><u>U</u></button>
+          <button type="button" class="btn-icon" data-cp-format-target="cp-edit-description" data-cp-format="strike" title="Strike"><s>S</s></button>
+        </div>
+        <textarea id="cp-edit-description" class="form-input" rows="3"></textarea>
+      </div>
+      <div class="cp-full cp-link-layout">
+        <div>
+          <label class="form-label" data-t="campaigns.games_board_label">Переходники на игры</label>
+          <div id="cp-edit-link-board" class="cp-link-board"></div>
+          <div class="cp-chip-hint" data-t="campaigns.games_hint">Выбери игру в списке и добавь в переходники.</div>
+        </div>
+        <div>
+          <label class="form-label" data-t="campaigns.games_picker_label">Подбор игр</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="cp-edit-game-select" class="form-input" style="min-width:180px;flex:1"></select>
+            <button type="button" class="btn-icon" id="cp-edit-game-add-btn" data-t="campaigns.btn_add_game">Добавить</button>
+            <button type="button" class="btn-icon" id="cp-edit-game-refresh-btn" data-t="campaigns.btn_sync_games">Синхронизировать</button>
+          </div>
+          <div id="cp-edit-game-sync-info" class="cp-chip-hint"></div>
+        </div>
+      </div>
+      <div class="cp-full cp-link-layout hidden" id="cp-edit-raffle-links-row">
+        <div>
+          <label class="form-label" data-t="campaigns.links_board_label">Hyperlink кнопки</label>
+          <div id="cp-edit-raffle-link-board" class="cp-link-board"></div>
+          <div class="cp-chip-hint" data-t="campaigns.links_hint">Перетаскивай чипы сюда. Двойной клик по чипу открывает редактирование URL.</div>
+        </div>
+        <div>
+          <label class="form-label" data-t="campaigns.links_bank_label">Ассортимент ссылок</label>
+          <div id="cp-edit-raffle-link-bank" class="cp-chip-bank"></div>
+        </div>
+      </div>
+      <div class="cp-full cp-form" id="cp-edit-promo-stats-row">
+        <div><label class="form-label" data-t="campaigns.field_standard_mult">Standard</label><input id="cp-edit-standard-mult" class="form-input" placeholder="500×"></div>
+        <div><label class="form-label" data-t="campaigns.field_promo_mult">With promo</label><input id="cp-edit-promo-mult" class="form-input" placeholder="1000×"></div>
+        <div><label class="form-label" data-t="campaigns.field_win_chance">Win chance</label><input id="cp-edit-win-chance" class="form-input" placeholder="55%"></div>
+      </div>
+      <div class="cp-full">
+        <label class="form-label" data-t="campaigns.field_image_upload">Image</label>
+        <div class="cp-upload-zone">
+          <div id="cp-edit-upload-card" class="cp-upload-card"><div class="cp-upload-empty" data-t="campaigns.upload_hint">Choose image from your PC</div></div>
+          <div class="cp-upload-actions">
+            <button type="button" class="btn-icon" id="cp-edit-file-trigger" data-t="campaigns.btn_browse">Browse</button>
+            <div id="cp-edit-file-name" class="cp-upload-name" data-t="campaigns.file_not_selected">No file selected</div>
+          </div>
+        </div>
+        <input type="file" id="cp-edit-file" class="hidden" accept="image/png,image/jpeg,image/webp,image/gif">
+        <input type="hidden" id="cp-edit-image-path">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cp-edit-active"><label class="form-label" style="margin:0" for="cp-edit-active" data-t="campaigns.field_active">Active</label></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <button class="btn-primary" id="cp-edit-save" data-t="campaigns.btn_save_changes">Save changes</button>
+      <div id="cp-edit-msg" class="cp-msg"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

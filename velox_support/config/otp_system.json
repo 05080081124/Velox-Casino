@@ -1,0 +1,69 @@
+{
+  "_comment": "VELOX Support — OTP system configuration",
+
+  "otp": {
+    "length": 9,
+    "ttl_seconds": 60,
+    "note": "OTP length and TTL. Recommended: 6-9 digits, 60 seconds."
+  },
+
+  "provider": {
+    "type": "email",
+    "_type_note": "Available: 'email' | 'smtp is the only supported type for now. SMS stub is available — see note below.",
+
+    "email": {
+      "smtp_host": "live.smtp.mailtrap.io",
+      "smtp_port": 587,
+      "smtp_tls": true,
+      "smtp_user": "smtp@mailtrap.io",
+      "smtp_password": "cbabef233b1b235c9bb8a2cd79ed58cc",
+      "from_name": "VELOX Support",
+      "from_addr": "no-reply@demomailtrap.co",
+      "enabled": false,
+      "note": "Uses Mailtrap for testing. Replace with real SMTP credentials for production."
+    },
+
+    "sms": {
+      "enabled": false,
+      "provider_name": "twilio",
+      "_provider_note": "Stub only. To activate: set enabled=true and fill credentials, then implement _send_sms() in email_service.py",
+      "account_sid": "",
+      "auth_token": "",
+      "from_number": "+1234567890"
+    }
+  },
+
+  "templates": {
+    "_note": "Use {code} and {ttl} as placeholders. {ttl} is in seconds.",
+
+    "RU": {
+      "email_subject": "VELOX Support — Код подтверждения",
+      "email_greeting": "Здравствуйте,",
+      "email_body": "Ваш код подтверждения для доступа к панели <strong>VELOX Support</strong>:",
+      "email_expiry": "Код действителен <strong>{ttl} секунд</strong>.",
+      "email_warning": "Если вы не запрашивали доступ к VELOX Support — проигнорируйте это письмо.",
+      "sms_text": "VELOX Support: ваш код {code}. Действителен {ttl} сек."
+    },
+
+    "UA": {
+      "email_subject": "VELOX Support — Код підтвердження",
+      "email_greeting": "Вітаємо,",
+      "email_body": "Ваш код підтвердження для доступу до панелі <strong>VELOX Support</strong>:",
+      "email_expiry": "Код дійсний <strong>{ttl} секунд</strong>.",
+      "email_warning": "Якщо ви не запитували доступ до VELOX Support — ігноруйте цей лист.",
+      "sms_text": "VELOX Support: ваш код {code}. Дійсний {ttl} сек."
+    },
+
+    "EN": {
+      "email_subject": "VELOX Support — Verification Code",
+      "email_greeting": "Hello,",
+      "email_body": "Your verification code for <strong>VELOX Support Panel</strong> access:",
+      "email_expiry": "This code is valid for <strong>{ttl} seconds</strong>.",
+      "email_warning": "If you did not request access to VELOX Support, please ignore this message.",
+      "sms_text": "VELOX Support: your code is {code}. Valid for {ttl}s."
+    }
+  },
+
+  "default_language": "EN",
+  "_default_language_note": "Used when language cannot be determined. Options: RU | UA | EN"
+}

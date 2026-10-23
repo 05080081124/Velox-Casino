@@ -1,0 +1,41 @@
+<header class="topbar">
+  <div class="tb-spacer"></div>
+  <!-- Pre-auth: убираем flash "Войти" если флаг авторизации есть в localStorage -->
+  <script>(function(){try{if(localStorage.getItem('velox_authed')==='1')document.write('<style>#tb-guest{visibility:hidden!important;opacity:0!important}</style>');}catch(e){}})();</script>
+  <div id="tb-guest">
+    <button class="tb-login" id="tb-login-btn" onclick="V.modal('auth')">ВОЙТИ</button>
+  </div>
+  <div id="tb-auth" class="hidden" style="display:flex;align-items:center;gap:8px">
+    <div class="tb-bal" onclick="V.go('balance')">
+      <span class="tb-bal-amt"><span id="tb-bal-num">0.00</span>&nbsp;<span id="tb-bal-sym">₴</span></span>
+      <button class="tb-bal-plus" onclick="event.stopPropagation();V.go('balance')">+</button>
+    </div>
+    <div class="tb-fs" id="tb-fs" style="display:none">
+      <span class="tb-fs-amt"><span id="tb-fs-num">0</span></span>
+      <span class="tb-fs-lbl">FS</span>
+    </div>
+    <div class="tb-profile" id="tb-profile">
+      <button class="tb-prof-btn" onclick="V.toggleDD()">
+        <div class="tb-av" id="tb-av" style="cursor:default" title="">V</div>
+        <span class="tb-uname" id="tb-uname">User</span>
+      </button>
+      <div class="tb-dd" id="tb-dd">
+        <div class="dd-head">
+          <div class="dd-av" id="dd-av">V</div>
+          <div><div class="dd-name" id="dd-name">User</div><div class="dd-sub" id="dd-sub">—</div></div>
+        </div>
+        <button class="dd-item" id="dd-link-settings" onclick="V.go('settings')"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> <span id="dd-text-settings">Настройки</span></button>
+        <button class="dd-item" id="dd-link-balance" onclick="V.go('balance')"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.3"/><circle cx="6" cy="13" r="1.2" fill="currentColor"/><path d="M13 12h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 5V4a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.3"/></svg> <span id="dd-text-balance">Баланс</span></button>
+        <button class="dd-item" onclick="V.modal('promo')"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><path d="M2 8a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v1a2 2 0 0 0 0 4v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1a2 2 0 0 0 0-4V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 9v6M11.5 9.5l-3 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1.5 1.5"/></svg><span id="dd-text-promo"> Промокоды</span></button>
+        <button class="dd-item dd-vip-row" id="dd-vip-row" onclick="V.vipOpen()" style="display:none">
+          <span class="dd-vip-icon" id="dd-vip-icon"></span>
+          <span class="dd-vip-label" id="dd-vip-label">VIP</span>
+          <span class="dd-vip-badge" id="dd-vip-badge"></span>
+        </button>
+        <div class="dd-sep"></div>
+        <button class="dd-item dd-out" id="dd-link-logout" onclick="V.logout()"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0"><path d="M8 17H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 14l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 10H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> <span id="dd-text-logout">Выйти</span></button>
+      </div>
+    </div>
+  </div>
+</header>
+

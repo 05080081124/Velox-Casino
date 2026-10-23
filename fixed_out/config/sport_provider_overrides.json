@@ -1,0 +1,10 @@
+{
+  "_readme": {
+    "ru": "Ручные оверрайды для матчей провайдерской линии (oddsapi_/oddsapiio_). Здесь можно задать стрим (YouTube embed URL), если у провайдера его нет.",
+    "en": "Manual overrides for provider feed events (oddsapi_/oddsapiio_). Store stream embed URLs here when provider doesn't supply video."
+  },
+  "streams": {
+    "oddsapiio_70505174": "https://youtu.be/1sasfga0xzA"
+  },
+  "updated_at": "2026-04-28T02:33:14.601536"
+}

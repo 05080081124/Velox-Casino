@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Analytics — VELOX Support{% endblock %}
+{% block page_id %}analytics{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('analytics') }}
+  <div class="panel-main">
+    {{ topbar('analytics.title', 'Analytics') }}
+    <div class="panel-body">
+
+      <div style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+        <button class="tbl-filter-btn active" data-period="24h" data-t="analytics.period_24h">24h</button>
+        <button class="tbl-filter-btn" data-period="7d" data-t="analytics.period_7d">7 days</button>
+        <button class="tbl-filter-btn" data-period="30d" data-t="analytics.period_30d">30 days</button>
+        <button class="tbl-filter-btn" data-period="all" data-t="analytics.period_all">All time</button>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.ggr">GGR</div>
+          <div class="kpi-val" id="kpi-ggr">—</div>
+          <div class="kpi-sub" id="kpi-ggr-sub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.deposits">Deposits</div>
+          <div class="kpi-val" id="kpi-dep">—</div>
+          <div class="kpi-sub" id="kpi-dep-cnt"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.withdrawals">Withdrawals</div>
+          <div class="kpi-val" id="kpi-wd">—</div>
+          <div class="kpi-sub" id="kpi-wd-cnt"></div>
+        </div>
+        <div class="kpi-card kpi-warn">
+          <div class="kpi-label" data-t="analytics.pending_payouts">Pending Payouts</div>
+          <div class="kpi-val" id="kpi-pend">—</div>
+          <div class="kpi-sub" id="kpi-pend-cnt"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.total_users">Total Users</div>
+          <div class="kpi-val" id="kpi-users">—</div>
+          <div class="kpi-sub" id="kpi-users-sub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.active_players">Active Players</div>
+          <div class="kpi-val" id="kpi-active">—</div>
+          <div class="kpi-sub" id="kpi-rounds"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.kyc_verified">KYC Verified</div>
+          <div class="kpi-val" id="kpi-kyc">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label" data-t="analytics.open_tickets">Open Tickets</div>
+          <div class="kpi-val" id="kpi-tickets">—</div>
+          <div class="kpi-sub" id="kpi-tickets-sub"></div>
+        </div>
+      </div>
+
+      <div class="tbl-wrap" style="margin-top:16px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="analytics.top_games">Top Games</div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th data-t="analytics.game">Game</th>
+              <th data-t="analytics.rounds">Rounds</th>
+              <th data-t="analytics.volume">Volume</th>
+            </tr>
+          </thead>
+          <tbody id="top-games-body">
+            <tr><td colspan="3" class="loading-center"><span class="spinner"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

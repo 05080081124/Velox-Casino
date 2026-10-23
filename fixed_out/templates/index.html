@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07071a">
+<title>VELOX Casino</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="sb-trigger"></div>
+
+{% include 'partials/sidebar.html' %}
+{% include 'partials/topbar.html' %}
+
+<main class="page">
+{% include 'partials/views_lobby.html' %}
+{% include 'partials/view_balance.html' %}
+{% include 'partials/view_settings.html' %}
+</main>
+
+<!-- MODALS -->
+<div class="overlay" id="overlay" onclick="V.closeM()"></div>
+
+{% include 'partials/modals/auth.html' %}
+{% include 'partials/modals/content.html' %}
+{% include 'partials/modals/kyc.html' %}
+{% include 'partials/modals/account.html' %}
+
+{% include 'partials/footer.html' %}
+
+{% include 'partials/modals/legal.html' %}
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

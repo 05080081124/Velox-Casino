@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block title %}VELOX Support — Access{% endblock %}
+{% block page_id %}auth{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+  <div class="auth-bg"></div>
+
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-name">VELOX</div>
+      <div class="auth-logo-sub">SUPPORT PANEL</div>
+    </div>
+
+    <!-- Stage 1: Access key -->
+    <div id="stage-key">
+      <div class="auth-title">Enter access key</div>
+      <div id="err-key" class="auth-error hidden"></div>
+      <div class="auth-field">
+        <label>ACCESS KEY</label>
+        <input id="key-input" type="password" class="auth-input"
+               placeholder="Paste your admin key here" autocomplete="off"/>
+      </div>
+      <button id="key-btn" class="auth-btn">Continue</button>
+    </div>
+
+    <!-- Stage 2: Forms -->
+    <div id="stage-form" class="hidden">
+      <div id="err-form" class="auth-error hidden"></div>
+      <div id="ok-form"  class="auth-success hidden"></div>
+
+      <!-- REGISTER -->
+      <div id="form-register" class="hidden">
+        <div class="auth-title">Create admin account</div>
+
+        <div class="auth-field">
+          <label>EMAIL *</label>
+          <input id="reg-email" type="email" class="auth-input"
+                 placeholder="admin@example.com" autocomplete="email"/>
+        </div>
+
+        <div class="auth-field">
+          <label>VERIFICATION CODE *</label>
+          <div class="otp-row">
+            <input id="reg-otp" type="text" class="auth-input"
+                   placeholder="9-digit code" maxlength="9"
+                   autocomplete="one-time-code" inputmode="numeric"/>
+            <button id="otp-send-btn" class="otp-send-btn">Get code</button>
+          </div>
+          <div id="otp-hint" style="font-size:11px;color:var(--t3);margin-top:5px"></div>
+        </div>
+
+        <div class="auth-field">
+          <label>PASSWORD * <span style="color:var(--t3);font-weight:400">(min. 8 chars)</span></label>
+          <input id="reg-password" type="password" class="auth-input"
+                 placeholder="Password" autocomplete="new-password"/>
+        </div>
+
+        <div class="auth-field">
+          <label>DISPLAY NAME <span style="color:var(--t3);font-weight:400">(optional)</span></label>
+          <input id="reg-nickname" type="text" class="auth-input"
+                 placeholder="Leave blank — default from config" autocomplete="off"/>
+        </div>
+
+        <button id="register-btn" class="auth-btn">Register</button>
+
+        <div class="auth-link">
+          Already have an account? <a href="#" id="link-to-login">Sign in</a>
+        </div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="form-login" class="hidden">
+        <div class="auth-title">Sign in to panel</div>
+
+        <div class="auth-field">
+          <label>EMAIL</label>
+          <input id="login-email" type="email" class="auth-input"
+                 placeholder="admin@example.com" autocomplete="email"/>
+        </div>
+
+        <div class="auth-field">
+          <label>PASSWORD</label>
+          <input id="login-password" type="password" class="auth-input"
+                 placeholder="Password" autocomplete="current-password"/>
+        </div>
+
+        <button id="login-btn" class="auth-btn">Sign in</button>
+
+        <div class="auth-link">
+          No account? <a href="#" id="link-to-register">Register</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function showErr(msg) {
+    var el = document.getElementById('err-form');
+    if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+    document.getElementById('ok-form')?.classList.add('hidden');
+  }
+  function showOk(msg) {
+    var el = document.getElementById('ok-form');
+    if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+    document.getElementById('err-form')?.classList.add('hidden');
+  }
+  function hideMsg() {
+    document.getElementById('err-form')?.classList.add('hidden');
+    document.getElementById('ok-form')?.classList.add('hidden');
+  }
+
+  async function api(method, url, data) {
+    var r = await fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    var json = await r.json().catch(function() { return {}; });
+    return { ok: r.ok, status: r.status, data: json };
+  }
+
+  var _key = sessionStorage.getItem('admin_key') || '';
+
+  // ── Stage 1 ─────────────────────────────────────────────────────────────
+  document.getElementById('key-input')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('key-btn')?.click();
+  });
+
+  document.getElementById('key-btn')?.addEventListener('click', async function() {
+    var key = document.getElementById('key-input')?.value.trim();
+    if (!key) return;
+    this.disabled = true; this.textContent = '...';
+    var errEl = document.getElementById('err-key');
+    if (errEl) errEl.classList.add('hidden');
+
+    var res = await api('POST', '/api/auth/check-key', { key: key });
+    this.disabled = false; this.textContent = 'Continue';
+
+    if (!res.ok) {
+      if (errEl) { errEl.textContent = res.data.error || 'Invalid key'; errEl.classList.remove('hidden'); }
+      return;
+    }
+    _key = key;
+    sessionStorage.setItem('admin_key', key);
+    document.getElementById('stage-key')?.classList.add('hidden');
+    document.getElementById('stage-form')?.classList.remove('hidden');
+    res.data.has_admins ? showLoginForm() : showRegisterForm();
+  });
+
+  // ── Toggle ───────────────────────────────────────────────────────────────
+  function showLoginForm() {
+    document.getElementById('form-register')?.classList.add('hidden');
+    document.getElementById('form-login')?.classList.remove('hidden');
+    hideMsg();
+  }
+  function showRegisterForm() {
+    document.getElementById('form-login')?.classList.add('hidden');
+    document.getElementById('form-register')?.classList.remove('hidden');
+    hideMsg();
+  }
+  document.getElementById('link-to-login')?.addEventListener('click', function(e) { e.preventDefault(); showLoginForm(); });
+  document.getElementById('link-to-register')?.addEventListener('click', function(e) { e.preventDefault(); showRegisterForm(); });
+
+  // ── OTP cooldown ─────────────────────────────────────────────────────────
+  var _cooldownInterval = null;
+
+  function startCooldown(seconds) {
+    var btn  = document.getElementById('otp-send-btn');
+    var hint = document.getElementById('otp-hint');
+    if (!btn) return;
+    var s = seconds;
+    btn.disabled = true;
+    btn.textContent = s + 's';
+    if (hint) hint.textContent = 'Code sent — check your inbox. Expires in ' + s + 's.';
+    clearInterval(_cooldownInterval);
+    _cooldownInterval = setInterval(function() {
+      s--;
+      if (s > 0) {
+        btn.textContent = s + 's';
+        if (hint) hint.textContent = 'Code sent — check your inbox. Expires in ' + s + 's.';
+      } else {
+        clearInterval(_cooldownInterval);
+        btn.disabled = false;
+        btn.textContent = 'Resend';
+        if (hint) hint.textContent = "Didn't receive it? Click Resend.";
+      }
+    }, 1000);
+  }
+
+  // Check remaining cooldown when email is typed
+  var _otpCheckTimer = null;
+  document.getElementById('reg-email')?.addEventListener('input', function() {
+    clearTimeout(_otpCheckTimer);
+    var email = this.value.trim().toLowerCase();
+    if (!email.includes('@')) return;
+    _otpCheckTimer = setTimeout(async function() {
+      var res = await api('POST', '/api/auth/otp_remaining', { email: email });
+      if (res.ok && res.data.remaining > 0) startCooldown(res.data.remaining);
+    }, 600);
+  });
+
+  // Send OTP
+  document.getElementById('otp-send-btn')?.addEventListener('click', async function() {
+    var email = document.getElementById('reg-email')?.value.trim().toLowerCase();
+    if (!email || !email.includes('@')) { showErr('Please enter a valid email first'); return; }
+    hideMsg();
+
+    var btn = this;
+    var alreadySent = !!btn.dataset.sent;
+    var endpoint = alreadySent ? '/api/auth/register/resend_otp' : '/api/auth/register/send_otp';
+
+    btn.disabled = true; btn.textContent = '...';
+    var res = await api('POST', endpoint, { email: email, key: _key });
+
+    if (!res.ok) {
+      btn.disabled = false; btn.textContent = alreadySent ? 'Resend' : 'Get code';
+      if (res.data.remaining) { startCooldown(res.data.remaining); }
+      else { showErr(res.data.error || 'Failed to send code'); }
+      return;
+    }
+    btn.dataset.sent = '1';
+    if (res.data.code) {
+      // SMTP disabled — code returned directly, fill the field
+      var otpField = document.getElementById('reg-otp');
+      if (otpField) { otpField.value = res.data.code; otpField.readOnly = true; }
+      showOk('SMTP отключён — код автоматически вставлен: ' + res.data.code);
+      startCooldown(res.data.ttl || 60);
+    } else {
+      showOk('Code sent to ' + (res.data.masked || email));
+      startCooldown(res.data.ttl || 60);
+    }
+  });
+
+  // ── Register ─────────────────────────────────────────────────────────────
+  document.getElementById('register-btn')?.addEventListener('click', async function() {
+    var email    = document.getElementById('reg-email')?.value.trim().toLowerCase();
+    var otp      = document.getElementById('reg-otp')?.value.trim();
+    var password = document.getElementById('reg-password')?.value.trim();
+    var nickname = document.getElementById('reg-nickname')?.value.trim();
+    hideMsg();
+
+    if (!email)              { showErr('Email is required'); return; }
+    if (!otp)                { showErr('Verification code is required'); return; }
+    if (!password)           { showErr('Password is required'); return; }
+    if (password.length < 8) { showErr('Password must be at least 8 characters'); return; }
+
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Registering...';
+
+    var res = await api('POST', '/api/auth/register', {
+      key: _key, email: email, otp: otp, password: password, nickname: nickname,
+    });
+    btn.disabled = false; btn.textContent = 'Register';
+
+    if (!res.ok) { showErr(res.data.error || 'Registration failed'); return; }
+    window.location.href = '/panel';
+  });
+
+  // ── Login ────────────────────────────────────────────────────────────────
+  async function doLogin() {
+    var email    = document.getElementById('login-email')?.value.trim().toLowerCase();
+    var password = document.getElementById('login-password')?.value.trim();
+    hideMsg();
+    if (!email || !password) { showErr('Please fill in all fields'); return; }
+
+    var btn = document.getElementById('login-btn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+
+    var res = await api('POST', '/api/auth/login', { key: _key, email: email, password: password });
+    btn.disabled = false; btn.textContent = 'Sign in';
+
+    if (!res.ok) { showErr(res.data.error || 'Incorrect email or password'); return; }
+    window.location.href = '/panel';
+  }
+
+  document.getElementById('login-btn')?.addEventListener('click', doLogin);
+  document.getElementById('login-password')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+
+})();
+</script>
+{% endblock %}

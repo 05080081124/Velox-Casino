@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Ticket #{{ ticket_id }} — VELOX Support{% endblock %}
+{% block page_id %}ticket-detail{% endblock %}
+{% block body_attrs %}data-ticket-id="{{ ticket_id }}"{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('tickets') }}
+  <div class="panel-main">
+    {{ topbar('tickets.title', 'Ticket') }}
+    <div class="panel-body">
+
+      <a href="/panel/tickets" class="back-btn">
+        ← <span data-t="common.back">Back</span>
+      </a>
+
+      <div class="ticket-detail">
+
+        <!-- ═══ LEFT ═══ -->
+        <div class="ticket-main">
+
+          <!-- Header card -->
+          <div class="ticket-header">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+              <span id="ticket-id" style="font-family:var(--ffd);color:var(--t3);font-size:13px">#—</span>
+              <h2 id="ticket-subject" style="flex:1;font-size:15px">—</h2>
+              <span id="ticket-status-badge" class="badge">—</span>
+              <span id="kyc-badge" class="badge hidden"
+                    style="background:rgba(168,85,247,.12);color:#a855f7;border-color:rgba(168,85,247,.25)">
+                🔐 KYC
+              </span>
+            </div>
+
+            <div class="ticket-meta" style="margin-bottom:10px">
+              <div class="ticket-meta-item">
+                <span style="color:var(--t3)" data-t="tickets.col_contact">Contact</span>:
+                <span id="ticket-contact">—</span>
+              </div>
+              <div class="ticket-meta-item" style="color:var(--t3)" id="ticket-date">—</div>
+            </div>
+
+
+            <!-- Description + translate -->
+            <div style="display:flex;align-items:flex-start;gap:8px">
+              <div class="ticket-desc" id="ticket-desc" style="flex:1">—</div>
+              <button id="translate-btn" class="btn-icon" style="flex-shrink:0;white-space:nowrap">
+                🌐 <span data-t="common.translate">Translate</span>
+              </button>
+            </div>
+            <div id="ticket-desc-translated" class="hidden"
+                 style="margin-top:10px;padding:12px 14px;background:var(--bg3);
+                        border-radius:var(--r);font-size:13px;color:var(--t2);
+                        border:1px solid var(--bdr);white-space:pre-wrap;line-height:1.6"></div>
+          </div>
+
+          <!-- KYC media block -->
+          <div id="kyc-media-block" class="hidden" style="margin-bottom:16px">
+            <div class="tbl-wrap">
+              <div class="tbl-head">
+                <div class="tbl-head-title"
+                     style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t3)">
+                  KYC Media
+                </div>
+              </div>
+              <div style="padding:16px;display:flex;justify-content:center;align-items:center;
+                          background:var(--bg0);min-height:120px">
+                <video id="kyc-video" controls style="max-width:100%;max-height:420px;
+                       border-radius:var(--r);background:#000;display:none"></video>
+                <img   id="kyc-image" alt="KYC document"
+                       style="max-width:100%;max-height:420px;border-radius:var(--r);
+                              object-fit:contain;display:none"/>
+                <a     id="kyc-pdf" href="#" target="_blank"
+                       style="display:none;color:var(--a);font-size:14px;padding:20px">
+                  📄 Open document (PDF)
+                </a>
+                <div id="kyc-media-loading" class="loading-center">
+                  <span class="spinner"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User attachments / screenshots -->
+          <div id="attachments-block" class="hidden" style="margin-bottom:16px">
+            <div class="tbl-wrap">
+              <div class="tbl-head">
+                <div class="tbl-head-title" style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t3)">
+                  Вложения
+                </div>
+              </div>
+              <div id="attachments-list" style="padding:12px;display:flex;flex-wrap:wrap;gap:10px;background:var(--bg0)"></div>
+            </div>
+          </div>
+
+          <!-- Messages + reply -->
+          <div class="messages-box">
+            <div class="messages-list" id="messages-list">
+              <div class="loading-center"><span class="spinner"></span></div>
+            </div>
+            <div class="reply-box">
+              <textarea id="reply-input" class="reply-input" rows="2"
+                        data-tp="tickets.reply_placeholder"
+                        placeholder="Admin reply..."></textarea>
+              <button id="reply-send-btn" class="reply-send"
+                      data-t="tickets.send_reply">Send</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═══ RIGHT ═══ -->
+        <div class="ticket-side">
+
+          <!-- Action panel — contents set dynamically by JS -->
+          <div class="ticket-actions" id="action-panel" style="margin-bottom:16px">
+            <h4 data-t="tickets.ticket_actions">Actions</h4>
+            <div id="action-buttons">
+              <div class="loading-center" style="padding:16px">
+                <span class="spinner"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Decline reason (hidden by default) -->
+          <div class="ticket-actions hidden" id="decline-panel" style="margin-bottom:16px">
+            <h4 data-t="tickets.kyc_decline">Decline KYC</h4>
+            <div class="auth-field">
+              <input id="decline-reason" type="text" class="auth-input"
+                     placeholder="Reason (optional)"/>
+            </div>
+            <button class="action-btn action-btn-close" id="btn-kyc-decline-confirm">
+              ✕ Confirm Decline
+            </button>
+            <button class="action-btn" id="btn-kyc-decline-cancel"
+                    style="background:var(--bg3);border:1px solid var(--bdr);color:var(--t2);margin-top:6px">
+              Cancel
+            </button>
+          </div>
+
+          <!-- User info card -->
+          <div class="user-card hidden" id="user-card">
+            <h4 data-t="tickets.ticket_user">Player</h4>
+            <div class="user-card-row">
+              <span class="user-card-key" data-t="users.col_username">Username</span>
+              <span class="user-card-val" id="user-name">—</span>
+            </div>
+            <div class="user-card-row">
+              <span class="user-card-key">Email</span>
+              <span class="user-card-val" id="user-email" style="font-size:11px">—</span>
+            </div>
+            <div class="user-card-row">
+              <span class="user-card-key" data-t="common.balance">Balance</span>
+              <span class="user-card-val" id="user-balance">—</span>
+            </div>
+            <div class="user-card-row">
+              <span class="user-card-key" data-t="users.col_kyc">KYC</span>
+              <span class="user-card-val" id="user-kyc-status">—</span>
+            </div>
+            <a id="user-link" href="#" class="btn-icon"
+               style="display:block;text-align:center;margin-top:10px">
+              Player profile →
+            </a>
+          </div>
+
+          <!-- Assigned operator card (shown when ticket is in_progress) -->
+          <div class="user-card hidden" id="operator-card" style="margin-top:12px">
+            <h4 data-t="tickets.operator_title">Assigned Operator</h4>
+            <div class="user-card-row">
+              <span class="user-card-key" data-t="users.col_username">Nickname</span>
+              <span class="user-card-val" id="op-nickname">—</span>
+            </div>
+            <div class="user-card-row">
+              <span class="user-card-key">Admin ID</span>
+              <span class="user-card-val" id="op-public-id"
+                    style="font-family:var(--ffd);color:var(--a);font-size:11px;letter-spacing:1px">—</span>
+            </div>
+            <div class="user-card-row">
+              <span class="user-card-key" data-t="tickets.col_status">Status</span>
+              <span class="user-card-val">
+                <span class="badge badge-progress" data-t="tickets.filter_progress">In Progress</span>
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Banners — VELOX Support{% endblock %}
+{% block page_id %}banners{% endblock %}
+
+{% block body %}
+<style>
+  .panel-main,.panel-body,.tbl-wrap,.bn-list-wrap {
+    min-width: 0;
+  }
+  .bn-list-wrap {
+    border: 1px solid var(--bdr);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    padding: 14px;
+  }
+  .bn-preview-wrap{margin:14px 0 4px;border:1px solid var(--bdr);border-radius:14px;background:var(--bg1);padding:12px;max-width:100%;overflow:hidden}
+  .bn-preview-track{display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;max-width:100%;width:100%;min-width:0;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+  .bn-preview-track.drag-active{cursor:grabbing}
+  .bn-preview-track::-webkit-scrollbar{display:none}
+  .bn-preview-card{flex:0 0 320px;max-width:360px;height:120px;border-radius:12px;border:1px solid var(--bdr);overflow:hidden;position:relative;scroll-snap-align:start;background:var(--bg2)}
+  .bn-preview-card img{width:100%;height:100%;object-fit:cover;display:block}
+  .bn-preview-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d0a2e,#0a1628);font-weight:700}
+  .bn-preview-overlay{display:none}
+  .bn-card-top{position:relative;height:128px;border-bottom:1px solid var(--bdr);overflow:hidden}
+  .bn-card-top img{width:100%;height:100%;object-fit:cover;filter:blur(1.8px) brightness(.75);transform:scale(1.05)}
+  .bn-card-top::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(8,8,18,.7))}
+  .bn-card-title{font-size:14px;font-weight:700}
+  .bn-card-actions{display:flex;gap:8px;padding:10px 12px 12px}
+  .bn-edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;z-index:1800}
+  .bn-edit-modal.on{display:flex}
+  .bn-edit-sheet{width:min(860px,92vw);max-height:88vh;overflow:auto;background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:14px;position:relative}
+  .bn-modal-close{position:absolute;right:12px;top:12px;z-index:2}
+  .bn-link-board{display:flex;flex-wrap:wrap;gap:10px;padding:12px;border:1px dashed var(--bdrB);border-radius:10px;background:var(--bg2);min-height:60px}
+  .bn-chip-bank{display:flex;flex-wrap:wrap;gap:8px}
+  .bn-link-chip{padding:8px 10px;border-radius:10px;border:1px solid var(--bdrB);background:var(--bg3);font-size:12px;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px}
+  .bn-link-chip.active{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.35)}
+  .bn-link-chip input{margin-top:6px;width:220px}
+  .bn-link-remove{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--bdr);background:var(--bg2);color:var(--t2);font-size:11px;margin-left:4px}
+  .bn-link-remove:hover{color:var(--red);border-color:rgba(255,69,96,.35)}
+  .bn-link-config{padding:0 20px 20px}
+  .bn-link-title{margin:0 0 8px}
+  .bn-link-hint{font-size:11px;color:var(--t3);margin:6px 0}
+  .bn-link-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:1900}
+  .bn-link-modal.on{display:flex}
+  .bn-link-sheet{width:min(460px,92vw);background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;padding:14px}
+  .bn-link-sheet-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:8px}
+  .bn-link-sheet-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+  .bn-add-layout{padding:20px;display:grid;grid-template-columns:1.15fr 1fr;gap:20px}
+  .bn-upload-zone{border:1px dashed var(--bdrB);border-radius:14px;padding:14px;background:var(--bg2);min-height:225px;display:flex;flex-direction:column;gap:10px}
+  .bn-upload-zone.drag-over{border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.06)}
+  .bn-upload-card{flex:1;min-height:140px;border:1px solid var(--bdr);border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#101028,#11172d);overflow:hidden}
+  .bn-upload-card img{width:100%;height:100%;object-fit:cover}
+  .bn-upload-empty{color:var(--t2);font-size:12px;text-align:center;padding:20px}
+  .bn-upload-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .bn-upload-name{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+  .banners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;width:100%}
+  .banner-card{display:flex;flex-direction:column;background:var(--bg1);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;min-width:0;height:100%}
+  .banner-card .bn-card-top{height:150px}
+  .banner-card .banner-card-body{padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;justify-content:center}
+  .banner-card .bn-card-actions{margin-top:auto;justify-content:center;padding:0 12px 12px;flex-wrap:wrap}
+  #bn-grid{overflow-x:hidden}
+  #bn-edit-image{cursor:pointer;position:relative}
+  #bn-edit-image::after{content:attr(data-edit-hint);position:absolute;right:10px;bottom:10px;font-size:11px;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);padding:4px 8px;border-radius:8px}
+  @media (max-width: 900px){
+    .bn-add-layout{grid-template-columns:1fr}
+  }
+</style>
+<div class="panel-wrap">
+  {{ sidebar('banners') }}
+  <div class="panel-main">
+    {{ topbar('banners.title', 'Banners') }}
+    <div class="panel-body">
+      <div class="tbl-wrap" style="margin-bottom:24px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="banners.add_btn">Добавить баннер</div>
+        </div>
+        <div class="bn-add-layout">
+          <div>
+            <label class="form-label" data-t="banners.field_image">Изображение (PNG/JPG/WEBP, 1280×340px)</label>
+            <div id="bn-upload-zone" class="bn-upload-zone">
+              <div id="bn-upload-card" class="bn-upload-card">
+                <div class="bn-upload-empty" data-t="banners.upload_hint">Кликни или перетащи изображение</div>
+              </div>
+              <div class="bn-upload-actions">
+                <button type="button" class="btn-icon" id="bn-file-trigger" data-t="banners.btn_browse">Обзор</button>
+                <div id="bn-file-name" class="bn-upload-name" data-t="banners.file_not_selected">Файл не выбран</div>
+              </div>
+            </div>
+            <input type="file" id="bn-file" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
+            <img id="bn-preview" class="hidden" style="margin-top:10px;width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid var(--bdr)" alt="preview">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div><label class="form-label" data-t="banners.field_title">Название</label><input type="text" id="bn-title" class="form-input"></div>
+            <div><label class="form-label" data-t="banners.field_modal_text">Текст модального окна</label><input type="text" id="bn-modal-text" class="form-input"></div>
+            <div><label class="form-label" data-t="banners.field_timer">Смена слайда (сек)</label><input type="number" id="bn-timer" class="form-input" value="5" min="1" max="60"></div>
+            <div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="bn-modal-window" checked><label for="bn-modal-window" class="form-label" style="margin:0" data-t="banners.field_modal_window">Показывать модальное окно</label></div>
+          </div>
+        </div>
+        <div class="bn-link-config">
+          <label class="form-label bn-link-title" data-t="banners.links_section">Переходники (ссылки)</label>
+          <div class="bn-chip-bank" id="bn-add-link-bank"></div>
+          <div class="bn-link-hint" data-t="banners.link_chip_hint">Нажмите, чтобы указать URL; удаление через крестик</div>
+          <div class="bn-link-board" id="bn-add-link-board"></div>
+        </div>
+        <div style="padding:0 20px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button id="bn-save-btn" class="btn-primary" style="min-width:160px" data-t="banners.btn_save">Сохранить баннер</button>
+          <div id="bn-error" class="hidden auth-error" style="flex:1"></div>
+          <div id="bn-success" class="hidden auth-success" style="flex:1"></div>
+        </div>
+        <div class="bn-preview-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div class="tbl-head-title" style="font-size:13px">Preview (vip-swipe style)</div>
+            <div style="font-size:11px;color:var(--t3)">Click card to open modal preview</div>
+          </div>
+          <div class="bn-preview-track" id="bn-preview-track"></div>
+        </div>
+      </div>
+
+      <div class="bn-list-wrap">
+        <div class="tbl-head" style="background:none;border:none;padding:0 0 14px 0">
+          <div class="tbl-head-title" data-t="banners.list_title">Активные баннеры</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn" id="bn-refresh-btn" data-t="banners.btn_refresh">Обновить</button>
+        </div>
+        <div class="banners-grid" id="bn-grid"><div class="loading-center"><span class="spinner"></span></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="bn-link-modal" id="bn-link-modal">
+  <div class="bn-link-sheet">
+    <div class="bn-link-sheet-title" id="bn-link-modal-title">URL</div>
+    <input id="bn-link-modal-url" class="form-input" type="url" placeholder="https://...">
+    <div class="bn-link-sheet-actions">
+      <button type="button" class="btn-icon" id="bn-link-modal-cancel" data-t="banners.btn_cancel">Отмена</button>
+      <button type="button" class="btn-icon" id="bn-link-modal-remove" style="color:var(--red)" data-t="banners.link_remove">Удалить ссылку</button>
+      <button type="button" class="btn-primary" id="bn-link-modal-save" data-t="banners.btn_save">Сохранить</button>
+    </div>
+  </div>
+</div>
+<div class="bn-edit-modal" id="bn-edit-modal">
+  <div class="bn-edit-sheet">
+    <button class="btn-icon bn-modal-close" id="bn-edit-close">✕</button>
+    <div class="tbl-head" style="background:none;border:none;padding:0 0 10px 0">
+      <div class="tbl-head-title">Edit banner</div>
+    </div>
+    <div id="bn-edit-image" data-edit-hint="Tap to change image" style="height:190px;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);background:var(--bg2);margin-bottom:12px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">Title</label><input id="bn-edit-title" class="form-input"></div>
+      <div><label class="form-label">Timer (sec)</label><input id="bn-edit-timer" class="form-input" type="number" min="1" max="120"></div>
+      <div style="grid-column:1/-1"><label class="form-label">Modal text</label><input id="bn-edit-modal-text" class="form-input"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" id="bn-edit-modal-window"><label class="form-label" style="margin:0" for="bn-edit-modal-window">Enable modal</label></div>
+    <div style="margin-top:12px">
+      <label class="form-label">Links palette (drag into board)</label>
+      <div class="bn-chip-bank" id="bn-link-bank"></div>
+      <div style="font-size:11px;color:var(--t3);margin:6px 0">Double click chip in board to edit URL, double click again to remove.</div>
+      <div class="bn-link-board" id="bn-link-board"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <button class="btn-primary" id="bn-edit-save">Save changes</button>
+      <input type="file" class="hidden" id="bn-edit-file" accept="image/png,image/jpeg,image/webp,image/gif">
+      <div id="bn-edit-msg" style="font-size:12px;color:var(--t2)"></div>
+    </div>
+  </div>
+</div>
+<div class="bn-edit-modal" id="bn-view-modal">
+  <div class="bn-edit-sheet" style="width:min(640px,92vw)">
+    <button class="btn-icon bn-modal-close" id="bn-view-close">✕</button>
+    <div class="tbl-head" style="background:none;border:none;padding:0 0 10px 0">
+      <div class="tbl-head-title">Banner preview</div>
+    </div>
+    <div id="bn-view-image" style="height:180px;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);background:var(--bg2);margin-bottom:10px"></div>
+    <div id="bn-view-text" style="font-size:13px;color:var(--t1);margin-bottom:10px"></div>
+    <div id="bn-view-links" style="display:grid;gap:8px"></div>
+  </div>
+</div>
+{% endblock %}
+

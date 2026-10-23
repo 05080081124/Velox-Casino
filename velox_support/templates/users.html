@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Users — VELOX Support{% endblock %}
+{% block page_id %}users{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('users') }}
+
+  <div class="panel-main">
+    {{ topbar('users.title', 'Casino Users') }}
+
+    <div class="panel-body">
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="users.title">Пользователи</div>
+          <div class="tbl-spacer"></div>
+          <input
+            id="users-search"
+            type="text"
+            class="tbl-search"
+            data-tp="users.search_placeholder"
+            placeholder="Поиск по email или нику..."
+          />
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th data-t="users.col_id">ID</th>
+              <th data-t="users.col_username">Никнейм</th>
+              <th data-t="users.col_email">Email</th>
+              <th data-t="users.col_balance">Баланс</th>
+              <th data-t="users.col_kyc">KYC</th>
+              <th data-t="users.col_registered">Регистрация</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="7" class="loading-center"><span class="spinner"></span></td></tr>
+          </tbody>
+        </table>
+
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

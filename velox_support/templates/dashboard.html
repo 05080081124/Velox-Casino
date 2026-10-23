@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Дашборд — VELOX Support{% endblock %}
+{% block page_id %}dashboard{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('dashboard') }}
+
+  <div class="panel-main">
+    {{ topbar('dashboard.title', 'Dashboard') }}
+
+    <div class="panel-body">
+
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.open_tickets">Открытые тикеты</div>
+          <div class="stat-card-val accent" id="stat-open">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.in_progress">В обработке</div>
+          <div class="stat-card-val gold" id="stat-progress">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.closed">Закрытые</div>
+          <div class="stat-card-val" id="stat-closed">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.total_users">Всего игроков</div>
+          <div class="stat-card-val green" id="stat-users">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.pending_payments">Ожидают выплат</div>
+          <div class="stat-card-val gold" id="stat-payments">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.kyc_pending">KYC на проверке</div>
+          <div class="stat-card-val red" id="stat-kyc">—</div>
+        </div>
+      </div>
+
+      <!-- Recent open tickets -->
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="tickets.title">Последние открытые тикеты</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn" onclick="location.href='/panel/tickets'">
+            Все тикеты →
+          </button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th data-t="tickets.id">#</th>
+              <th data-t="tickets.subject">Тема</th>
+              <th data-t="tickets.contact">Контакт</th>
+              <th data-t="tickets.status">Статус</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="recent-tickets-body">
+            <tr><td colspan="5" class="loading-center"><span class="spinner"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

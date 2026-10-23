@@ -1,0 +1,414 @@
+{
+  "_comment": "Конфигурация нижней панели (bottom bar) VELOX Casino",
+  "_icons_path": "static/uploads/btm_icons/",
+  "payment_systems": {
+    "_comment": "Ряд платёжных систем. icon — путь от корня сайта. enabled — показывать/скрывать.",
+    "items": [
+      {
+        "id": "visa",
+        "label": "VISA",
+        "icon": "/static/uploads/btm_icons/visa.svg",
+        "enabled": true
+      },
+      {
+        "id": "mastercard",
+        "label": "Mastercard",
+        "icon": "/static/uploads/btm_icons/mastercard.svg",
+        "enabled": true
+      },
+      {
+        "id": "gpay",
+        "label": "Google Pay",
+        "icon": "/static/uploads/btm_icons/gpay.svg",
+        "enabled": true
+      },
+      {
+        "id": "applepay",
+        "label": "Apple Pay",
+        "icon": "/static/uploads/btm_icons/apay.svg",
+        "enabled": true
+      },
+      {
+        "id": "paypal",
+        "label": "PayPal",
+        "icon": "/static/uploads/btm_icons/paypal.svg",
+        "enabled": true
+      },
+      {
+        "id": "crypto",
+        "label": "Crypto",
+        "icon": "/static/uploads/btm_icons/wallet.svg",
+        "enabled": true
+      },
+      {
+        "id": "p2p",
+        "label": "P2P",
+        "icon": "/static/uploads/btm_icons/p2p.svg",
+        "enabled": true
+      }
+    ]
+  },
+  "links": {
+    "_comment": "Гиперссылки в три группы. action: modal_faq | modal_rules | modal_licenses | modal_providers | modal_payments | modal_contacts | modal_support | filter_tag | view_all_games | url",
+    "groups": [
+      {
+        "id": "info",
+        "items": [
+          {
+            "id": "about",
+            "label": "Про нас",
+            "action": "modal_contacts",
+            "enabled": true
+          },
+          {
+            "id": "faq",
+            "label": "FAQ",
+            "action": "modal_faq",
+            "enabled": true
+          },
+          {
+            "id": "rules",
+            "label": "Правила и условия",
+            "action": "modal_rules",
+            "enabled": true
+          },
+          {
+            "id": "licenses",
+            "label": "Лицензии",
+            "action": "modal_licenses",
+            "enabled": true
+          },
+          {
+            "id": "providers",
+            "label": "Провайдеры",
+            "action": "modal_providers",
+            "enabled": true
+          },
+          {
+            "id": "payments",
+            "label": "Payment системы",
+            "action": "modal_payments",
+            "enabled": true
+          },
+          {
+            "id": "contacts",
+            "label": "Контакты",
+            "action": "modal_contacts",
+            "enabled": true
+          },
+          {
+            "id": "support",
+            "label": "Тех-поддержка",
+            "action": "modal_support",
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "id": "games",
+        "items": [
+          {
+            "id": "all_games",
+            "label": "Все игры",
+            "action": "view_all_games",
+            "enabled": true
+          },
+          {
+            "id": "crash",
+            "label": "Краш",
+            "action": "filter_tag",
+            "tag": "crash",
+            "enabled": true
+          },
+          {
+            "id": "roulette",
+            "label": "Рулетка",
+            "action": "filter_tag",
+            "tag": "roulette",
+            "enabled": true
+          },
+          {
+            "id": "slots",
+            "label": "Слоты",
+            "action": "filter_tag",
+            "tag": "slots",
+            "enabled": true
+          },
+          {
+            "id": "jump",
+            "label": "Jump",
+            "action": "filter_tag",
+            "tag": "jump",
+            "enabled": true
+          },
+          {
+            "id": "jackpots",
+            "label": "Джекпоты",
+            "action": "filter_tag",
+            "tag": "jackpot",
+            "enabled": true
+          },
+          {
+            "id": "blackjack",
+            "label": "BlackJack",
+            "action": "filter_tag",
+            "tag": "blackjack",
+            "enabled": true
+          },
+          {
+            "id": "table",
+            "label": "Настольные игры",
+            "action": "filter_tag",
+            "tag": "table",
+            "enabled": true
+          }
+        ]
+      },
+      {
+        "id": "socials",
+        "items": [
+          {
+            "id": "tg",
+            "label": "Telegram",
+            "action": "url",
+            "url": "https://t.me/acultist1",
+            "icon": "/static/uploads/btm_icons/tg.svg",
+            "enabled": true
+          },
+          {
+            "id": "yt",
+            "label": "YouTube",
+            "action": "url",
+            "url": "",
+            "icon": "/static/uploads/btm_icons/yt.svg",
+            "enabled": true
+          },
+          {
+            "id": "wa",
+            "label": "WhatsApp",
+            "action": "url",
+            "url": "",
+            "icon": "/static/uploads/btm_icons/wa.svg",
+            "enabled": false
+          },
+          {
+            "id": "vb",
+            "label": "Viber",
+            "action": "url",
+            "url": "",
+            "icon": "/static/uploads/btm_icons/vb.svg",
+            "enabled": false
+          }
+        ]
+      }
+    ]
+  },
+  "modals": {
+    "rules": {
+      "_comment": "Модальное окно Правила и условия. Вкладки с текстом.",
+      "title": "Правила и условия",
+      "tabs": [
+        {
+          "id": "general",
+          "label": "Общие",
+          "text": "1. Общие положения\n\nИспользуя сайт VELOX Casino, вы соглашаетесь с настоящими правилами.\n\n2. Возраст\n\nУслуги казино доступны только лицам старше 18 лет.\n\n3. Ответственная игра\n\nMы продвигаем ответственную игру. При необходимости вы можете обратиться за поддержкой."
+        },
+        {
+          "id": "deposits",
+          "label": "Депозиты",
+          "text": "1. Пополнение счёта\n\nМинимальная сумма пополнения: 50 UAH / 120 RUB / $1.50 / €1.50.\n\n2. Способы оплаты\n\nПринимаем: VISA, Mastercard, Google Pay, Apple Pay, PayPal, Crypto.\n\n3. Сроки зачисления\n\nДепозиты обрабатываются мгновенно."
+        },
+        {
+          "id": "withdraw",
+          "label": "Выводы",
+          "text": "1. Вывод средств\n\nМинимальная сумма вывода: 100 UAH.\n\n2. Верификация\n\nДля вывода необходима верификация аккаунта.\n\n3. Сроки\n\nСреднее время обработки вывода: 1–3 рабочих дня."
+        },
+        {
+          "id": "bonuses",
+          "label": "Бонусы",
+          "text": "1. Приветственный бонус\n\n100% на первый депозит.\n\n2. Вейджер\n\nБонусы подлежат отыгрышу с вейджером x30.\n\n3. Злоупотребление\n\nЗлоупотребление бонусами ведёт к блокировке."
+        }
+      ]
+    },
+    "licenses": {
+      "_comment": "Модальное окно Лицензии. Просто текст.",
+      "title": "Лицензии",
+      "text": "VELOX Casino работает на основании лицензии, выданной соответствующим регулирующим органом.\n\nИгровое программное обеспечение сертифицировано независимыми аудиторами.\n\nПлатёжные операции защищены SSL-шифрованием и соответствуют стандарту PCI DSS.\n\nRNG (генератор случайных чисел) прошёл независимую проверку и сертификацию."
+    },
+    "providers": {
+      "_comment": "Провайдеры игр. logo — путь к логотипу, tag — тег для фильтрации игр.",
+      "title": "Провайдеры",
+      "items": [
+        {
+          "id": "velox",
+          "label": "VELOX Games",
+          "description": "Внутренние игры казино — краш, рулетка, слоты и другие",
+          "logo": "/static/uploads/btm_icons/prov_velox.png",
+          "tag": "velox",
+          "enabled": true,
+          "_stub": "Встроенный провайдер. Не требует API-ключа."
+        },
+        {
+          "id": "pragmatic",
+          "label": "Pragmatic Play",
+          "description": "Ведущий провайдер слотов и live-казино",
+          "logo": "/static/uploads/btm_icons/pragmactic.png",
+          "tag": "pragmatic",
+          "enabled": true,
+          "_stub": "Требует API-ключ от Pragmatic Play. Установить в config/providers.json"
+        },
+        {
+          "id": "evolution",
+          "label": "Evolution",
+          "description": "Live-казино мирового класса",
+          "logo": "/static/uploads/btm_icons/evolution.png",
+          "tag": "evolution",
+          "enabled": true,
+          "_stub": "Требует API-ключ от Evolution Gaming. Установить в config/providers.json"
+        },
+        {
+          "id": "netent",
+          "label": "NetEnt",
+          "description": "Классические слоты и инновационные игры",
+          "logo": "/static/uploads/btm_icons/netent.png",
+          "tag": "netent",
+          "enabled": true,
+          "_stub": "Требует API-ключ от NetEnt. Установить в config/providers.json"
+        },
+        {
+          "id": "bgaming",
+          "label": "BGaming",
+          "description": "Современные слоты и краш-игры",
+          "logo": "/static/uploads/btm_icons/bgaming.png",
+          "tag": "bgaming",
+          "enabled": true,
+          "_stub": "Требует API-ключ от BGaming. Установить в config/providers.json"
+        }
+      ]
+    },
+    "payments": {
+      "_comment": "Аккордеон платёжных систем. Категории и карточки с деталями.",
+      "title": "Платёжные системы",
+      "categories": [
+        {
+          "id": "cards",
+          "label": "Банковские карты",
+          "icon": "/static/uploads/btm_icons/cards.svg",
+          "items": [
+            {
+              "id": "visa",
+              "label": "VISA",
+              "icon": "/static/uploads/btm_icons/visa.svg",
+              "text": "Страны: Весь мир\nКомиссия: 0%\nМин. депозит: 50 UAH\nСрок зачисления: Мгновенно\nВывод: 1–3 рабочих дня"
+            },
+            {
+              "id": "mastercard",
+              "label": "Mastercard",
+              "icon": "/static/uploads/btm_icons/mastercard.svg",
+              "text": "Страны: Весь мир\nКомиссия: 0%\nМин. депозит: 50 UAH\nСрок зачисления: Мгновенно\nВывод: 1–3 рабочих дня"
+            }
+          ]
+        },
+        {
+          "id": "ewallet",
+          "label": "Электронные кошельки",
+          "icon": "/static/uploads/btm_icons/wallet.svg",
+          "items": [
+            {
+              "id": "paypal",
+              "label": "PayPal",
+              "icon": "/static/uploads/btm_icons/paypal.svg",
+              "text": "Страны: 200+ стран\nКомиссия: 0%\nМин. депозит: 50 UAH\nСрок зачисления: Мгновенно\nВывод: До 24 часов"
+            },
+            {
+              "id": "gpay",
+              "label": "Google Pay",
+              "icon": "/static/uploads/btm_icons/gpay.svg",
+              "text": "Страны: 40+ стран\nКомиссия: 0%\nМин. депозит: 50 UAH\nСрок зачисления: Мгновенно\nВывод: Не поддерживается"
+            },
+            {
+              "id": "applepay",
+              "label": "Apple Pay",
+              "icon": "/static/uploads/btm_icons/apay.svg",
+              "text": "Страны: 60+ стран\nКомиссия: 0%\nМин. депозит: 50 UAH\nСрок зачисления: Мгновенно\nВывод: Не поддерживается"
+            },
+            {
+              "id": "crypto",
+              "label": "USDT",
+              "icon": "/static/uploads/btm_icons/usdt2.svg",
+              "text": "Страны: Весь мир\nКомиссия: Сетевая комиссия\nМин. депозит: 1.5 USDT\nСрок зачисления: 1–3 подтверждения\nВывод: До 1 часа"
+            }
+          ]
+        },
+        {
+          "id": "paymentfaq",
+          "label": "FAQ",
+          "icon": "/static/uploads/btm_icons/ssl.svg",
+          "items": [
+            {
+              "id": "ssl",
+              "label": "SSL-шифрование",
+              "icon": "/static/uploads/btm_icons/shield.svg",
+              "text": "SSL (Secure Sockets Layer) — это технология шифрования соединения между вашим браузером и сайтом.\nБлагодаря ей все данные (логины, пароли, номера карт) передаются в зашифрованном виде и не могут быть перехвачены злоумышленниками."
+            },
+            {
+              "id": "pci",
+              "label": "Стандарт PCI DSS",
+              "icon": "/static/uploads/btm_icons/shield.svg",
+              "text": "PCI DSS (Payment Card Industry Data Security Standard) — это набор требований к безопасности, разработанный для защиты данных держателей карт.\nНаше казино соответствует этому стандарту, что гарантирует безопасность ваших платежных данных."
+            },
+            {
+              "id": "3dsecure",
+              "label": "3D Secure",
+              "icon": "/static/uploads/btm_icons/shield.svg",
+              "text": "3D Secure — это стандарт безопасности для онлайн-платежей, который обеспечивает дополнительную защиту при оплате картой.\nНаше казино поддерживает 3D Secure, что гарантирует безопасность ваших платежей."
+            }
+          ]
+        }
+      ]
+    },
+    "contacts": {
+      "_comment": "Модальное окно Контакты.",
+      "title": "Контакты",
+      "description": "По всем вопросам обращайтесь к нам удобным способом. Служба поддержки работает 24/7.",
+      "info_text": "📧 support@veloxcasino.com\n🕐 Поддержка: 24/7\n📍 Лицензированное онлайн-казино",
+      "buttons": [
+        {
+          "id": "telegram",
+          "label": "Telegram",
+          "url": "https://t.me/acultist1",
+          "color": "#229ED9",
+          "enabled": true
+        },
+        {
+          "id": "whatsapp",
+          "label": "WhatsApp",
+          "url": "",
+          "color": "#25d366",
+          "enabled": false
+        },
+        {
+          "id": "email",
+          "label": "Email",
+          "url": "mailto:support@veloxcasino.com",
+          "color": "#00e5ff",
+          "enabled": true
+        },
+        {
+          "id": "viber",
+          "label": "Viber",
+          "url": "",
+          "color": "#7e33ac",
+          "enabled": false
+        }
+      ]
+    }
+  },
+  "appearance": {
+    "_comment": "Внешний вид bottom bar.",
+    "background": "rgba(9,9,26,0.97)",
+    "border_top": "rgba(255,255,255,0.07)",
+    "payment_icon_size": 36,
+    "show_payment_labels": true
+  }
+}

@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crash — VELOX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg0:#05050e;--bg1:#09091a;--bg2:#0e0e22;--bg3:#131328;--bg4:#191932;
+  --a:#00e5ff;--a-dim:rgba(0,229,255,.08);--a-glow:rgba(0,229,255,.28);--a-b:rgba(0,229,255,.2);
+  --gold:#f0b429;--gold-dim:rgba(240,180,41,.1);--gold-glow:rgba(240,180,41,.3);
+  --green:#00e676;--green-dim:rgba(0,230,118,.1);--green-b:rgba(0,230,118,.25);
+  --red:#ff4560;--red-dim:rgba(255,69,96,.1);
+  --t1:#e6e6f5;--t2:#8888aa;--t3:#44445a;
+  --bdr:rgba(255,255,255,.06);--bdrB:rgba(255,255,255,.11);
+  --ff:'DM Sans',sans-serif;--ffd:'Chakra Petch',sans-serif;
+  --r:10px;--rl:14px;--tb:52px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--ff);background:var(--bg0);color:var(--t1);display:flex;flex-direction:column}
+button{cursor:pointer;border:none;background:none;font-family:var(--ff);color:inherit}
+input{font-family:var(--ff)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+
+/* ── TOPBAR ─────────────────────────────────── */
+.topbar{height:var(--tb);background:rgba(9,9,26,.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;z-index:50}
+.tb-back{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--t2);transition:color .15s;padding:6px 10px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--bdr)}
+.tb-back:hover{color:var(--t1)}
+.tb-game-title{font-family:var(--ffd);font-size:13px;font-weight:700;letter-spacing:2px;color:var(--a)}
+.tb-spacer{flex:1}
+.tb-bal{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--bdrB);border-radius:var(--r);padding:0 12px;height:32px;font-family:var(--ffd);font-size:13px;font-weight:600;color:var(--gold);gap:5px}
+.tb-av-wrap{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:0 10px 0 4px;height:32px}
+.tb-av{width:24px;height:24px;border-radius:5px;background:linear-gradient(135deg,#a855f7,#00e5ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:var(--ffd)}
+.tb-uname{font-size:12px;font-weight:500;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.game-layout{flex:1;display:flex;gap:0;overflow:hidden;min-height:0}
+.game-canvas-wrap{flex:1;display:flex;flex-direction:column;min-width:0;padding:12px;gap:10px}
+canvas{display:block;width:100%;height:100%;border-radius:var(--r)}
+.canvas-box{flex:1;position:relative;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;min-height:0}
+
+/* crash multiplier overlay */
+.mult-display{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;flex-direction:column;gap:6px}
+.mult-num{font-family:var(--ffd);font-size:clamp(40px,8vw,80px);font-weight:700;transition:color .3s;text-shadow:0 0 40px currentColor;line-height:1}
+.mult-label{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-family:var(--ffd);opacity:.6}
+.mult-waiting{font-family:var(--ffd);font-size:16px;color:var(--t2);letter-spacing:1px;text-align:center;line-height:1.7}
+.mult-countdown{font-family:var(--ffd);font-size:clamp(22px,4vw,42px);color:var(--gold);text-shadow:0 0 20px var(--gold-glow)}
+
+/* win flash */
+.win-flash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,230,118,.07);border:1px solid var(--green-b);border-radius:var(--r);animation:wfIn .25s ease;pointer-events:none;flex-direction:column;gap:6px}
+@keyframes wfIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.wf-amount{font-family:var(--ffd);font-size:clamp(26px,5vw,52px);font-weight:700;color:var(--green);text-shadow:0 0 30px var(--green)}
+.wf-mult{font-size:14px;color:var(--t2);font-family:var(--ffd)}
+
+/* history chips */
+.history-row{display:flex;gap:5px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.history-row::-webkit-scrollbar{display:none}
+.h-chip{flex-shrink:0;font-family:var(--ffd);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+.h-chip.hi{background:rgba(0,230,118,.12);color:var(--green);border:1px solid var(--green-b)}
+.h-chip.lo{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,69,96,.22)}
+
+/* ── RIGHT PANEL ─────────────────────────────── */
+.game-panel{width:280px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
+.panel-tabs{display:flex;border-bottom:1px solid var(--bdr)}
+.ptab{flex:1;padding:12px;font-size:12px;font-weight:500;color:var(--t2);transition:all .15s;border-bottom:2px solid transparent;text-align:center}
+.ptab.on{color:var(--a);border-bottom-color:var(--a)}
+.panel-body{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+
+/* bet section */
+.bet-section{padding:14px;display:flex;flex-direction:column;gap:10px}
+.inp-lbl{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.bet-inp-wrap{position:relative}
+.bet-inp{width:100%;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px;color:var(--t1);font-size:15px;font-weight:600;font-family:var(--ffd);outline:none;transition:border-color .15s}
+.bet-inp:focus{border-color:var(--a)}
+.bet-presets{display:flex;flex-wrap:wrap;gap:5px}
+.bp{padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--bdr);color:var(--t2);transition:all .14s;font-family:var(--ffd)}
+.bp:hover{border-color:var(--bdrB);color:var(--t1)}
+.bp.red-bp{color:var(--red);border-color:var(--red-dim)}
+.auto-row{display:flex;align-items:center;gap:8px}
+.auto-lbl{font-size:11px;color:var(--t2);white-space:nowrap}
+.auto-inp{flex:1;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px;color:var(--t1);font-size:13px;font-family:var(--ffd);outline:none;transition:border-color .15s}
+.auto-inp:focus{border-color:var(--a)}
+.auto-inp.has-val{border-color:var(--a-b);color:var(--a)}
+
+/* main bet button */
+.btn-bet{width:100%;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;font-family:var(--ffd);letter-spacing:.5px;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-bet.state-idle{background:var(--a);color:#000}
+.btn-bet.state-idle:hover{box-shadow:0 4px 20px var(--a-glow)}
+.btn-bet.state-waiting{background:var(--bg3);color:var(--t2);border:1px solid var(--bdrB);cursor:default}
+.btn-bet.state-cashout{background:var(--green);color:#000;animation:pulseCash 1s infinite}
+.btn-bet.state-cashout:hover{box-shadow:0 4px 20px var(--green-b)}
+.btn-bet.state-cashed{background:var(--bg3);color:var(--green);border:1px solid var(--green-b);cursor:default}
+.btn-bet.state-disabled{opacity:.4;cursor:not-allowed;background:var(--bg3);color:var(--t3);border:1px solid var(--bdr)}
+@keyframes pulseCash{0%,100%{box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{box-shadow:0 0 0 8px rgba(0,230,118,0)}}
+
+/* stats */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 14px 12px}
+.stat-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:9px;text-align:center}
+.stat-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.stat-val{font-family:var(--ffd);font-size:14px;font-weight:600}
+
+/* sep line */
+.panel-sep{height:1px;background:var(--bdr);flex-shrink:0}
+
+/* ── PLAYERS SECTION ─────────────────────────── */
+.players-section{flex:1;display:flex;flex-direction:column;min-height:0;padding:10px 10px 0}
+.players-title{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;padding:0 4px;margin-bottom:8px;flex-shrink:0}
+.players-list{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:5px;min-height:0}
+.players-list.scrollable{overflow-y:auto;padding-right:2px}
+/* player card — horizontal */
+.player-card{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 10px;flex-shrink:0;transition:border-color .15s}
+.player-card.cashed{border-color:var(--green-b)}
+.player-card.crashed{opacity:.45}
+.pl-av{width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#a855f7,#00e5ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:var(--ffd);flex-shrink:0}
+.pl-info{flex:1;min-width:0}
+.pl-name{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-bet{font-size:10px;color:var(--t2);margin-top:1px}
+.pl-mult{font-size:11px;font-weight:600;font-family:var(--ffd);flex-shrink:0}
+.pl-mult.cashed{color:var(--green)}
+.pl-mult.live{color:var(--a)}
+/* "show all" button */
+.show-all-btn{width:100%;padding:8px;font-size:11px;font-weight:500;color:var(--t2);text-align:center;transition:color .15s;flex-shrink:0;border-top:1px solid var(--bdr);margin-top:4px;background:none}
+.show-all-btn:hover{color:var(--a)}
+
+/* waiting for players (multiplayer) */
+.wait-players{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 14px;gap:8px;text-align:center}
+.wait-ico{font-size:28px}
+.wait-text{font-size:12px;color:var(--t2);line-height:1.6}
+.wait-count{font-family:var(--ffd);font-size:18px;font-weight:600;color:var(--gold)}
+
+/* ── TOAST ──────────────────────────────────── */
+#toasts{position:fixed;bottom:14px;right:14px;display:flex;flex-direction:column;gap:5px;z-index:999;pointer-events:none}
+.t-t{background:var(--bg3);border:1px solid var(--bdrB);border-radius:var(--r);padding:8px 12px;font-size:12px;display:flex;align-items:center;gap:7px;animation:tIn .2s ease;max-width:260px}
+.t-t.ok{border-color:rgba(0,230,118,.28)}.t-t.err{border-color:rgba(255,69,96,.28)}.t-t.inf{border-color:var(--a-b)}
+@keyframes tIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+/* non-multiplayer waiting state overlay on canvas */
+.canvas-wait-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;pointer-events:none}
+.cwo-title{font-family:var(--ffd);font-size:14px;letter-spacing:2px;color:var(--t2)}
+.cwo-sub{font-size:11px;color:var(--t3)}
+.cwo-cd{font-family:var(--ffd);font-size:clamp(28px,5vw,52px);font-weight:700;color:var(--gold);text-shadow:0 0 24px var(--gold-glow)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='/'">← Назад</button>
+  <span class="tb-game-title">🎮 CRASH</span>
+  <div class="tb-spacer"></div>
+  <div class="tb-bal" id="tb-bal">
+    <span id="tb-bal-num">—</span>
+    <span id="tb-bal-sym">₴</span>
+  </div>
+  <div class="tb-av-wrap" id="tb-av-wrap" style="display:none">
+    <div class="tb-av" id="tb-av">V</div>
+    <span class="tb-uname" id="tb-uname">User</span>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="game-layout">
+
+  <!-- LEFT: CANVAS -->
+  <div class="game-canvas-wrap">
+    <div class="canvas-box" id="canvas-box">
+      <canvas id="crash-canvas"></canvas>
+      <!-- multiplier overlay -->
+      <div class="mult-display" id="mult-display">
+        <div class="mult-waiting" id="mult-waiting" style="display:none"></div>
+        <div id="mult-main" style="display:none">
+          <div class="mult-num" id="mult-num" style="color:var(--a)">1.00×</div>
+        </div>
+        <div class="cwo-cd" id="cwo-cd" style="display:none"></div>
+      </div>
+      <!-- win flash (shown briefly after cashout) -->
+      <div class="win-flash" id="win-flash" style="display:none">
+        <div class="wf-amount" id="wf-amount">+0.00</div>
+        <div class="wf-mult"   id="wf-mult">Забрано на 0.00×</div>
+      </div>
+    </div>
+    <!-- history -->
+    <div class="history-row" id="history-row"></div>
+  </div>
+
+  <!-- RIGHT: PANEL -->
+  <div class="game-panel">
+    <div class="panel-tabs">
+      <button class="ptab on" id="tab-bet"     onclick="G.tab('bet')">Ставка</button>
+      <button class="ptab"    id="tab-players" onclick="G.tab('players')">Игроки</button>
+    </div>
+
+    <!-- BET TAB -->
+    <div class="panel-body" id="body-bet">
+      <div class="bet-section">
+        <div>
+          <div class="inp-lbl">Ставка</div>
+          <input type="number" class="bet-inp" id="bet-inp" value="10" min="1" step="1" inputmode="decimal">
+        </div>
+        <div class="bet-presets">
+          <button class="bp" onclick="G.preset(10)">10</button>
+          <button class="bp" onclick="G.preset(50)">50</button>
+          <button class="bp" onclick="G.preset(100)">100</button>
+          <button class="bp" onclick="G.preset(500)">500</button>
+          <button class="bp" onclick="G.addBet(.5)">½</button>
+          <button class="bp" onclick="G.addBet(2)">×2</button>
+          <button class="bp" onclick="G.setMax()">MAX</button>
+          <button class="bp red-bp" onclick="G.preset(1)">MIN</button>
+        </div>
+        <div class="auto-row">
+          <span class="auto-lbl">Авто-кэшаут ×</span>
+          <input type="number" class="auto-inp" id="auto-inp" placeholder="—" min="1.01" step="0.01" inputmode="decimal">
+        </div>
+        <button class="btn-bet state-idle" id="btn-bet" onclick="G.betAction()">
+          <span id="btn-text">Поставить</span>
+        </button>
+      </div>
+
+      <div class="panel-sep"></div>
+
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-lbl">Моя ставка</div><div class="stat-val" id="st-bet" style="color:var(--gold)">—</div></div>
+        <div class="stat-box"><div class="stat-lbl">Выигрыш</div><div class="stat-val" id="st-win" style="color:var(--green)">—</div></div>
+        <div class="stat-box"><div class="stat-lbl">Сессия</div><div class="stat-val" id="st-session" style="color:var(--a)">0</div></div>
+        <div class="stat-box"><div class="stat-lbl">Авто ×</div><div class="stat-val" id="st-auto" style="color:var(--t2)">—</div></div>
+      </div>
+    </div>
+
+    <!-- PLAYERS TAB -->
+    <div class="panel-body" id="body-players" style="display:none">
+      <div id="players-content" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+{% raw %}
+const G = (() => {
+  // ── STATE ───────────────────────────────────────
+  let state = {
+    phase: 'idle',       // idle | waiting_bet | countdown | running | crashed
+    multiplier: 1.0,
+    crashAt: 0,
+    betAmount: 0,
+    hasBet: false,
+    cashedOut: false,
+    cashedMult: 0,
+    autoTarget: 0,
+    history: [],
+    players: [],
+    sessionDelta: 0,
+    none_multiplayer: true,
+    min_players: 0,
+    betTimer: null,
+    countdownVal: 0,
+    countdownTimer: null,
+    playersExpanded: false,
+    currency: 'UAH',
+    balance: 0,
+    username: '',
+  };
+
+  // ── CANVAS ──────────────────────────────────────
+  let canvas, ctx, raf, points = [], animT = 0;
+
+  function initCanvas() {
+    canvas = document.getElementById('crash-canvas');
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    drawIdle();
+  }
+
+  function resizeCanvas() {
+    const box = canvas.parentElement;
+    canvas.width  = box.clientWidth;
+    canvas.height = box.clientHeight;
+  }
+
+  // ── DRAW ────────────────────────────────────────
+  // Smooth interpolation for rendering between SSE ticks
+  let renderMult = 1.0, renderT = 0, rafId = null;
+
+  function startRenderLoop() {
+    if (rafId) return;
+    function loop() {
+      if (state.phase === 'running') {
+        // Smoothly interpolate towards real values
+        renderMult += (state.multiplier - renderMult) * 0.18;
+        renderT     += (animT - renderT) * 0.18;
+        drawFrame(renderMult, renderT);
+      }
+      rafId = requestAnimationFrame(loop);
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+  function stopRenderLoop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  function drawIdle() {
+    if (!ctx) return;
+    stopRenderLoop();
+    renderMult = 1.0; renderT = 0;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawAxes(1.5, 5);
+  }
+
+  function drawFrame(curMult, curT) {
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const alive = state.phase === 'running';
+    const usePts = [...points];
+    const maxM   = Math.max(...usePts.map(p => p.m), curMult, 1.5);
+    // Padding: left for Y labels, bottom for X labels
+    const pad = { l:52, r:24, t:24, b:38 };
+    const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+
+    function toX(t) { return pad.l + (t / Math.max(curT, 0.01)) * iW; }
+    function toY(m) {
+      const logM   = Math.log(Math.max(m, 1));
+      const logMax = Math.log(Math.max(maxM, 1.001));
+      return pad.t + iH - (logM / logMax) * iH;
+    }
+
+    // Draw grid + axes first
+    drawAxes(maxM, curT, pad, iW, iH, toX, toY);
+
+    if (usePts.length < 2) return;
+
+    const lastPt = usePts[usePts.length - 1];
+    const gx = toX(lastPt.t), gy = toY(lastPt.m);
+
+    // Gradient fill under curve
+    const areaGrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + iH);
+    if (alive) {
+      areaGrad.addColorStop(0, 'rgba(0,229,255,.13)');
+      areaGrad.addColorStop(.5, 'rgba(0,229,255,.06)');
+      areaGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    } else {
+      areaGrad.addColorStop(0, 'rgba(255,69,96,.12)');
+      areaGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    }
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t + iH);
+    usePts.forEach((p, i) => {
+      const x = toX(p.t), y = toY(p.m);
+      if (i === 0) { ctx.lineTo(x, y); }
+      else {
+        // Smooth bezier curve between points
+        const px = toX(usePts[i-1].t), py = toY(usePts[i-1].m);
+        const cpx = (px + x) / 2;
+        ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+      }
+    });
+    ctx.lineTo(gx, pad.t + iH);
+    ctx.closePath();
+    ctx.fillStyle = areaGrad;
+    ctx.fill();
+
+    // Curve line
+    const lineGrad = ctx.createLinearGradient(pad.l, 0, gx, 0);
+    if (alive) {
+      lineGrad.addColorStop(0,   '#f0b429');
+      lineGrad.addColorStop(0.5, '#00e5ff');
+      lineGrad.addColorStop(1,   '#00e676');
+    } else {
+      lineGrad.addColorStop(0, '#ff4560');
+      lineGrad.addColorStop(1, '#ff2244');
+    }
+    ctx.beginPath();
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap  = 'round';
+    usePts.forEach((p, i) => {
+      const x = toX(p.t), y = toY(p.m);
+      if (i === 0) { ctx.moveTo(x, y); }
+      else {
+        const px = toX(usePts[i-1].t), py = toY(usePts[i-1].m);
+        const cpx = (px + x) / 2;
+        ctx.bezierCurveTo(cpx, py, cpx, y, x, y);
+      }
+    });
+    ctx.stroke();
+
+    // Glowing dot at tip
+    const dotColor = alive ? '#00e676' : '#ff4560';
+    const dotGlow  = alive ? 'rgba(0,230,118,.25)' : 'rgba(255,69,96,.25)';
+    // Outer glow
+    const glowGrad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 16);
+    glowGrad.addColorStop(0, dotGlow);
+    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(gx, gy, 16, 0, Math.PI*2);
+    ctx.fillStyle = glowGrad;
+    ctx.fill();
+    // Outer ring
+    ctx.beginPath();
+    ctx.arc(gx, gy, 6, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(5,5,14,.7)';
+    ctx.fill();
+    ctx.strokeStyle = dotColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Inner dot
+    ctx.beginPath();
+    ctx.arc(gx, gy, 3.5, 0, Math.PI*2);
+    ctx.fillStyle = dotColor;
+    ctx.fill();
+
+    // Pulse ring animation
+    const pulse = (Date.now() % 1200) / 1200;
+    const pr = 8 + pulse * 14;
+    ctx.beginPath();
+    ctx.arc(gx, gy, pr, 0, Math.PI*2);
+    ctx.strokeStyle = alive
+      ? `rgba(0,230,118,${0.35 * (1 - pulse)})`
+      : `rgba(255,69,96,${0.35 * (1 - pulse)})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // ── AXES with scale labels ───────────────────────
+  function drawAxes(maxM, maxT, pad, iW, iH, toX, toY) {
+    // When called from drawIdle, use defaults
+    if (!pad) {
+      const W = canvas.width, H = canvas.height;
+      pad = { l:52, r:24, t:24, b:38 };
+      iW  = W - pad.l - pad.r;
+      iH  = H - pad.t - pad.b;
+      toX = t => pad.l + (t / Math.max(maxT, 0.01)) * iW;
+      toY = m => {
+        const logM = Math.log(Math.max(m,1));
+        const logMx= Math.log(Math.max(maxM,1.001));
+        return pad.t + iH - (logM / logMx) * iH;
+      };
+    }
+    const W = canvas.width, H = canvas.height;
+
+    // ── Background grid (subtle) ──
+    ctx.strokeStyle = 'rgba(255,255,255,.03)';
+    ctx.lineWidth   = 1;
+    ctx.setLineDash([4, 8]);
+    // Horizontal grid (Y scale steps)
+    const ySteps = getYSteps(maxM);
+    ySteps.forEach(m => {
+      if (m <= 1 || m > maxM * 1.05) return;
+      const y = toY(m);
+      if (y < pad.t || y > pad.t + iH) return;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + iW, y);
+      ctx.stroke();
+    });
+    // Vertical grid
+    const xCount = 5;
+    for (let i = 1; i < xCount; i++) {
+      const x = pad.l + (iW / xCount) * i;
+      ctx.beginPath();
+      ctx.moveTo(x, pad.t);
+      ctx.lineTo(x, pad.t + iH);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // ── Y Axis line ──
+    ctx.strokeStyle = 'rgba(255,255,255,.14)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t - 8);
+    ctx.lineTo(pad.l, pad.t + iH + 6);
+    ctx.stroke();
+
+    // ── X Axis line ──
+    ctx.beginPath();
+    ctx.moveTo(pad.l - 6, pad.t + iH);
+    ctx.lineTo(pad.l + iW + 8, pad.t + iH);
+    ctx.stroke();
+
+    // Arrow heads
+    ctx.fillStyle = 'rgba(255,255,255,.14)';
+    // Y arrow (up)
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t - 10);
+    ctx.lineTo(pad.l - 4, pad.t - 2);
+    ctx.lineTo(pad.l + 4, pad.t - 2);
+    ctx.closePath(); ctx.fill();
+    // X arrow (right)
+    ctx.beginPath();
+    ctx.moveTo(pad.l + iW + 10, pad.t + iH);
+    ctx.lineTo(pad.l + iW + 2,  pad.t + iH - 4);
+    ctx.lineTo(pad.l + iW + 2,  pad.t + iH + 4);
+    ctx.closePath(); ctx.fill();
+
+    // ── Y axis labels (multiplier scale) ──
+    ctx.font = '600 10px "Chakra Petch", monospace';
+    ctx.textAlign = 'right';
+    ySteps.forEach(m => {
+      if (m <= 1 || m > maxM * 1.05) return;
+      const y = toY(m);
+      if (y < pad.t - 4 || y > pad.t + iH + 4) return;
+      // Tick
+      ctx.strokeStyle = 'rgba(255,255,255,.18)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad.l - 4, y);
+      ctx.lineTo(pad.l, y);
+      ctx.stroke();
+      // Label
+      const isHigh = m >= 10;
+      ctx.fillStyle = isHigh ? '#f0b429' : 'rgba(255,255,255,.5)';
+      ctx.fillText(m + '×', pad.l - 7, y + 3.5);
+    });
+
+    // Y origin label "1×"
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    ctx.fillText('1×', pad.l - 7, pad.t + iH + 4);
+
+    // ── X axis label ──
+    ctx.fillStyle = 'rgba(255,255,255,.3)';
+    ctx.font = '10px "DM Sans", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('t', pad.l + iW + 14, pad.t + iH + 4);
+  }
+
+  function getYSteps(maxM) {
+    // Dynamic scale steps based on max multiplier
+    if (maxM < 2)   return [1.5, 2];
+    if (maxM < 3)   return [1.5, 2, 2.5, 3];
+    if (maxM < 5)   return [2, 3, 4, 5];
+    if (maxM < 10)  return [2, 3, 5, 7, 10];
+    if (maxM < 20)  return [2, 5, 10, 15, 20];
+    if (maxM < 50)  return [2, 5, 10, 20, 30, 50];
+    if (maxM < 100) return [5, 10, 20, 50, 75, 100];
+    return [10, 25, 50, 100, 150, 200];
+  }
+
+  function drawGrid() { /* legacy — axes now drawn inside drawAxes */ }
+
+  // ── SSE ─────────────────────────────────────────
+  let sse;
+  function connectSSE() {
+    if (sse) sse.close();
+    sse = new EventSource('/api/crash/events');
+    sse.addEventListener('init',      e => handleInit(JSON.parse(e.data)));
+    sse.addEventListener('state',     e => handleState(JSON.parse(e.data)));
+    sse.addEventListener('tick',      e => handleTick(JSON.parse(e.data)));
+    sse.addEventListener('crash',     e => handleCrash(JSON.parse(e.data)));
+    sse.addEventListener('players',   e => handlePlayers(JSON.parse(e.data)));
+    sse.addEventListener('countdown', e => handleCountdown(JSON.parse(e.data)));
+    sse.onerror = () => setTimeout(connectSSE, 2000);
+  }
+
+  function handleInit(d) {
+    // Initial state on connection
+    if (typeof d.none_multiplayer !== 'undefined') state.none_multiplayer = d.none_multiplayer;
+    if (d.status === 'running') {
+      state.multiplier = d.multiplier || 1;
+      animT = 1;
+      setPhase('running');
+    } else {
+      setPhase('idle');
+    }
+  }
+
+  function handleState(d) {
+    if (typeof d.none_multiplayer !== 'undefined') state.none_multiplayer = d.none_multiplayer;
+    if (typeof d.min_players !== 'undefined') state.min_players = d.min_players;
+
+    const s = d.status;
+    // Server tells us it's waiting for bet (none_multiplayer idle) OR multiplayer countdown
+    if (s === 'waiting' || s === 'waiting_for_bet') {
+      if (state.phase !== 'countdown_active') {
+        setPhase('idle');
+      }
+    }
+    if (s === 'running') {
+      state.multiplier = d.multiplier || 1;
+      animT = 0;
+      setPhase('running');
+    }
+  }
+
+  function handleTick(d) {
+    if (state.phase !== 'running') return;
+    state.multiplier = d.m;
+    animT = d.elapsed || animT + 0.07;
+    // Thin out points to keep smooth but not overload
+    const last = points[points.length - 1];
+    if (!last || animT - last.t > 0.06) {
+      points.push({ t: animT, m: d.m });
+    } else {
+      points[points.length - 1] = { t: animT, m: d.m }; // update last
+    }
+    updateMultDisplay();
+    if (state.hasBet && !state.cashedOut && state.autoTarget > 1 && d.m >= state.autoTarget) {
+      doCashout();
+    }
+    if (state.hasBet && !state.cashedOut) {
+      const win = (state.betAmount * d.m).toFixed(2);
+      el('btn-text').textContent = `💰 Забрать ${win} ${csym()}`;
+    }
+    // Drawing is handled by RAF loop (startRenderLoop)
+  }
+
+  function handleCrash(d) {
+    state.phase = 'crashed';
+    const cp = d.at || d.multiplier || state.multiplier;
+    points.push({ t: animT + 0.05, m: cp });
+    stopRenderLoop();
+    drawFrame(cp, animT + 0.05);
+    showMultDisplay('crashed', cp.toFixed(2) + '×');
+    if (state.hasBet && !state.cashedOut) {
+      addHistory(cp, false);
+      toast(`💥 Краш на ${cp.toFixed(2)}×`, 'err');
+      state.sessionDelta -= state.betAmount;
+      updateSessionStat();
+    } else {
+      addHistory(cp, state.cashedOut);
+    }
+    state.hasBet = false; state.cashedOut = false;
+    setBetBtn('state-disabled', 'Ожидание...');
+    setTimeout(() => {
+      points = []; animT = 0;
+      setPhase('idle');
+      drawIdle();
+    }, 3800);
+  }
+
+  function handlePlayers(d) {
+    state.players = d.players || [];
+    if (!state.none_multiplayer) renderPlayerCards();
+  }
+
+  function handleCountdown(d) {
+    // Server is counting down before game starts
+    const sec = Math.ceil(d.seconds_left);
+    const cd = el('cwo-cd');
+    const mw = el('mult-waiting');
+    cd.style.display = 'block';
+    cd.textContent = sec + 's';
+    if (state.phase === 'waiting_bet') {
+      mw.style.display = 'flex';
+      mw.innerHTML = '<div class="mult-waiting">Ставка принята ✓<br><span style="font-size:11px;color:var(--t3)">Игра начнётся через</span></div>';
+    }
+    state.phase = 'countdown_active';
+  }
+
+  // ── PHASE MANAGEMENT ────────────────────────────
+  function setPhase(phase) {
+    state.phase = phase;
+    const mw = el('mult-waiting'), mm = el('mult-main'), cd = el('cwo-cd');
+    const wf = el('win-flash');
+    mw.style.display='none'; mm.style.display='none'; cd.style.display='none';
+    wf.style.display='none';
+
+    if (phase === 'idle') {
+      state.hasBet = false; state.cashedOut = false;
+      clearInterval(state.betTimer);
+      if (state.none_multiplayer) {
+        mw.style.display = 'flex';
+        mw.innerHTML = '<div class="mult-waiting">Сделайте ставку<br>и нажмите <b style="color:var(--a)">Поставить</b></div>';
+        setBetBtn('state-idle', 'Поставить');
+        el('bet-inp').disabled = false;
+      } else {
+        renderMultiplayer();
+      }
+    }
+    if (phase === 'waiting_bet') {
+      // Bet sent to server, showing visual feedback while server counts down
+      mw.style.display = 'flex';
+      mw.innerHTML = '<div class="mult-waiting">⏳ Ставка отправлена</div>';
+      cd.style.display = 'block';
+      setBetBtn('state-waiting', '⏳ Ожидание старта...');
+      el('bet-inp').disabled = true;
+    }
+    if (phase === 'running') {
+      mm.style.display = 'flex';
+      renderMult = 1.0; renderT = 0;
+      startRenderLoop();
+      if (state.hasBet && !state.cashedOut) {
+        const win = (state.betAmount * state.multiplier).toFixed(2);
+        setBetBtn('state-cashout', `💰 Забрать ${win} ${csym()}`);
+      } else {
+        setBetBtn('state-disabled', '⏳ В игре...');
+      }
+    }
+  }
+
+  function updateMultDisplay() {
+    const n = el('mult-num');
+    n.textContent = state.multiplier.toFixed(2) + '×';
+    let c = '#00e5ff';
+    if (state.multiplier >= 10) c = '#00e676';
+    else if (state.multiplier >= 3) c = '#f0b429';
+    n.style.color = c; n.style.textShadow = `0 0 40px ${c}`;
+    el('mult-main').style.display = 'flex';
+    el('mult-waiting').style.display = 'none';
+  }
+
+  function showMultDisplay(type, text) {
+    const n = el('mult-num');
+    n.textContent = text;
+    n.style.color = type === 'crashed' ? '#ff4560' : '#00e676';
+    n.style.textShadow = type === 'crashed' ? '0 0 40px #ff4560' : '0 0 40px #00e676';
+    el('mult-main').style.display = 'flex';
+  }
+
+  // ── BET ACTIONS ─────────────────────────────────
+  function betAction() {
+    const btn = el('btn-bet');
+    if (btn.classList.contains('state-cashout')) { doCashout(); return; }
+    if (state.phase !== 'idle') return;
+
+    const amt = parseFloat(el('bet-inp').value);
+    if (isNaN(amt) || amt <= 0) { toast('Укажите сумму ставки', 'err'); return; }
+    if (amt > state.balance)    { toast('Недостаточно средств', 'err'); return; }
+
+    state.betAmount = amt;
+    state.hasBet    = false;
+    state.cashedOut = false;
+
+    const autoVal = parseFloat(el('auto-inp').value);
+    state.autoTarget = (!autoVal || autoVal <= 1) ? 0 : autoVal;
+
+    el('st-bet').textContent = amt.toFixed(2) + ' ' + csym();
+    el('st-win').textContent = '—';
+    el('st-auto').textContent = state.autoTarget > 1 ? state.autoTarget.toFixed(2)+'×' : '—';
+
+    // SEND BET IMMEDIATELY so server registers it while in waiting state
+    setPhase('waiting_bet');
+    sendBet();
+  }
+
+  async function sendBet() {
+    try {
+      const r = await fetch('/api/crash/bet', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bet: state.betAmount })
+      });
+      const d = await r.json();
+      if (d.error) {
+        toast(d.error, 'err');
+        state.betAmount = 0;
+        setPhase('idle');
+        return;
+      }
+      state.hasBet    = true;
+      state.balance   = d.balance ?? state.balance;
+      updateBalDisplay();
+    } catch {
+      toast('Ошибка сети', 'err');
+      setPhase('idle');
+    }
+  }
+
+  async function doCashout() {
+    if (!state.hasBet || state.cashedOut) return;
+    state.cashedOut = true;
+    state.cashedMult = state.multiplier;
+    setBetBtn('state-cashed', '✅ Забрано');
+    try {
+      const r = await fetch('/api/crash/cashout', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({})
+      });
+      const d = await r.json();
+      if (d.error) { toast(d.error, 'err'); return; }
+      const won = d.winnings || (state.betAmount * state.cashedMult);
+      state.balance = d.balance ?? (state.balance + won);
+      updateBalDisplay();
+      state.sessionDelta += won - state.betAmount;
+      updateSessionStat();
+      el('st-win').textContent = '+' + won.toFixed(2) + ' ' + csym();
+      showWinFlash(won, state.cashedMult);
+    } catch { toast('Ошибка', 'err'); }
+  }
+
+  function showWinFlash(won, mult) {
+    const wf = el('win-flash');
+    el('wf-amount').textContent = '+' + won.toFixed(2) + ' ' + csym();
+    el('wf-mult').textContent = 'Забрано на ' + mult.toFixed(2) + '×';
+    wf.style.display='flex';
+    setTimeout(() => { wf.style.display='none'; }, 2200);
+  }
+
+  // ── PRESETS ─────────────────────────────────────
+  function preset(v) { el('bet-inp').value = v; }
+  function addBet(mul) {
+    const cur = parseFloat(el('bet-inp').value)||0;
+    el('bet-inp').value = Math.max(1, (cur*mul)).toFixed(0);
+  }
+  function setMax() { el('bet-inp').value = state.balance > 0 ? Math.floor(state.balance) : 10; }
+
+  // ── MULTIPLAYER PLAYERS ─────────────────────────
+  function renderMultiplayer() {
+    // Tab: show waiting if game not started
+    const body = el('body-players');
+    if (!body) return;
+    const content = el('players-content');
+
+    if (state.players.length < state.min_players && state.min_players > 0) {
+      const need = state.min_players - state.players.length;
+      content.innerHTML = `
+        <div class="wait-players">
+          <div class="wait-ico">⏳</div>
+          <div class="wait-count">${state.players.length} / ${state.min_players}</div>
+          <div class="wait-text">Ожидание игроков<br>Ещё нужно <b style="color:var(--gold)">${need}</b> для начала игры</div>
+        </div>`;
+      return;
+    }
+    renderPlayerCards();
+  }
+
+  function renderPlayerCards() {
+    const content = el('players-content');
+    if (!content || state.none_multiplayer) return;
+
+    const MAX_VISIBLE = 4;
+    const players = state.players;
+    const visible  = state.playersExpanded ? players : players.slice(0, MAX_VISIBLE);
+    const hasMore  = players.length > MAX_VISIBLE;
+
+    let html = `<div class="players-section" style="padding-bottom:0">
+      <div class="players-title">Игроки (${players.length})</div>
+      <div class="players-list ${state.playersExpanded ? 'scrollable' : ''}" id="plist">`;
+
+    visible.forEach(p => {
+      const av = (p.username||'?')[0].toUpperCase();
+      const st = p.cashed_out ? 'cashed' : p.crashed ? 'crashed' : '';
+      const multHtml = p.cashed_out
+        ? `<span class="pl-mult cashed">×${(p.cashout_mult||1).toFixed(2)}</span>`
+        : `<span class="pl-mult live" id="plm-${p.id}">×${state.multiplier.toFixed(2)}</span>`;
+      html += `
+        <div class="player-card ${st}">
+          <div class="pl-av">${av}</div>
+          <div class="pl-info">
+            <div class="pl-name">${p.username||'Аноним'}</div>
+            <div class="pl-bet">${p.bet_amount||0} ${csym()}</div>
+          </div>
+          ${multHtml}
+        </div>`;
+    });
+
+    html += `</div>`;
+
+    if (hasMore) {
+      const label = state.playersExpanded
+        ? 'Свернуть'
+        : `Показать всё (${players.length - MAX_VISIBLE} ещё)`;
+      html += `<button class="show-all-btn" onclick="G.togglePlayers()">${label}</button>`;
+    }
+    html += `</div>`;
+    content.innerHTML = html;
+  }
+
+  function togglePlayers() {
+    state.playersExpanded = !state.playersExpanded;
+    renderPlayerCards();
+  }
+
+  // ── TAB SWITCH ──────────────────────────────────
+  function tab(t) {
+    el('tab-bet').classList.toggle('on', t==='bet');
+    el('tab-players').classList.toggle('on', t==='players');
+    el('body-bet').style.display    = t==='bet'     ? 'flex'  : 'none';
+    el('body-players').style.display = t==='players' ? 'flex'  : 'none';
+    if (t === 'players' && !state.none_multiplayer) renderPlayerCards();
+    if (t === 'players' && state.none_multiplayer) {
+      el('players-content').innerHTML = `
+        <div class="wait-players">
+          <div class="wait-ico">👤</div>
+          <div class="wait-text" style="color:var(--t2)">Одиночная игра<br><span style="font-size:11px;color:var(--t3)">Мультиплеер не требуется</span></div>
+        </div>`;
+    }
+  }
+
+  // ── HISTORY ─────────────────────────────────────
+  function addHistory(mult, survived) {
+    state.history.unshift({ mult, survived });
+    if (state.history.length > 20) state.history.pop();
+    renderHistory();
+  }
+  function renderHistory() {
+    el('history-row').innerHTML = state.history.map(h => {
+      const cls = h.mult >= 2 ? 'hi' : 'lo';
+      return `<div class="h-chip ${cls}">${h.mult.toFixed(2)}×</div>`;
+    }).join('');
+  }
+
+  // ── HELPERS ─────────────────────────────────────
+  function setBetBtn(stateClass, label) {
+    const btn = el('btn-bet');
+    btn.className = 'btn-bet ' + stateClass;
+    btn.disabled = stateClass === 'state-waiting' || stateClass === 'state-disabled' || stateClass === 'state-cashed';
+    el('btn-text').textContent = label;
+  }
+
+  function updateBalDisplay() {
+    el('tb-bal-num').textContent = state.balance.toFixed(2);
+    el('tb-bal-sym').textContent = csym();
+  }
+
+  function updateSessionStat() {
+    const d = state.sessionDelta;
+    el('st-session').textContent = (d>=0?'+':'')+d.toFixed(2);
+    el('st-session').style.color = d>=0 ? 'var(--green)' : 'var(--red)';
+  }
+
+  function csym(c) { return {UAH:'₴',RUB:'₽',USD:'$',EUR:'€',USDT:'₮'}[c||state.currency]||'₴'; }
+  function el(id)  { return document.getElementById(id); }
+
+  function toast(msg, type='inf') {
+    const c = el('toasts');
+    const t = document.createElement('div');
+    t.className='t-t '+type;
+    t.innerHTML=`<span>${{ok:'✅',err:'❌',inf:'ℹ️'}[type]}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},3200);
+  }
+
+  // ── INIT ────────────────────────────────────────
+  async function init() {
+    initCanvas();
+
+    // Load user info
+    try {
+      const r = await fetch('/api/auth/me', {credentials:'include'});
+      const d = await r.json();
+      if (d.user) {
+        state.username = d.user.username;
+        state.balance  = d.user.balance;
+        state.currency = d.user.currency || 'UAH';
+        const av = d.user.username[0].toUpperCase();
+        el('tb-av').textContent = av;
+        el('tb-uname').textContent = d.user.username;
+        el('tb-av-wrap').style.display = 'flex';
+        updateBalDisplay();
+      }
+    } catch {}
+
+    // Load game config (none_multiplayer / min_players)
+    try {
+      const r = await fetch('/api/games');
+      const d = await r.json();
+      const g = (d.games||[]).find(x=>x.id==='crash');
+      if (g) {
+        state.none_multiplayer = g.none_multiplayer ?? true;
+        state.min_players = g.min_players || 0;
+      }
+    } catch {}
+
+    connectSSE();
+
+    // Initial phase
+    setPhase('idle');
+  }
+
+  return { init, betAction, preset, addBet, setMax, tab, togglePlayers, bannerStep: ()=>{} };
+})();
+
+document.addEventListener('DOMContentLoaded', G.init);
+{% endraw %}
+</script>
+</body>
+</html>

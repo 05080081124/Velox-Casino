@@ -1,0 +1,72 @@
+{
+  "_comment": "Реестр игр. Конфиг каждой игры живёт в app/games/<id>/config.json",
+  "games": [
+    {
+      "id": "crash",
+      "config_path": "app/games/crash/config.json",
+      "active": true
+    },
+    {
+      "id": "crash_fruit",
+      "config_path": "app/games/crash_fruit/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "mines",
+      "config_path": "app/games/mines/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "roulette",
+      "config_path": "app/games/roulette/config.json",
+      "active": true
+    },
+    {
+      "id": "blackjack",
+      "config_path": "app/games/blackjack/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "dice",
+      "config_path": "app/games/dice/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "plinko",
+      "config_path": "app/games/plinko/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "slots_777",
+      "config_path": "app/games/slots_777/config.json",
+      "active": true,
+      "visible": false,
+      "coming_soon": true
+    },
+    {
+      "id": "slots_777",
+      "config_path": "app/games/slots_777/config.json",
+      "active": true
+    },
+    {
+      "id": "lottery_ticket",
+      "config_path": "app/games/lottery_ticket/config.json",
+      "active": true
+    },
+    {
+      "id": "mineslot",
+      "config_path": "app/games/mineslot/config.json",
+      "active": true
+    }
+  ]
+}

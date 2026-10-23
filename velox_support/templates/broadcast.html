@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Broadcast — VELOX Support{% endblock %}
+{% block page_id %}broadcast{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('broadcast') }}
+  <div class="panel-main">
+    {{ topbar('broadcast.title', 'Broadcast Email') }}
+    <div class="panel-body">
+
+      <div class="bc-layout">
+        <div class="bc-main">
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="broadcast.title">Broadcast Email</div>
+            </div>
+            <div class="bc-grid">
+              <section class="bc-step-card">
+                <div class="bc-step-title">
+                  <span class="bc-step-no">01</span>
+                  <span data-t="broadcast.step_audience">Audience</span>
+                </div>
+                <label class="panel-label" data-t="broadcast.target_label">Target Audience</label>
+                <select id="bc-target" class="panel-inp">
+                  <option value="all" data-t="broadcast.target_all">All users</option>
+                  <option value="verified" data-t="broadcast.target_verified">Verified only</option>
+                  <option value="depositors" data-t="broadcast.target_depositors">Depositors only</option>
+                </select>
+                <div class="bc-meta-row">
+                  <span data-t="broadcast.audience_count">Recipients</span>
+                  <strong id="bc-audience-count">—</strong>
+                </div>
+              </section>
+
+              <section class="bc-step-card">
+                <div class="bc-step-title">
+                  <span class="bc-step-no">02</span>
+                  <span data-t="broadcast.step_content">Content</span>
+                </div>
+                <label class="panel-label" data-t="broadcast.subject_label">Subject</label>
+                <input type="text" id="bc-subject" class="panel-inp"
+                       data-tp="broadcast.subject_ph" placeholder="Email subject">
+                <label class="panel-label" style="margin-top:10px" data-t="broadcast.message_label">Message</label>
+                <textarea id="bc-message" class="panel-inp bc-message-input" rows="8"
+                          data-tp="broadcast.message_ph"
+                          placeholder="Your message to players..."></textarea>
+                <div class="bc-meta-row">
+                  <span data-t="broadcast.char_count">Characters</span>
+                  <strong id="bc-char-count">0</strong>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <aside class="bc-side">
+          <div class="tbl-wrap bc-preview-wrap">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="broadcast.step_preview">Preview & Send</div>
+            </div>
+            <div class="bc-preview-box">
+              <div class="bc-preview-subject" id="bc-preview-subject">—</div>
+              <div class="bc-preview-message" id="bc-preview-message">—</div>
+              <div class="bc-meta-row">
+                <span data-t="broadcast.target_label">Target Audience</span>
+                <strong id="bc-preview-target">—</strong>
+              </div>
+            </div>
+            <div class="err-msg hidden" id="bc-err"></div>
+            <div class="ok-msg hidden" id="bc-ok"></div>
+            <div style="padding:14px 16px 16px;display:flex;gap:8px">
+              <button class="panel-btn" id="bc-clear-btn">
+                <span data-t="broadcast.btn_clear">Clear</span>
+              </button>
+              <button class="panel-btn panel-btn--primary" id="bc-send-btn" style="flex:1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                <span id="bc-send-lbl" data-t="broadcast.btn_send">Send Broadcast</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

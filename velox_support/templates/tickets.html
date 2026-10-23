@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Tickets — VELOX Support{% endblock %}
+{% block page_id %}tickets{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('tickets') }}
+
+  <div class="panel-main">
+    {{ topbar('tickets.title', 'Support Tickets') }}
+
+    <div class="panel-body">
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="tickets.title">Support Tickets</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn active" data-status=""
+                  data-t="tickets.filter_all">All</button>
+          <button class="tbl-filter-btn" data-status="open"
+                  data-t="tickets.filter_open">Open</button>
+          <button class="tbl-filter-btn" data-status="in_progress"
+                  data-t="tickets.filter_progress">In Progress</button>
+          <button class="tbl-filter-btn" data-status="closed"
+                  data-t="tickets.filter_closed">Closed</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th data-t="tickets.col_id">#</th>
+              <th data-t="tickets.col_subject">Subject</th>
+              <th data-t="tickets.col_contact">Contact</th>
+              <th data-t="tickets.col_user">User</th>
+              <th data-t="tickets.col_operator">Operator</th>
+              <th data-t="tickets.col_status">Status</th>
+              <th data-t="tickets.col_date">Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tickets-body">
+            <tr>
+              <td colspan="8" class="loading-center">
+                <span class="spinner"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

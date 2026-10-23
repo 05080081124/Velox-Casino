@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Ban List — VELOX Support{% endblock %}
+{% block page_id %}bans{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('bans') }}
+  <div class="panel-main">
+    {{ topbar('bans.title', 'Ban List') }}
+    <div class="panel-body">
+
+      <div class="tbl-wrap" style="margin-bottom:20px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="bans.add_title">Block IP Address</div>
+        </div>
+        <div style="padding:16px 18px;display:flex;align-items:center;gap:10px">
+          <input type="text" id="ban-ip-input"
+                 class="panel-inp" style="max-width:260px"
+                 data-tp="bans.ip_placeholder" placeholder="e.g. 192.168.1.1">
+          <button class="panel-btn panel-btn--primary" onclick="addBan()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+            <span data-t="bans.btn_block">Block IP</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="bans.list_title">Blocked IPs</div>
+        </div>
+        <div id="bans-list" style="padding:6px 0;min-height:60px">
+          <div class="loading-center"><span class="spinner"></span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

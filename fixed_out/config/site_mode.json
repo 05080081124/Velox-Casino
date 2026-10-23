@@ -1,0 +1,20 @@
+{
+  "_comment": "Режим работы сайта. Меняй 'mode' на 'offline' или 'online'",
+  "mode": "online",
+  "offline": {
+    "accent_color": "#ff3c5a",
+    "allow_admin_ip": [
+      "127.0.0.1"
+    ],
+    "background_color": "#050a0f",
+    "message": "Казино обновляется. Скоро вернёмся — ещё лучше!",
+    "show_social": true,
+    "show_timer": false,
+    "subtitle": "Мы уже работаем над этим",
+    "title": "Сайт на техническом обслуживании"
+  },
+  "online": {
+    "maintenance_banner": false,
+    "maintenance_text": ""
+  }
+}

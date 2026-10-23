@@ -1,0 +1,114 @@
+{
+  "_readme": "Security configuration for VELOX Casino — edit and redeploy; no restart needed (hot-reload).",
+
+  "checks": {
+    "_note": "Toggle any check on/off without touching code. true = enabled (default).",
+    "csrf":                   true,
+    "dirb":                   true,
+    "ddos":                   true,
+    "burst":                  true,
+    "api_rate_limit":         true,
+    "login_rate_limit":       true,
+    "register_rate_limit":    true,
+    "pwd_reset_rate_limit":   true,
+    "email_verify_rate_limit":true,
+    "payment_rate_limit":     true,
+    "withdraw_rate_limit":    true,
+    "kyc_rate_limit":         true,
+    "support_rate_limit":     true,
+    "injection_scan":         true,
+    "ua_check":               true,
+    "geo_block":              true,
+    "host_check":             true,
+    "blocked_ips":            true
+  },
+
+  "ua_patterns": [
+    "headlesschrome",
+    "python-requests",
+    "python-httpx",
+    "curl/",
+    "wget/",
+    "sqlmap",
+    "nikto",
+    "scanner"
+  ],
+
+  "blocked_countries": ["US", "GB"],
+  "_blocked_countries_note": "ISO country codes. Requires GeoLite2-Country.mmdb (or GeoIP2) to be available.",
+  "geoip": {
+    "database_paths": [
+      "config/GeoLite2-Country.mmdb",
+      "config/GeoIP2-Country.mmdb"
+    ],
+    "_note": "Install geoip2 and place MMDB file in one of database_paths."
+  },
+
+  "rate_limits": {
+    "_note": "All sliding-window counters. Changes take effect on next app start.",
+    "ddos_per_10s":          300,
+    "burst_per_1s":           30,
+    "api_per_minute":        120,
+    "login_per_minute":       10,
+    "register_per_5min":       5,
+    "pwd_reset_per_hour":      5,
+    "email_verify_per_hour":  10,
+    "deposit_per_minute":     20,
+    "withdraw_per_hour":      10,
+    "kyc_per_5min":            5,
+    "support_per_minute":     10
+  },
+
+  "account_lockout": {
+    "enabled":         true,
+    "max_failures":    10,
+    "window_minutes":  15,
+    "lockout_minutes": 30,
+    "_note": "Lock account for 30 min after 10 failed logins within 15 min."
+  },
+
+  "request_limits": {
+    "max_api_body_mb":    2,
+    "max_upload_body_mb": 60,
+    "_note": "KYC/document uploads up to 60 MB; regular API requests up to 2 MB."
+  },
+
+  "https": false,
+  "_https_note": "Set to true when nginx + certbot is configured. Enables HSTS + secure cookies.",
+
+  "blocked_email_domains": [
+    "tempmail.com",
+    "10minutemail.com",
+    "guerrillamail.com",
+    "mailinator.com",
+    "throwam.com",
+    "temp-mail.org",
+    "fakeinbox.com",
+    "sharklasers.com",
+    "yopmail.com",
+    "trashmail.com",
+    "dispostable.com",
+    "maildrop.cc",
+    "20minutemail.com",
+    "airmail.cc",
+    "discard.email",
+    "spam4.me",
+    "getairmail.com",
+    "filzmail.com",
+    "mailnull.com",
+    "spamgourmet.com",
+    "getnada.com",
+    "tempinbox.com",
+    "spambog.com",
+    "trashmail.me",
+    "spamoff.de",
+    "mintemail.com",
+    "burnermail.io",
+    "mailtemp.info",
+    "tempail.com",
+    "throwam.com"
+  ],
+
+  "blocked_ips": [],
+  "_blocked_ips_note": "Add IPs here for permanent manual blocks. Checked if checks.blocked_ips=true."
+}

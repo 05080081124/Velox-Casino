@@ -1,0 +1,107 @@
+{
+  "id": "lottery_ticket",
+  "name": "Лотерейный билет",
+  "active": true,
+  "one_time": true,
+  "rewards": [
+    {
+      "id": "r1",
+      "label": "+500 ₴",
+      "type": "balance",
+      "value": 500,
+      "color": "#f59e0b",
+      "weight": 1
+    },
+    {
+      "id": "r2",
+      "label": "+200 ₴",
+      "type": "balance",
+      "value": 200,
+      "color": "#10b981",
+      "weight": 3
+    },
+    {
+      "id": "r3",
+      "label": "+100 ₴",
+      "type": "balance",
+      "value": 100,
+      "color": "#f59e0b",
+      "weight": 6
+    },
+    {
+      "id": "r4",
+      "label": "+50 ₴",
+      "type": "balance",
+      "value": 50,
+      "color": "#f59e0b",
+      "weight": 10
+    },
+    {
+      "id": "r5",
+      "label": "50 FS",
+      "type": "freespin",
+      "value": 50,
+      "color": "#06b6d4",
+      "weight": 2
+    },
+    {
+      "id": "r6",
+      "label": "25 FS",
+      "type": "freespin",
+      "value": 25,
+      "color": "#06b6d4",
+      "weight": 5
+    },
+    {
+      "id": "r7",
+      "label": "10 FS",
+      "type": "freespin",
+      "value": 10,
+      "color": "#06b6d4",
+      "weight": 10
+    },
+    {
+      "id": "r8",
+      "label": "×2 день",
+      "type": "mult",
+      "value": 2,
+      "color": "#a78bfa",
+      "weight": 3
+    },
+    {
+      "id": "r9",
+      "label": "×10 деп.",
+      "type": "dep_mult",
+      "value": 10,
+      "color": "#f43f5e",
+      "weight": 1
+    }
+  ],
+  "consolation": [
+    {
+      "label": "5 FS",
+      "type": "freespin",
+      "value": 5,
+      "color": "#06b6d4"
+    },
+    {
+      "label": "+20 ₴",
+      "type": "balance",
+      "value": 20,
+      "color": "#f59e0b"
+    },
+    {
+      "label": "+5% деп",
+      "type": "dep_pct",
+      "value": 5,
+      "color": "#94a3b8"
+    }
+  ],
+  "provider": "VELOX Games",
+  "provider_tag": "velox",
+  "tags": [
+    "velox"
+  ],
+  "gift": true,
+  "show_in_grid": false
+}

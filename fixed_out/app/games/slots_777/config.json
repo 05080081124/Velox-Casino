@@ -1,0 +1,51 @@
+{
+  "id": "slots_777",
+  "provider": "VELOX Games",
+  "provider_tag": "velox",
+  "active": true,
+  "featured": false,
+  "hot": true,
+  "new": false,
+  "icon": "🎰",
+  "logo": "/static/uploads/games/slots_777.png",
+  "bg_gradient": "linear-gradient(135deg,#1a0a2e 0%,#2d1b69 50%,#11002e 100%)",
+  "route": "/game/slots_777",
+  "category": "slots",
+  "tags": [
+    "slots",
+    "hot",
+    "fs",
+    "velox",
+    "classic"
+  ],
+  "_fs_note": "Тег 'fs' означает: слот поддерживает фриспины. Ставка берётся из config/freespin_bets.json",
+  "bet": {
+    "min": 5,
+    "max": 10000,
+    "currency_min": {
+      "UAH": 5,
+      "RUB": 20,
+      "USD": 0.25,
+      "EUR": 0.25,
+      "USDT": 0.25
+    }
+  },
+  "rtp": 0.965,
+  "i18n": {
+    "ru": {
+      "name": "Слоты 777",
+      "description": "Классический трёхбарабанный слот с символами 7, BAR, Cherry и Wild.",
+      "tag_line": "Удача любит смелых"
+    },
+    "ua": {
+      "name": "Слоти 777",
+      "description": "Класичний трибарабанний слот із символами 7, BAR, Cherry та Wild.",
+      "tag_line": "Удача любить сміливих"
+    },
+    "us": {
+      "name": "Slots 777",
+      "description": "Classic 3-reel slot with 7, BAR, Cherry and Wild symbols.",
+      "tag_line": "Fortune favors the bold"
+    }
+  }
+}

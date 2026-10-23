@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}SOC — VELOX Support{% endblock %}
+{% block page_id %}soc{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('soc') }}
+  <div class="panel-main">
+    {{ topbar('nav.soc', 'Security Operations') }}
+    <div class="panel-body">
+
+      <!-- Period + refresh -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <div style="font-size:12px;color:var(--t3)" data-t="soc.period_label">Last</div>
+        <button class="tbl-filter-btn active" data-hours="1">1h</button>
+        <button class="tbl-filter-btn" data-hours="6">6h</button>
+        <button class="tbl-filter-btn active-default" data-hours="24">24h</button>
+        <button class="tbl-filter-btn" data-hours="72">72h</button>
+        <div class="tbl-spacer"></div>
+        <button id="soc-refresh" class="btn-icon">↻ <span data-t="soc.refresh">Refresh</span></button>
+        <div id="soc-log-path"
+             style="font-size:10px;color:var(--t3);font-family:var(--ffd);letter-spacing:.5px"></div>
+      </div>
+
+      <!-- DB stats row -->
+      <div class="stat-grid" style="margin-bottom:20px" id="soc-db-stats">
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="soc.total_requests">Requests (period)</div>
+          <div class="stat-card-val accent" id="soc-total-req">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="soc.unique_ips">Unique IPs</div>
+          <div class="stat-card-val" id="soc-unique-ips">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="soc.threats">Threats</div>
+          <div class="stat-card-val red" id="soc-threats-cnt">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="soc.errors_4xx">4xx Errors</div>
+          <div class="stat-card-val gold" id="soc-4xx">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="soc.errors_5xx">5xx Errors</div>
+          <div class="stat-card-val red" id="soc-5xx">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="dashboard.total_users">Total Users</div>
+          <div class="stat-card-val green" id="soc-users">—</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- Threats table -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="soc.threat_title">Suspicious IPs</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>IP</th>
+                <th data-t="soc.col_requests">Req</th>
+                <th data-t="soc.col_errors">Err</th>
+                <th data-t="soc.col_severity">Severity</th>
+                <th data-t="soc.col_reason">Reason</th>
+              </tr>
+            </thead>
+            <tbody id="soc-threats-body">
+              <tr><td colspan="5" class="loading-center"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Top IPs -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="soc.top_ips">Top IPs</div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>IP</th>
+                <th data-t="soc.col_requests">Requests</th>
+              </tr>
+            </thead>
+            <tbody id="soc-top-ips-body">
+              <tr><td colspan="2" class="loading-center"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- HTTP methods -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="soc.methods_title">HTTP Methods</div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Method</th><th>Count</th></tr>
+            </thead>
+            <tbody id="soc-methods-body">
+              <tr><td colspan="2" class="loading-center"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Top paths -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-head-title" data-t="soc.paths_title">Top Paths</div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Path</th><th>Hits</th></tr>
+            </thead>
+            <tbody id="soc-paths-body">
+              <tr><td colspan="2" class="loading-center"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

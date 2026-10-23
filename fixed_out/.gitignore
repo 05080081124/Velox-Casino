@@ -1,0 +1,43 @@
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Secrets ─────────────────────────────────────────────────────────────────
+.env
+config/sport_odds_credentials.json
+*.key
+*.pem
+*.p12
+
+# ── Database ─────────────────────────────────────────────────────────────────
+database/*.db
+database/*.db-wal
+database/*.db-shm
+*.sqlite3
+
+# ── Uploads (user files, not committed to repo) ──────────────────────────────
+static/uploads/kyc/
+static/uploads/support/*/
+static/uploads/demos/*.mp4
+
+# ── Design files ─────────────────────────────────────────────────────────────
+*.psd
+*.ai
+*.sketch
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS / Editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

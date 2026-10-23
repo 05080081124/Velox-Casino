@@ -1,0 +1,231 @@
+<div id="view-balance" class="view">
+  <div class="pay-page">
+
+    <!-- ── MODE TABS ─────────────────────────────────────────────────────── -->
+    <div class="pay-mode-bar">
+      <button class="pay-mode-tab active" id="pay-tab-dep" onclick="V.paySetMode('deposit')">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v9M10 13l-3-3M10 13l3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span id="pay-tab-dep-lbl">Пополнить</span>
+      </button>
+      <button class="pay-mode-tab" id="pay-tab-wd" onclick="V.paySetMode('withdraw')">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 13V4M10 4l-3 3M10 4l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span id="pay-tab-wd-lbl">Вывести</span>
+      </button>
+    </div>
+
+    <!-- ── TWO-COL LAYOUT ─────────────────────────────────────────────────── -->
+    <div class="pay-layout">
+
+      <!-- ── LEFT: provider list OR card form ──────────────────────────── -->
+      <div class="pay-left" id="pay-left">
+
+        <!-- PROVIDER LIST (default view) -->
+        <div id="pay-providers-panel">
+          <!-- Rendered by JS: _payRenderGroups() -->
+        </div>
+
+        <!-- CARD FORM (shown when card provider selected) -->
+        <div id="pay-card-panel" style="display:none">
+          <button class="pay-back-btn" id="pay-back-btn" onclick="V.payBack()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="pay-back-lbl">Назад</span>
+          </button>
+
+          <div class="pay-chosen-prov" id="pay-chosen-prov"></div>
+
+          <div class="pay-scene" id="pay-scene">
+            <div class="pay-card" id="pay-card-3d">
+              <div class="pay-card-shimmer"></div>
+              <div class="pay-card-pattern"></div>
+              <div class="pay-card-label" style="position:absolute;top:50%;left:22px;transform:translateY(-50%) translateY(-34px);font-family:var(--ffd);font-size:9px;font-weight:700;letter-spacing:6px;color:rgba(255,255,255,.08);text-transform:uppercase;z-index:3;pointer-events:none;user-select:none">VELOX CASINO</div>
+              <div class="pay-card-top-row">
+                <div class="pay-card-brand">
+                  <div class="pay-chip-svg">
+                    <svg width="32" height="26" viewBox="0 0 32 26" fill="none"><rect x="1" y="1" width="30" height="24" rx="4" stroke="rgba(255,255,255,.3)" stroke-width="1"/><rect x="7" y="1" width="1.5" height="24" fill="rgba(255,255,255,.12)"/><rect x="14" y="1" width="1.5" height="24" fill="rgba(255,255,255,.12)"/><rect x="21" y="1" width="1.5" height="24" fill="rgba(255,255,255,.12)"/><rect x="1" y="8" width="30" height="2" fill="rgba(255,255,255,.12)"/><rect x="1" y="16" width="30" height="2" fill="rgba(255,255,255,.12)"/></svg>
+                  </div>
+                  <svg class="pay-nfc" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20a8 8 0 0 0 0-16" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 16a4 4 0 0 0 0-8" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M12 12a1 1 0 1 0 0-1" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="pay-card-network" id="pc-network-logo"></div>
+              </div>
+              <div class="pay-card-number" id="pc-display-num">•••• &nbsp;•••• &nbsp;•••• &nbsp;••••</div>
+              <div class="pay-card-bottom-row">
+                <div class="pay-card-field">
+                  <div class="pay-card-field-lbl" id="pc-label-holder">ДЕРЖАТЕЛЬ</div>
+                  <div class="pay-card-field-val" id="pc-display-holder">IVAN PETRENKO</div>
+                </div>
+                <div class="pay-card-field pay-card-field--right">
+                  <div class="pay-card-field-lbl" id="pc-label-expiry">СРОК</div>
+                  <div class="pay-card-field-val" id="pc-display-exp">••/••</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pay-form">
+            <div class="pay-field-group">
+              <div class="pay-field pay-field--full">
+                <label class="pay-label" id="pay-label-cardnum">
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.3"/></svg>
+                  <span id="pay-lbl-cardnum-txt">Номер карты</span>
+                </label>
+                <div class="pay-inp-wrap">
+                  <input type="text" class="pay-inp" id="inp-cnum" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" oninput="V.fmtCard(this)" onfocus="V.cvvFocused(false)" onblur="V.chkHolder()">
+                  <div class="pay-inp-badge" id="pc-type-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="3" stroke="var(--t2)" stroke-width="1.5"/><path d="M2 10h20" stroke="var(--t2)" stroke-width="1.5"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pay-field-group pay-field-group--2col">
+              <div class="pay-field">
+                <label class="pay-label" id="pay-label-expiry">
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 9h16M6 2v3M14 2v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  <span id="pay-lbl-exp-txt">Срок</span>
+                </label>
+                <input type="text" class="pay-inp" id="inp-cexp" placeholder="MM / YY" maxlength="7" inputmode="numeric" oninput="V.fmtExp(this)" onfocus="V.cvvFocused(false)">
+              </div>
+              <div class="pay-field">
+                <label class="pay-label" id="pay-label-holder">
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  <span id="pay-lbl-holder-txt">Держатель</span>
+                </label>
+                <input type="text" class="pay-inp" id="inp-holder" placeholder="IVAN PETRENKO" style="text-transform:uppercase" oninput="V.chkHolder()" onfocus="V.cvvFocused(false)">
+              </div>
+            </div>
+            <div class="pay-field-group">
+              <div class="pay-field pay-field--full">
+                <label class="pay-label" id="pay-label-cvv">
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  <span id="pay-lbl-cvv-txt">CVV / CVC</span>
+                </label>
+                <div style="position:relative">
+                  <input type="password" class="pay-inp" id="inp-ccvv" placeholder="•••" maxlength="4" inputmode="numeric" oninput="V.chkCvv(this)" onfocus="V.cvvFocused(true)">
+                  <div id="cvv-dots" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;gap:5px;pointer-events:none"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pay-addr-block" id="pay-addr-block" style="display:none">
+              <div class="pay-addr-title" id="pay-label-address">Billing Address</div>
+              <div class="pay-field-group pay-field-group--2col">
+                <div class="pay-field">
+                  <label class="pay-label" id="pay-label-country">Страна</label>
+                  <select class="pay-inp pay-inp-sel" id="inp-country" onchange="V.onCountryChange()">
+                    <option value="" id="pay-sel-country">— Выберите страну —</option>
+                    <option value="UA" id="pay-opt-ua">🇺🇦 Украина</option>
+                    <option value="RU" id="pay-opt-ru">🇷🇺 Россия</option>
+                    <option value="US" id="pay-opt-us">🇺🇸 США</option>
+                  </select>
+                </div>
+                <div class="pay-field">
+                  <label class="pay-label" id="pay-label-zip">Почтовый индекс</label>
+                  <input type="text" class="pay-inp" id="inp-zip" placeholder="10001" maxlength="10" inputmode="numeric" oninput="V.lookupZip()">
+                  <div class="pay-zip-result" id="zip-result"></div>
+                </div>
+              </div>
+              <div class="pay-field-group">
+                <div class="pay-field pay-field--full">
+                  <label class="pay-label" id="pay-label-region">Область / Регион</label>
+                  <select class="pay-inp pay-inp-sel" id="inp-region" onchange="V.onRegionChange()">
+                    <option value="" id="pay-sel-region">— Выберите страну сначала —</option>
+                  </select>
+                </div>
+              </div>
+              <div class="pay-field-group pay-field-group--2col">
+                <div class="pay-field">
+                  <label class="pay-label" id="pay-label-city">Город</label>
+                  <input type="text" class="pay-inp" id="inp-city" placeholder="Kyiv">
+                </div>
+                <div class="pay-field">
+                  <label class="pay-label" id="pay-label-street">Улица</label>
+                  <input type="text" class="pay-inp" id="inp-street" placeholder="Main St">
+                </div>
+              </div>
+            </div>
+            <div class="pay-validation-row" id="pay-validation-row"></div>
+          </div>
+        </div>
+
+        <!-- REDIRECT / INSTRUCTIONS panel -->
+        <div id="pay-redir-panel" style="display:none">
+          <button class="pay-back-btn" onclick="V.payBack()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="pay-redir-back-lbl">Назад</span>
+          </button>
+          <div class="pay-redir-card">
+            <div class="pay-redir-top">
+              <div class="pay-redir-logo" id="pay-redir-logo"></div>
+              <div class="pay-redir-info">
+                <div class="pay-redir-name" id="pay-redir-name"></div>
+                <div class="pay-redir-desc" id="pay-redir-desc"></div>
+              </div>
+            </div>
+            <div class="pay-redir-details" id="pay-redir-details"></div>
+            <div class="pay-redir-warn" id="pay-redir-warn"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── RIGHT: amount panel ───────────────────────────────────────── -->
+      <div class="pay-right">
+        <div class="pay-summary-card">
+          <div class="pay-summary-header">
+            <span class="pay-summary-label" id="pay-label-balance">Текущий баланс</span>
+            <div class="pay-summary-balance">
+              <span id="bal-big-num">0.00</span>&nbsp;<span id="bal-big-sym">₴</span>
+            </div>
+          </div>
+          <div class="pay-amounts-label" id="pay-label-amount">Сумма</div>
+          <div class="pay-quick-amounts">
+            <button class="pay-qa" onclick="V.setDepAmt(100)">100</button>
+            <button class="pay-qa" onclick="V.setDepAmt(250)">250</button>
+            <button class="pay-qa" onclick="V.setDepAmt(500)">500</button>
+            <button class="pay-qa" onclick="V.setDepAmt(1000)">1 000</button>
+            <button class="pay-qa" onclick="V.setDepAmt(2500)">2 500</button>
+            <button class="pay-qa" onclick="V.setDepAmt(5000)">5 000</button>
+          </div>
+          <div class="pay-inp-amount-wrap">
+            <span class="pay-inp-currency-sym" id="pay-cur-sym">₴</span>
+            <input type="text" class="pay-inp pay-inp-amount" id="inp-dep" placeholder="0.00" inputmode="decimal" oninput="V.updDepSummary()">
+          </div>
+          <div class="pay-fee-row" id="pay-fee-row">
+            <span id="pay-fee-label">Комиссия</span><span id="pay-fee-val">0.00 ₴</span>
+          </div>
+          <div class="pay-total-row" id="pay-total-row">
+            <span id="pay-total-label">Итого к оплате</span><span id="pay-total-val">— ₴</span>
+          </div>
+          <button class="pay-submit-btn" id="pay-submit-btn" onclick="V.paySubmit()">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.3"/><path d="M5 13h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span id="pay-submit-lbl">Пополнить</span>
+          </button>
+          <p class="pay-policy-link"><a href="#" onclick="V.modal('dep-policy')" id="pay-policy-link">Политика пополнения</a></p>
+        </div>
+        <div class="pay-security-row">
+          <div class="pay-sec-item">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5V10c0 3.5-2.5 6.5-6 8-3.5-1.5-6-4.5-6-8V4.5L10 2z" stroke="currentColor" stroke-width="1.4"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="pay-ssl-label">SSL</span>
+          </div>
+          <div class="pay-sec-item">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            3D-Secure
+          </div>
+          <div class="pay-sec-item">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.3"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            PCI DSS
+          </div>
+        </div>
+
+        <!-- Transaction history mini -->
+        <div class="pay-history-mini" id="pay-history-mini">
+          <div class="pay-history-title" id="pay-hist-title">История</div>
+          <div class="pay-history-list" id="pay-history-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

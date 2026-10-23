@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}Site — VELOX Support{% endblock %}
+{% block page_id %}site{% endblock %}
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('site') }}
+  <div class="panel-main">
+    {{ topbar('site.title', 'Site') }}
+    <div class="panel-body">
+      <div class="site-note">
+        <div class="site-note-title" data-t="site.notice_title">Important notice</div>
+        <div class="site-note-text" data-t="site.notice_text">
+          This panel is the minimum layer of configuration. For deep structure changes and long-term stability, trust IT specialists and let developers edit core project structure directly.
+        </div>
+      </div>
+
+      <div class="tbl-wrap" style="margin-bottom:14px">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="site.control_center">Control center</div>
+          <div class="tbl-spacer"></div>
+          <button class="tbl-filter-btn" id="site-reload-all-btn" data-t="site.reload">Reload</button>
+        </div>
+        <div style="padding:16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="form-label" style="margin:0" data-t="site.mode_label">Mode</label>
+          <select id="site-mode-select" class="form-input" style="max-width:220px">
+            <option value="online">online</option>
+            <option value="offline">offline</option>
+          </select>
+          <button class="btn-primary" id="site-mode-save-btn" data-t="site.save_mode">Save mode</button>
+          <div id="site-mode-msg" style="font-size:12px;color:var(--t2)"></div>
+        </div>
+      </div>
+
+      <div class="site-layout">
+        <div class="site-content">
+          <div class="tbl-wrap" style="margin-bottom:14px">
+            <div class="tbl-head">
+              <div class="tbl-head-title" data-t="site.sidebar_title">Sidebar items</div>
+            </div>
+            <div id="site-sidebar-items" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px"></div>
+          </div>
+
+          <div class="site-category-block" data-site-category="general">
+            <div class="tbl-wrap site-collapsible-card is-open" data-site-collapsible="site">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="site">
+                <div class="tbl-head-title" data-t="site.site_json_title">site.json (details, licenses, contacts, rules)</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="site" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body">
+                <textarea id="site-site-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="tbl-wrap site-collapsible-card" data-site-collapsible="providers">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="providers">
+                <div class="tbl-head-title" data-t="site.providers_title">Providers</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="providers" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body hidden">
+                <textarea id="site-providers-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="tbl-wrap site-collapsible-card" data-site-collapsible="payments">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="payments">
+                <div class="tbl-head-title" data-t="site.payments_title">Payment systems</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="payments" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body hidden">
+                <textarea id="site-payments-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="tbl-wrap site-collapsible-card" data-site-collapsible="faq">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="faq">
+                <div class="tbl-head-title" data-t="site.faq_title">FAQ</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="faq" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body hidden">
+                <textarea id="site-faq-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="site-category-block hidden" data-site-category="marketing">
+            <div class="tbl-wrap site-collapsible-card is-open" data-site-collapsible="vip">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="vip">
+                <div class="tbl-head-title" data-t="site.vip_title">VIP statuses</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="vip" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body">
+                <textarea id="site-vip-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="tbl-wrap site-collapsible-card" data-site-collapsible="promo_settings">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="promo_settings">
+                <div class="tbl-head-title" data-t="site.promo_settings_title">Promo settings</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="promo_settings" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body hidden">
+                <textarea id="site-promo-settings-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="tbl-wrap site-collapsible-card" data-site-collapsible="promo_codes">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="promo_codes">
+                <div class="tbl-head-title" data-t="site.promo_codes_title">Promo codes</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" id="site-add-promo-code-btn" data-t="site.add_promo_code">Add code</button>
+                <button class="btn-primary" data-site-open-editor="promo_codes" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body hidden">
+                <textarea id="site-promo-codes-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="site-category-block hidden" data-site-category="roles">
+            <div class="tbl-wrap site-collapsible-card is-open" data-site-collapsible="roles_perms">
+              <div class="tbl-head site-collapsible-head" data-site-open-editor="roles_perms">
+                <div class="tbl-head-title" data-t="site.access_title">Access by roles</div>
+                <div class="tbl-spacer"></div>
+                <button class="btn-primary" data-site-open-editor="roles_perms" data-t="site.open_editor">Open editor</button>
+              </div>
+              <div class="site-collapsible-body">
+                <textarea id="site-roles-perms-json" class="form-input site-readonly-textarea" readonly></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div id="site-msg" style="margin-top:10px;font-size:12px;color:var(--t2)"></div>
+        </div>
+        <aside class="site-right-nav">
+          <div class="site-right-title" data-t="site.categories_title">Categories</div>
+          <button class="site-cat-btn active" data-site-category-btn="general" data-t="site.general_configs_title">General site configs</button>
+          <button class="site-cat-btn" data-site-category-btn="marketing" data-t="site.marketing_title">Marketing and bonuses</button>
+          <button class="site-cat-btn" data-site-category-btn="roles" data-t="site.access_title">Access by roles</button>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ud-modal-overlay hidden" id="site-editor-modal">
+  <div class="ud-modal" style="max-width:min(1100px,94vw);max-height:88vh;width:100%">
+    <button class="ud-modal-close" id="site-editor-close-btn">✕</button>
+    <div class="ud-modal-title">
+      <span id="site-editor-title">JSON editor</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin:0 0 10px 0">
+      <div style="font-size:12px;color:var(--t2)" data-t="site.editor_hint">Edit carefully. You can revert changes before saving.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" id="site-editor-revert-btn" data-t="site.editor_revert">Revert</button>
+        <button class="btn-primary" id="site-editor-cancel-btn" data-t="site.editor_cancel">Cancel</button>
+        <button class="btn-primary" id="site-editor-save-btn" data-t="site.editor_save">Save</button>
+      </div>
+    </div>
+    <textarea id="site-editor-textarea" class="form-input" style="min-height:58vh;font-family:ui-monospace,Consolas,monospace"></textarea>
+    <div id="site-editor-msg" style="margin-top:8px;font-size:12px;color:var(--t2)"></div>
+  </div>
+</div>
+{% endblock %}

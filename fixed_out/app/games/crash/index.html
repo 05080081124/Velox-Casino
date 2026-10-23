@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Crash — VELOX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══ PALETTE ════════════════════════════════════════════════════════════════ */
+:root{
+  --bg0:#03030d;--bg1:#07071a;--bg2:#0b0b22;--bg3:#10102a;--bg4:#161635;
+  --glass:rgba(8,8,24,.78);--glassBdr:rgba(100,120,255,.13);
+  --a:#4df0ff;--ag:rgba(77,240,255,.22);--ab:rgba(77,240,255,.09);
+  --a2:#8b7aff;
+  --gold:#ffcb47;
+  --green:#00ff8c;--grg:rgba(0,255,140,.18);--grd:rgba(0,255,140,.10);
+  --red:#ff3d5a;--rdg:rgba(255,61,90,.20);--rdd:rgba(255,61,90,.09);
+  --t1:#e4e8ff;--t2:#7278a8;--t3:#323258;
+  --bdr:rgba(100,120,255,.10);--bdrB:rgba(100,120,255,.22);
+  --ff:'Space Grotesk',sans-serif;--ffd:'Orbitron',sans-serif;
+  --r:12px;--r2:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg0);
+  font-family:var(--ff);color:var(--t1)}
+
+/* ══ LAYOUT — reference style ══════════════════════════════════════════════ */
+/* topbar / histbar / [chart | side+ctrl] */
+#app{position:relative;z-index:1;display:grid;height:100vh;
+  grid-template:'topbar  topbar' auto
+                'histbar histbar' auto
+                'chart   panel'  1fr
+              / 1fr 300px}
+
+/* ── History bar (top strip, full width) ── */
+#histbar{
+  grid-area:histbar;display:flex;align-items:center;gap:0;
+  padding:0 14px;height:36px;
+  background:var(--glass);border-bottom:1px solid var(--glassBdr);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  overflow:hidden;
+}
+#histbar-label{
+  font:700 9px/1 var(--ffd);letter-spacing:2px;color:var(--t3);
+  text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-right:12px;
+}
+/* scrollable pill strip */
+#hist-pills{
+  display:flex;align-items:center;gap:6px;
+  flex:1;overflow-x:auto;overflow-y:hidden;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  /* hide native scrollbar */
+  scrollbar-width:none;
+  padding:4px 0;
+}
+#hist-pills::-webkit-scrollbar{display:none}
+/* fade edges */
+#hist-pills-wrap{
+  position:relative;flex:1;overflow:hidden;
+}
+#hist-pills-wrap::before,
+#hist-pills-wrap::after{
+  content:'';position:absolute;top:0;bottom:0;width:28px;z-index:2;pointer-events:none;
+}
+#hist-pills-wrap::before{
+  left:0;background:linear-gradient(90deg,var(--glass) 0%,transparent 100%);
+}
+#hist-pills-wrap::after{
+  right:0;background:linear-gradient(-90deg,var(--glass) 0%,transparent 100%);
+}
+/* pill enter animation */
+.hp{
+  flex-shrink:0;padding:3px 11px;border-radius:100px;
+  font:700 10px/1 var(--ffd);white-space:nowrap;cursor:default;
+  animation:hp-in .28s cubic-bezier(.34,1.46,.64,1);
+}
+@keyframes hp-in{
+  0%{opacity:0;transform:scale(.7) translateY(4px)}
+  100%{opacity:1;transform:none}
+}
+.hp.g{background:rgba(0,255,140,.09);color:var(--green);border:1px solid rgba(0,255,140,.2)}
+.hp.r{background:rgba(255,61,90,.08);color:var(--red);  border:1px solid rgba(255,61,90,.2)}
+
+/* ── Right panel (side + controls stacked) ── */
+#panel{
+  grid-area:panel;display:flex;flex-direction:column;
+  background:var(--glass);border-left:1px solid var(--glassBdr);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);overflow:hidden;
+}
+
+/* ══ TOPBAR ════════════════════════════════════════════════════════════════ */
+#topbar{
+  grid-area:topbar;display:flex;align-items:center;gap:10px;
+  height:54px;padding:0 16px;
+  background:var(--glass);border-bottom:1px solid var(--glassBdr);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  position:relative;z-index:10;
+}
+.tb-back{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  border-radius:var(--r);border:1px solid var(--bdr);
+  background:rgba(77,240,255,.05);color:var(--t2);
+  font:600 10px/1 var(--ffd);letter-spacing:.8px;cursor:pointer;
+  transition:.18s;text-decoration:none;flex-shrink:0;text-transform:uppercase;
+}
+.tb-back:hover{color:var(--a);border-color:rgba(77,240,255,.3);background:rgba(77,240,255,.09)}
+.tb-logo{
+  font:900 15px/1 var(--ffd);letter-spacing:5px;
+  background:linear-gradient(135deg,var(--a),var(--a2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  flex-shrink:0;
+}
+.tb-vsep{width:1px;height:18px;background:var(--glassBdr);flex-shrink:0}
+.tb-gname{
+  font:700 10px/1 var(--ffd);letter-spacing:3px;text-transform:uppercase;
+  color:transparent;background:linear-gradient(90deg,var(--a),var(--a2));
+  -webkit-background-clip:text;background-clip:text;flex-shrink:0;
+}
+.tb-space{flex:1}
+.tb-live{
+  display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;
+  background:rgba(0,255,140,.07);border:1px solid rgba(0,255,140,.22);
+  font:700 9px/1 var(--ffd);letter-spacing:1.5px;color:var(--green);
+  text-transform:uppercase;flex-shrink:0;
+}
+.tb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:livepulse 1.4s ease-in-out infinite}
+@keyframes livepulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(0,255,140,.6)}
+  50%{box-shadow:0 0 0 5px rgba(0,255,140,0)}
+}
+.pf-btn{
+  display:flex;align-items:center;gap:4px;padding:5px 11px;
+  border-radius:var(--r);border:1px solid var(--bdr);cursor:pointer;
+  font:600 9px/1 var(--ffd);color:var(--t3);letter-spacing:.8px;
+  transition:.15s;flex-shrink:0;text-transform:uppercase;
+}
+.pf-btn:hover{color:var(--a);border-color:rgba(77,240,255,.3)}
+
+/* user */
+#uc-guest button{
+  padding:7px 16px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--a),var(--a2));color:#04041a;
+  font:700 10px/1 var(--ffd);cursor:pointer;letter-spacing:.8px;
+  transition:.15s;text-transform:uppercase;
+}
+#uc-guest button:hover{filter:brightness(1.1)}
+#uc-auth{
+  display:none;align-items:center;gap:8px;padding:5px 11px;
+  border-radius:var(--r);background:rgba(8,8,24,.65);
+  border:1px solid var(--glassBdr);backdrop-filter:blur(10px);
+}
+#uc-av{
+  width:30px;height:30px;border-radius:9px;overflow:hidden;flex-shrink:0;
+  background:linear-gradient(135deg,var(--a2),var(--a));
+  display:flex;align-items:center;justify-content:center;
+  font:700 13px/1 var(--ffd);color:#fff;
+  box-shadow:0 0 14px rgba(139,122,255,.4);
+}
+#uc-av img{width:100%;height:100%;object-fit:cover}
+#uc-name{font:600 12px/1 var(--ff);color:var(--t1)}
+#uc-bal{font:500 11px/1 var(--ffd);color:var(--gold);white-space:nowrap;margin-top:1px}
+
+/* ══ CHART — intentionally transparent bg ══════════════════════════════════ */
+#chart{grid-area:chart;position:relative;overflow:hidden;background:transparent}
+
+/* canvas z-order: grid(2) < curve(3) < ui elements(6+) */
+#cv-grid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#cv     {position:absolute;inset:0;width:100%;height:100%;z-index:3}
+
+/* multiplier */
+#mdisp{
+  position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  pointer-events:none;user-select:none;z-index:6;
+}
+#mval{font:900 clamp(58px,9vw,104px)/1 var(--ffd);letter-spacing:-2px;
+  transition:color .25s;will-change:color;text-shadow:0 0 40px currentColor}
+#mval.idle   {color:var(--t3)}
+#mval.running{color:var(--a);animation:mrun 1.2s ease-in-out infinite}
+#mval.cashed {color:var(--green);animation:mcash 1.2s ease-in-out infinite}
+#mval.crashed{color:var(--red);animation:mcrash .35s ease-in-out 4}
+@keyframes mrun  {0%,100%{text-shadow:0 0 30px rgba(77,240,255,.5)} 50%{text-shadow:0 0 90px rgba(77,240,255,.7),0 0 160px rgba(77,240,255,.2)}}
+@keyframes mcash {0%,100%{text-shadow:0 0 30px rgba(0,255,140,.5)} 50%{text-shadow:0 0 90px rgba(0,255,140,.7)}}
+@keyframes mcrash{0%,100%{text-shadow:0 0 30px rgba(255,61,90,.5)} 50%{text-shadow:0 0 80px rgba(255,61,90,.8)}}
+
+#mstatus{font:700 9px/1 var(--ffd);letter-spacing:4px;color:var(--t3);text-transform:uppercase;transition:color .2s}
+#mstatus.running{color:rgba(77,240,255,.65)}
+#mstatus.crashed{color:rgba(255,61,90,.65)}
+#mstatus.cashed {color:rgba(0,255,140,.65)}
+
+/* ── Curve tip dot ───────────────────────────────────────── */
+#tip-dot{
+  position:absolute;z-index:7;pointer-events:none;
+  width:12px;height:12px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(77,240,255,.5), 0 0 18px rgba(77,240,255,.9);
+  transform:translate(-50%,-50%);
+  display:none;
+  transition:background .2s, box-shadow .2s;
+}
+#tip-dot.cashed{
+  background:#00ff8c;
+  box-shadow:0 0 0 3px rgba(0,255,140,.5), 0 0 18px rgba(0,255,140,.9);
+}
+
+/* seed badge */
+#seed-badge{
+  position:absolute;top:10px;right:12px;z-index:8;
+  display:flex;align-items:center;gap:5px;padding:5px 12px;
+  border-radius:var(--r);background:rgba(3,3,13,.75);
+  border:1px solid var(--glassBdr);font:500 9px/1 var(--ffd);
+  color:var(--t3);cursor:pointer;backdrop-filter:blur(12px);
+  transition:.15s;letter-spacing:.5px;
+}
+#seed-badge:hover{color:var(--t2);border-color:var(--bdrB)}
+#seed-txt{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* history pills (in histbar) */
+.hp{flex-shrink:0;padding:3px 11px;border-radius:100px;font:700 10px/1 var(--ffd);white-space:nowrap;cursor:default}
+.hp.g{background:rgba(0,255,140,.09);color:var(--green);border:1px solid rgba(0,255,140,.2)}
+.hp.r{background:rgba(255,61,90,.08);color:var(--red);  border:1px solid rgba(255,61,90,.2)}
+
+/* countdown */
+#cdov{
+  position:absolute;inset:0;z-index:20;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  background:rgba(3,3,13,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;visibility:hidden;transition:.3s;
+}
+#cdov.show{opacity:1;visibility:visible}
+#cdr{position:relative;width:120px;height:120px}
+#cdr svg{transform:rotate(-90deg)}
+#cdr .trk{fill:none;stroke:rgba(100,120,255,.12);stroke-width:3}
+#cdr .prg{
+  fill:none;stroke:var(--a);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:314.16;stroke-dashoffset:0;
+  transition:stroke-dashoffset .85s linear;
+  filter:drop-shadow(0 0 8px var(--a));
+}
+#cdn{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:900 44px/1 var(--ffd);
+  background:linear-gradient(135deg,var(--a),var(--a2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#cdlbl{font:600 9px/1 var(--ffd);letter-spacing:3px;color:var(--t2);text-transform:uppercase}
+
+/* overlays */
+#win-overlay{
+  position:absolute;inset:0;z-index:25;background:rgba(0,0,0,0);
+  backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);
+  transition:background .45s,backdrop-filter .45s,-webkit-backdrop-filter .45s;
+  pointer-events:none;
+}
+#win-overlay.show{background:rgba(3,3,15,.56);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+
+#rflash{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:9px;
+  pointer-events:none;z-index:30;
+  opacity:0;visibility:hidden;transform:translateY(12px) scale(.88);
+  transition:opacity .32s,visibility .32s,transform .42s cubic-bezier(.34,1.46,.64,1);
+}
+#rflash.show{opacity:1;visibility:visible;transform:none}
+#rfbadge{padding:5px 20px;border-radius:100px;font:700 10px/1 var(--ffd);letter-spacing:2.5px;text-transform:uppercase}
+#rfbadge.win {background:rgba(0,255,140,.1);border:1px solid rgba(0,255,140,.35);color:var(--green)}
+#rfbadge.loss{background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.35);color:var(--red)}
+#rfamt{font:900 48px/1 var(--ffd);filter:drop-shadow(0 0 30px currentColor)}
+#rfamt.win {color:var(--green)}
+#rfamt.loss{color:var(--red)}
+#rfsub{font:700 14px/1 var(--ffd);color:var(--t2)}
+
+/* ══ SIDE (inside #panel) ═══════════════════════════════════════════════════ */
+#side{
+  display:flex;flex-direction:column;flex:1;overflow:hidden;
+  border-bottom:1px solid var(--glassBdr);
+}
+.s-tabs{display:flex;border-bottom:1px solid var(--glassBdr);flex-shrink:0}
+.s-tab{
+  flex:1;padding:13px;text-align:center;font:700 9px/1 var(--ffd);
+  letter-spacing:2px;color:var(--t3);cursor:pointer;text-transform:uppercase;
+  border-bottom:2px solid transparent;transition:.18s;
+}
+.s-tab.on{color:var(--a);border-color:var(--a);background:rgba(77,240,255,.04)}
+.s-body{flex:1;overflow-y:auto;padding:8px}
+.s-body::-webkit-scrollbar{width:3px}
+.s-body::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.pr{display:flex;align-items:center;gap:9px;padding:7px;border-radius:var(--r);margin-bottom:2px;transition:.15s}
+.pr:hover{background:rgba(77,240,255,.04)}
+.pav-wrap{position:relative;flex-shrink:0}
+.pav{width:32px;height:32px;border-radius:9px;overflow:hidden;
+  background:linear-gradient(135deg,var(--a2),var(--a));
+  display:flex;align-items:center;justify-content:center;font:700 13px/1 var(--ffd);color:#fff}
+.pav img{width:100%;height:100%;object-fit:cover}
+.pring{position:absolute;inset:-2px;border-radius:11px;border:2px solid transparent;pointer-events:none;transition:.3s}
+.pring.win {border-color:var(--green);box-shadow:0 0 8px var(--grg)}
+.pring.loss{border-color:var(--red);  box-shadow:0 0 8px var(--rdg)}
+.pring.idle{border-color:rgba(77,240,255,.4)}
+.pinfo{flex:1;min-width:0}
+.pname{font:600 12px/1 var(--ff);color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbet {font:500 10px/1 var(--ffd);color:var(--t2);margin-top:2px}
+.pmult{font:700 12px/1 var(--ffd);flex-shrink:0;white-space:nowrap;margin-left:auto}
+.pmult.win {color:var(--green)}
+.pmult.loss{color:var(--red)}
+.pmult.live{color:var(--a);animation:mrun 1s ease-in-out infinite}
+.hr{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;border-radius:var(--r);margin-bottom:2px;font:600 10px/1 var(--ffd);color:var(--t2)}
+
+/* ══ CONTROLS (inside #panel, below side) ═══════════════════════════════════ */
+#ctrl{
+  display:flex;flex-direction:column;gap:0;
+  padding:0;flex-shrink:0;
+  background:transparent;
+}
+/* ctrl inner blocks — vertical panel style */
+.cblk{display:flex;flex-direction:column;gap:5px;padding:10px 12px;border-bottom:1px solid var(--glassBdr)}
+.clbl{font:700 9px/1 var(--ffd);letter-spacing:2px;color:var(--t3);text-transform:uppercase;margin-bottom:2px}
+.cinpw{display:flex}
+.cinp{
+  background:rgba(8,8,26,.9);border:1px solid var(--glassBdr);
+  border-radius:var(--r) 0 0 var(--r);color:var(--t1);
+  font:700 14px/1 var(--ffd);padding:9px 10px;width:100%;flex:1;
+  outline:none;-moz-appearance:textfield;transition:border-color .15s,box-shadow .15s;
+}
+.cinp::-webkit-inner-spin-button,.cinp::-webkit-outer-spin-button{-webkit-appearance:none}
+.cinp:focus{border-color:rgba(77,240,255,.42);box-shadow:0 0 0 2px rgba(77,240,255,.07)}
+.csym{
+  background:rgba(8,8,26,.6);border:1px solid var(--glassBdr);border-left:none;
+  border-radius:0 var(--r) var(--r) 0;padding:9px 10px;
+  font:600 12px/1 var(--ffd);color:var(--t2);white-space:nowrap;
+}
+.cqrow{display:flex;gap:4px;margin-top:4px}
+.cq{
+  flex:1;padding:5px 4px;border-radius:7px;border:1px solid var(--glassBdr);
+  background:rgba(8,8,26,.5);font:600 10px/1 var(--ffd);color:var(--t3);
+  cursor:pointer;transition:.12s;
+}
+.cq:hover{color:var(--a);border-color:rgba(77,240,255,.3);background:rgba(77,240,255,.06)}
+/* auto ON/OFF pill button */
+.auto-btn{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:100px;border:1px solid var(--glassBdr);
+  background:rgba(8,8,26,.6);cursor:pointer;transition:.2s;
+  font:700 9px/1 var(--ffd);color:var(--t3);letter-spacing:1px;
+}
+.auto-btn.on{
+  background:rgba(77,240,255,.12);border-color:rgba(77,240,255,.45);
+  color:var(--a);box-shadow:0 0 12px rgba(77,240,255,.2);
+}
+#auto-btn-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--t3);transition:.2s;flex-shrink:0;
+}
+.auto-btn.on #auto-btn-dot{
+  background:var(--a);box-shadow:0 0 6px var(--a);
+  animation:livepulse 1s ease-in-out infinite;
+}
+/* presets */
+.auto-preset{
+  flex:1;padding:4px 2px;border-radius:7px;
+  border:1px solid var(--glassBdr);background:rgba(8,8,26,.5);
+  font:600 9px/1 var(--ffd);color:var(--t3);cursor:pointer;transition:.12s;
+  white-space:nowrap;
+}
+.auto-preset:hover{color:var(--a);border-color:rgba(77,240,255,.3);background:rgba(77,240,255,.06)}
+.auto-preset.active{color:var(--a);border-color:rgba(77,240,255,.4);background:rgba(77,240,255,.1)}
+.ainp{
+  background:rgba(8,8,26,.85);border:1px solid var(--glassBdr);
+  border-radius:var(--r);color:var(--t1);font:700 13px/1 var(--ffd);
+  padding:7px 11px;width:80px;outline:none;transition:border-color .15s;-moz-appearance:textfield;
+}
+.ainp::-webkit-inner-spin-button,.ainp::-webkit-outer-spin-button{-webkit-appearance:none}
+.ainp:focus{border-color:rgba(77,240,255,.42)}
+
+/* bet info pills */
+/* info pills 2×2 grid */
+.binfo-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  padding:10px 12px;border-bottom:1px solid var(--glassBdr);
+}
+.binfo-pill{
+  display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:var(--r);
+  background:rgba(8,8,26,.7);border:1px solid var(--glassBdr);
+}
+.binfo-label{font:600 8px/1 var(--ffd);letter-spacing:1.5px;color:var(--t3);text-transform:uppercase}
+.binfo-val{font:700 14px/1 var(--ffd);color:var(--t1)}
+.binfo-val.win{color:var(--green)}
+.binfo-val.live{color:var(--a)}
+
+.cspace{display:none}
+#err{
+  display:none;align-items:center;gap:6px;padding:7px 12px;
+  margin:0 12px 8px;border-radius:var(--r);
+  background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.3);
+  font:600 10px/1 var(--ffd);color:var(--red);
+}
+#err.show{display:flex}
+
+/* action btn — full width bottom of panel */
+.abtn-wrap{padding:12px 12px 14px;flex-shrink:0}
+#abtn{
+  width:100%;height:50px;padding:0;border-radius:var(--r2);
+  border:none;font:700 13px/1 var(--ffd);letter-spacing:1.5px;
+  cursor:pointer;transition:all .22s;white-space:nowrap;
+  text-transform:uppercase;position:relative;overflow:hidden;
+}
+#abtn.place{
+  background:linear-gradient(135deg,var(--a),var(--a2));color:#04041a;
+  box-shadow:0 4px 28px rgba(77,240,255,.28),0 0 0 1px rgba(77,240,255,.15);
+}
+#abtn.place:hover:not(:disabled){
+  filter:brightness(1.1);transform:translateY(-1px);
+  box-shadow:0 8px 40px rgba(77,240,255,.4),0 0 0 1px rgba(77,240,255,.3);
+}
+#abtn.cashout{
+  background:linear-gradient(135deg,var(--green),#00cc70);color:#011a0d;
+  animation:cobtn 1s ease-in-out infinite;
+}
+@keyframes cobtn{
+  0%,100%{box-shadow:0 4px 20px rgba(0,255,140,.2)}
+  50%{box-shadow:0 4px 40px rgba(0,255,140,.6),0 0 70px rgba(0,255,140,.15)}
+}
+#abtn.cancel{background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.35);color:var(--red)}
+#abtn.cancel:hover{background:rgba(255,61,90,.15)}
+#abtn:disabled{opacity:.28;cursor:not-allowed;transform:none!important;box-shadow:none!important;animation:none!important}
+
+/* ══ PARTICLES ══════════════════════════════════════════════════════════════ */
+.prt{position:fixed;pointer-events:none;border-radius:50%;z-index:9999;animation:prtfly var(--d) ease-out forwards}
+@keyframes prtfly{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+
+/* ══ HTP MODAL ══════════════════════════════════════════════════════════════ */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;z-index:1000;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  padding:16px;
+}
+.modal-backdrop.show{display:flex}
+.modal-outer{
+  background:rgba(8,8,26,.92);border:1px solid rgba(100,120,255,.2);
+  border-radius:20px;padding:6px;max-width:480px;width:100%;
+  box-shadow:0 32px 100px rgba(0,0,0,.8),0 0 0 1px rgba(77,240,255,.06);
+}
+.modal-inner{
+  background:rgba(12,12,32,.85);border:1px solid rgba(100,120,255,.12);
+  border-radius:16px;padding:26px 24px;
+}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;
+}
+.modal-title{
+  font:700 12px/1 var(--ffd);letter-spacing:2.5px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--a),var(--a2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.modal-close-btn{
+  width:28px;height:28px;border-radius:8px;border:1px solid var(--glassBdr);
+  background:rgba(77,240,255,.05);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--t3);transition:.15s;flex-shrink:0;
+}
+.modal-close-btn:hover{color:var(--a);border-color:rgba(77,240,255,.3);background:rgba(77,240,255,.1)}
+/* HTP steps */
+.htp-step{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:12px 0;border-bottom:1px solid rgba(100,120,255,.08);
+}
+.htp-step:last-of-type{border-bottom:none}
+.htp-num{
+  width:28px;height:28px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--a2),var(--a));
+  display:flex;align-items:center;justify-content:center;
+  font:700 11px/1 var(--ffd);color:#04041a;
+}
+.htp-text{}
+.htp-step-title{font:700 12px/1 var(--ff);color:var(--t1);margin-bottom:4px}
+.htp-step-desc{font:400 11px/1.55 var(--ff);color:var(--t2)}
+.htp-tip{
+  margin-top:18px;padding:10px 14px;border-radius:var(--r);
+  background:rgba(77,240,255,.05);border:1px solid rgba(77,240,255,.12);
+  font:400 11px/1.5 var(--ff);color:var(--t2);
+}
+.htp-close-wrap{margin-top:20px;display:flex;justify-content:center}
+.htp-close-wrap button{
+  padding:10px 36px;border-radius:var(--r2);border:none;
+  background:linear-gradient(135deg,var(--a),var(--a2));
+  color:#04041a;font:700 11px/1 var(--ffd);letter-spacing:1px;
+  cursor:pointer;transition:.15s;text-transform:uppercase;
+}
+.htp-close-wrap button:hover{filter:brightness(1.1)}
+
+/* ══ PULL TAB + BACKDROP — hidden by default ═════════════════════════════════ */
+#mob-pull{ display:none; }
+#mob-backdrop{
+  display:none;
+  position:fixed;inset:0;z-index:199;
+  background:rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;
+  transition:opacity .38s;
+}
+#mob-backdrop.show{ display:block;opacity:1;pointer-events:all; }
+
+/* ══ RESPONSIVE — MOBILE ════════════════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* flex column: topbar → chart → action-bar */
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    overflow:hidden;
+  }
+
+  #histbar{ display:none !important; }
+  #tab-hi{ display:none !important; }
+  .binfo-pill:nth-child(3),.binfo-pill:nth-child(4){ display:none !important; }
+
+  /* compact topbar */
+  #topbar{
+    flex-shrink:0;
+    height:44px;
+    padding:0 10px;
+    gap:6px;
+    z-index:10;
+    position:relative;
+  }
+  #topbar .tb-vsep{ display:none !important; }
+  #topbar .tb-gname{ display:none !important; }
+  #topbar .tb-live{ display:none !important; }
+  #topbar #t-pf{ display:none !important; }
+  #topbar #t-back{ display:none !important; }
+  #topbar .tb-back{ padding:6px 8px; min-width:0; }
+  #topbar .tb-logo{ font-size:12px; letter-spacing:3px; }
+  #topbar .pf-btn{ padding:5px 7px; }
+  #topbar #uc-auth{ padding:4px 8px; gap:6px; }
+  #topbar #uc-av{ width:26px; height:26px; font-size:11px; }
+  #topbar #uc-name{ font-size:11px; }
+  #topbar #uc-bal{ font-size:10px; }
+
+  /* chart fills all remaining space */
+  #chart{
+    flex:1 1 0;
+    position:relative !important;
+    top:auto !important; left:auto !important;
+    right:auto !important; bottom:auto !important;
+    height:auto !important;
+    min-height:0;
+  }
+
+
+
+  #seed-badge{ right:32px; }
+  #mval{ font-size:clamp(44px,14vw,72px); }
+
+  /* Panel slides in from right, below topbar */
+  #panel{
+    position:fixed !important;
+    top:44px; right:0; bottom:0;
+    width:min(290px,86vw);
+    z-index:200;
+    transform:translateX(100%);
+    transition:transform .38s cubic-bezier(.4,0,.2,1);
+    border-left:1px solid var(--glassBdr);
+    box-shadow:-16px 0 60px rgba(0,0,0,.6);
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    background:var(--glass);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+  }
+  #panel.mob-open{ transform:translateX(0) !important; }
+
+  #side{ max-height:200px;min-height:0;flex-shrink:0; }
+
+  /* Pull handle */
+  #mob-pull{
+    display:flex !important;
+    position:fixed;
+    right:0;top:50%;
+    transform:translateY(-50%);
+    z-index:210;
+    width:24px;height:68px;
+    background:rgba(8,8,28,.88);
+    border:1px solid var(--glassBdr);
+    border-right:none;
+    border-radius:10px 0 0 10px;
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    align-items:center;justify-content:center;
+    cursor:pointer;
+    flex-direction:column;gap:4px;
+    transition:right .38s cubic-bezier(.4,0,.2,1),background .2s;
+  }
+  #mob-pull:active{ background:rgba(77,240,255,.18); }
+  #mob-pull .pull-line{ width:3px;height:14px;border-radius:2px;background:var(--t2); }
+  #mob-pull.panel-open{ right:min(290px,86vw); }
+  #mob-pull.panel-open .pull-line{ background:var(--a); }
+}
+
+
+/* ══ DOUBLE-TAP CASHOUT HINT (mobile + desktop) ══════════════════════════════ */
+/* hint shown during running when bet is active — works on all screen sizes */
+#mob-tap-hint{
+  position:absolute;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  display:none;
+  align-items:center;
+  gap:7px;
+  padding:7px 18px;
+  border-radius:100px;
+  background:rgba(0,255,140,.1);
+  border:1px solid rgba(0,255,140,.3);
+  font:700 10px/1 var(--ffd);
+  letter-spacing:1.5px;
+  color:var(--green);
+  text-transform:uppercase;
+  pointer-events:none;
+  white-space:nowrap;
+  animation:hint-pulse 1.6s ease-in-out infinite;
+}
+#mob-tap-hint.visible{ display:flex; }
+@keyframes hint-pulse{
+  0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}
+  50%{opacity:1;transform:translateX(-50%) scale(1.04)}
+}
+
+/* ripple flash on first tap */
+#mob-tap-ripple{
+  position:absolute;
+  z-index:19;
+  border-radius:50%;
+  pointer-events:none;
+  background:rgba(0,255,140,.18);
+  transform:scale(0);
+  opacity:0;
+  width:160px; height:160px;
+  margin-left:-80px; margin-top:-80px;
+  transition:none;
+}
+#mob-tap-ripple.fire{
+  animation:tap-ripple .5s ease-out forwards;
+}
+@keyframes tap-ripple{
+  0%{transform:scale(0);opacity:.6}
+  100%{transform:scale(4);opacity:0}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ TOPBAR ══════════════════════════════════════════════════════════ -->
+  <div id="topbar">
+    <a class="tb-back" id="btn-back" href="/">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M7 1L3 5L7 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span id="t-back">Лобби</span>
+    </a>
+    <div class="tb-vsep"></div>
+    <div class="tb-logo">VELOX</div>
+    <div class="tb-vsep"></div>
+    <div class="tb-gname" id="t-gname">CRASH</div>
+    <div class="tb-space"></div>
+    <div class="tb-live">
+      <div class="tb-live-dot"></div>
+      <span>LIVE</span>
+    </div>
+    <div class="pf-btn" onclick="showHTP()">
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M6 5.5c0-.8.7-1.5 1.5-1 .5.3.7.8.5 1.3-.2.4-.7.7-1.1.9C6.5 7 6.3 7.3 6.3 7.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <circle cx="6" cy="9.2" r=".6" fill="currentColor"/>
+      </svg>
+      <span id="t-pf">How to play?</span>
+    </div>
+    <div class="tb-vsep"></div>
+    <script>
+      (function(){
+        try{ if(localStorage.getItem('velox_authed')==='1')
+          document.write('<style>#uc-guest{display:none!important}</style>');
+        }catch(e){}
+      })();
+    </script>
+    <div id="uc-guest"><button onclick="goLogin()" id="t-login">Войти</button></div>
+    <div id="uc-auth">
+      <div id="uc-av"><span id="uc-av-txt">?</span></div>
+      <div>
+        <div id="uc-name">—</div>
+        <div id="uc-bal">0.00 <span id="uc-sym">₴</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY BAR ══════════════════════════════════════════════════════ -->
+  <div id="histbar">
+    <span id="histbar-label">HISTORY</span>
+    <div id="hist-pills-wrap">
+      <div id="hist-pills"></div>
+    </div>
+  </div>
+
+  <!-- ══ CHART — transparent, user sets planet bg ════════════════════════ -->
+  <div id="chart">
+    <canvas id="cv-grid"></canvas>
+    <canvas id="cv"></canvas>
+    <div id="tip-dot"></div>
+
+    <div id="mdisp">
+      <div id="mval" class="idle">1.00×</div>
+      <div id="mstatus"></div>
+    </div>
+
+    <div id="seed-badge" onclick="showPF()">
+      <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+        <path d="M6 1L1.5 3.2v4c0 2.3 1.9 4.2 4.5 4.8 2.6-.6 4.5-2.5 4.5-4.8v-4L6 1z"
+          stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span id="seed-txt">—</span>
+    </div>
+
+
+    <div id="cdov">
+      <div id="cdr">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="trk" cx="60" cy="60" r="50"/>
+          <circle class="prg" id="cprg" cx="60" cy="60" r="50"/>
+        </svg>
+        <div id="cdn">5</div>
+      </div>
+      <div id="cdlbl" id="t-cd"></div>
+    </div>
+
+    <!-- mobile double-tap hint -->
+    <div id="mob-tap-hint">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
+      </svg>
+      <span>2× ТАП — ЗАБРАТЬ</span>
+    </div>
+    <div id="mob-tap-ripple"></div>
+    <div id="win-overlay"></div>
+    <div id="rflash">
+      <div id="rfbadge"></div>
+      <div id="rfamt"></div>
+      <div id="rfsub"></div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL (side + controls) ══════════════════════════════════════════ -->
+  <div id="panel">
+
+    <!-- side tabs: players/history -->
+    <div id="side">
+      <div class="s-tabs">
+        <div class="s-tab on" id="tab-pl" onclick="stab('pl')"><span id="t-tab-pl">Игроки</span></div>
+        <div class="s-tab"    id="tab-hi" onclick="stab('hi')"><span id="t-tab-hi">История</span></div>
+      </div>
+      <div class="s-body" id="sb-pl"></div>
+      <div class="s-body" id="sb-hi" style="display:none"></div>
+    </div>
+
+    <!-- controls -->
+    <div id="ctrl">
+
+      <!-- bet -->
+      <div class="cblk">
+        <div class="clbl" id="t-bet-lbl">BET:</div>
+        <div class="cinpw">
+          <input class="cinp" id="bi" type="number" value="100" min="10">
+          <div class="csym" id="c-sym">₴</div>
+        </div>
+        <div class="cqrow">
+          <button class="cq" onclick="sb(10)">10</button>
+          <button class="cq" onclick="sb(50)">50</button>
+          <button class="cq" onclick="sb(100)">100</button>
+          <button class="cq" onclick="sb(1000)">1K</button>
+          <button class="cq" onclick="hb()">½</button>
+          <button class="cq" onclick="db()">×2</button>
+        </div>
+      </div>
+
+      <!-- auto cashout — input + toggle button -->
+      <div class="cblk">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <div class="clbl">AUTO CASHOUT</div>
+          <button id="auto-btn" class="auto-btn" onclick="toggleAuto()">
+            <span id="auto-btn-dot"></span>
+            <span id="auto-btn-lbl">OFF</span>
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font:700 11px/1 var(--ffd);color:var(--t3);flex-shrink:0">×</span>
+          <input class="ainp" id="ai" type="number" value="2.00" step="0.1" min="1.01"
+                 style="flex:1;width:auto" placeholder="2.00">
+          <button class="cq" style="flex-shrink:0;padding:7px 10px;border-radius:var(--r)"
+                  onclick="document.getElementById('ai').value=(parseFloat(document.getElementById('ai').value||2)+0.5).toFixed(2)">+</button>
+          <button class="cq" style="flex-shrink:0;padding:7px 10px;border-radius:var(--r)"
+                  onclick="document.getElementById('ai').value=Math.max(1.1,(parseFloat(document.getElementById('ai').value||2)-0.5)).toFixed(2)">−</button>
+        </div>
+        <div id="auto-presets" style="display:flex;gap:4px;margin-top:4px">
+          <button class="auto-preset" onclick="setAutoAt(1.5)">1.5×</button>
+          <button class="auto-preset" onclick="setAutoAt(2)">2×</button>
+          <button class="auto-preset" onclick="setAutoAt(3)">3×</button>
+          <button class="auto-preset" onclick="setAutoAt(5)">5×</button>
+          <button class="auto-preset" onclick="setAutoAt(10)">10×</button>
+        </div>
+      </div>
+
+      <!-- info pills 2×2 -->
+      <div class="binfo-wrap">
+        <div class="binfo-pill">
+          <span class="binfo-label">My BET</span>
+          <span class="binfo-val" id="binfo-bet">—</span>
+        </div>
+        <div class="binfo-pill">
+          <span class="binfo-label">WIN</span>
+          <span class="binfo-val" id="binfo-win">—</span>
+        </div>
+        <div class="binfo-pill">
+          <span class="binfo-label">SESSION</span>
+          <span class="binfo-val" id="binfo-sess">—</span>
+        </div>
+        <div class="binfo-pill">
+          <span class="binfo-label">AUTO</span>
+          <span class="binfo-val" id="binfo-auto">OFF</span>
+        </div>
+      </div>
+
+      <!-- error -->
+      <div id="err">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M7 4.5v3M7 9.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span id="err-msg"></span>
+      </div>
+
+      <!-- action button -->
+      <div class="abtn-wrap">
+        <button id="abtn" class="place" onclick="handleAction()">
+          <span id="abtn-lbl">PLACE BET</span>
+        </button>
+      </div>
+
+    </div><!-- /ctrl -->
+
+  </div><!-- /panel -->
+
+  <!-- ══ MOBILE PULL TAB ════════════════════════════════════════════════ -->
+  <div id="mob-backdrop" onclick="closeMobPanel()"></div>
+  <div id="mob-pull" onclick="toggleMobPanel()">
+    <div class="pull-line"></div>
+    <div class="pull-line"></div>
+    <div class="pull-line"></div>
+  </div>
+
+</div>
+
+<div id="htp-modal" class="modal-backdrop" onclick="if(event.target===this)closeHTP()">
+  <div class="modal-outer">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div class="modal-title" id="t-htp-title">How to Play</div>
+        <div class="modal-close-btn" onclick="closeHTP()">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-num">1</div>
+        <div class="htp-text">
+          <div class="htp-step-title" id="t-htp-s1t">Place Your Bet</div>
+          <div class="htp-step-desc"  id="t-htp-s1d">Enter an amount and click PLACE BET — bets are accepted before the round starts.</div>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-num">2</div>
+        <div class="htp-text">
+          <div class="htp-step-title" id="t-htp-s2t">Watch the Multiplier</div>
+          <div class="htp-step-desc"  id="t-htp-s2d">After launch the multiplier climbs. The longer you wait, the bigger the potential win.</div>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-num">3</div>
+        <div class="htp-text">
+          <div class="htp-step-title" id="t-htp-s3t">Cash Out Before Crash</div>
+          <div class="htp-step-desc"  id="t-htp-s3d">Hit CASH OUT at any time. If you miss it you lose your bet.</div>
+        </div>
+      </div>
+      <div class="htp-step">
+        <div class="htp-num">4</div>
+        <div class="htp-text">
+          <div class="htp-step-title" id="t-htp-s4t">Auto Cash-Out</div>
+          <div class="htp-step-desc"  id="t-htp-s4d">Enable auto cash-out and set a target multiplier — the system cashes out for you.</div>
+        </div>
+      </div>
+      <div class="htp-tip" id="t-htp-tip">💡 Tip: start with small bets to get a feel for the game rhythm.</div>
+      <div class="htp-close-wrap">
+        <button onclick="closeHTP()" id="t-htp-close">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function _readCookie(n){const m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'));return m?decodeURIComponent(m[1]):'';}
+function _gfetch(url,opts={}){
+  const reqOpts={...(opts||{})};
+  const m=(reqOpts.method||'GET').toUpperCase();
+  if(!['GET','HEAD','OPTIONS'].includes(m)){
+    reqOpts.headers={...(reqOpts.headers||{})};
+    const t=_readCookie('velox_csrf');
+    if(t) reqOpts.headers['X-CSRF-Token']=t;
+  }
+  return fetch(url,reqOpts);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════════ */
+let G = { status:'waiting', multiplier:1.0, countdown:5, seed_hash:'', round_id:0, players:[], history:[] };
+let ME = null, MY_BET = 0, MY_CASH = false, AUTO_ON = false;
+let TL = {}, LANG = 'ru', CFG = {};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CANVAS
+═══════════════════════════════════════════════════════════════════════════ */
+const CV   = document.getElementById('cv');
+const CTX  = CV.getContext('2d');
+const CVG  = document.getElementById('cv-grid');
+const CTXG = CVG.getContext('2d');
+CVG.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2';
+let PTS = [];   // [{t, m}] — raw tick/multiplier points
+let _tick = 0;  // tick counter for x axis
+
+function resize() {
+  CV.width  = CV.offsetWidth  * devicePixelRatio;
+  CV.height = CV.offsetHeight * devicePixelRatio;
+  drawGrid();
+  draw();
+}
+
+function drawGrid() {
+  const W = CVG.width  = CVG.offsetWidth  * devicePixelRatio;
+  const H = CVG.height = CVG.offsetHeight * devicePixelRatio;
+  CTXG.clearRect(0, 0, W, H);
+
+  // Match draw() padding exactly
+  const PL = W * 0.07, PR = W * 0.04;
+  const PB = H * 0.09, PT = H * 0.07;
+  const CW = W - PL - PR, CH = H - PB - PT;
+
+  // Static multiplier labels on left axis (1x at bottom, up)
+  const yLabels = [1.0, 1.5, 2.0, 3.0, 5.0, 10.0];
+  const maxMGrid = 10.0;
+
+  yLabels.forEach(mv => {
+    const norm = Math.sqrt((mv - 1) / (maxMGrid - 1));
+    const y    = H - PB - norm * CH;
+    if (y < PT - 10 || y > H - PB + 5) return;
+
+    // dashed horizontal
+    CTXG.strokeStyle = 'rgba(100,130,255,0.07)';
+    CTXG.lineWidth   = 1;
+    CTXG.setLineDash([4 * devicePixelRatio, 9 * devicePixelRatio]);
+    CTXG.beginPath(); CTXG.moveTo(PL, y); CTXG.lineTo(PL + CW, y); CTXG.stroke();
+    CTXG.setLineDash([]);
+
+    CTXG.fillStyle  = 'rgba(100,130,255,0.32)';
+    CTXG.font       = `${Math.round(8 * devicePixelRatio)}px Orbitron,monospace`;
+    CTXG.textAlign  = 'right';
+    CTXG.fillText(mv.toFixed(1) + '×', PL - 5 * devicePixelRatio, y + 3 * devicePixelRatio);
+  });
+
+  // vertical dashed lines (time axis)
+  const vSteps = 5;
+  for (let i = 0; i <= vSteps; i++) {
+    const x = PL + (CW / vSteps) * i;
+    CTXG.strokeStyle = 'rgba(100,130,255,0.05)';
+    CTXG.lineWidth   = 1;
+    CTXG.setLineDash([3 * devicePixelRatio, 8 * devicePixelRatio]);
+    CTXG.beginPath(); CTXG.moveTo(x, PT); CTXG.lineTo(x, H - PB); CTXG.stroke();
+    CTXG.setLineDash([]);
+  }
+
+  // solid axis lines
+  CTXG.strokeStyle = 'rgba(100,130,255,0.14)';
+  CTXG.lineWidth   = 1; CTXG.setLineDash([]);
+  CTXG.beginPath(); CTXG.moveTo(PL, H-PB); CTXG.lineTo(W-PR, H-PB); CTXG.stroke();
+  CTXG.beginPath(); CTXG.moveTo(PL, PT);   CTXG.lineTo(PL, H-PB);   CTXG.stroke();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SMOOTH 60fps ANIMATION
+   RAF loop interpolates multiplier between server ticks (100ms apart)
+   giving buttery smooth curve growth instead of 10fps steps.
+═══════════════════════════════════════════════════════════════════════════ */
+let _rafId     = null;
+let _lastTickM = 1.0;   // multiplier at last server tick
+let _lastTickT = 0;     // _tick at last server tick
+let _lastTickMs= 0;     // performance.now() at last server tick
+let _TICK_MS   = 100;   // assumed server tick interval (ms)
+let _running   = false; // true during active round
+
+function _startRAF() {
+  _running = true;
+  if (_rafId) return;
+  function rafLoop() {
+    if (!_running) { _rafId = null; return; }
+    _drawInterp();
+    _rafId = requestAnimationFrame(rafLoop);
+  }
+  _rafId = requestAnimationFrame(rafLoop);
+}
+function _stopRAF() {
+  _running = false;
+  // draw one final frame after stop (shows crash state)
+  requestAnimationFrame(() => draw());
+}
+
+// Interpolated draw: smooth between last two server ticks
+function _drawInterp() {
+  if (PTS.length < 2) return;
+  // estimate current multiplier by interpolating forward from last tick
+  const elapsed = performance.now() - _lastTickMs;
+  const alpha   = Math.min(elapsed / _TICK_MS, 1.5); // allow slight overshoot
+  // growth factor per tick ≈ lastM * (lastM^(1/N) - 1) but approx: linear interp
+  const interpM = _lastTickM + (_lastTickM * 0.008) * alpha; // ~0.8% per tick feel
+  // build a synthetic "current tip" without mutating PTS
+  _drawWith(interpM);
+}
+
+function draw(forceM) {
+  if (PTS.length < 2) {
+    const dot = document.getElementById('tip-dot');
+    if (dot) dot.style.display = 'none';
+    return;
+  }
+  _drawWith(forceM !== undefined ? forceM : _lastTickM);
+}
+
+function _drawWith(curM) {
+  const W = CV.width, H = CV.height;
+  CTX.clearRect(0, 0, W, H);
+
+  const crashed = G.status === 'crashed';
+  const cashed  = MY_CASH;
+
+  // ── Color scheme — referencing the image: white line, orange fill ────────
+  // running: white line + deep orange/amber fill
+  // cashed:  green line + green tint fill
+  // crashed: red line   + red tint fill
+  const lineColor  = crashed ? '#ff3d5a' : cashed ? '#00ff8c' : '#ffffff';
+  const fillColor0 = crashed ? 'rgba(255,61,90,.55)'    : cashed ? 'rgba(0,255,140,.40)'  : 'rgba(255,160,40,.80)';
+  const fillColor1 = crashed ? 'rgba(255,61,90,.18)'    : cashed ? 'rgba(0,255,140,.12)'  : 'rgba(255,120,20,.35)';
+  const fillColor2 = crashed ? 'rgba(255,61,90,.02)'    : cashed ? 'rgba(0,255,140,.02)'  : 'rgba(255,100,10,.05)';
+  const glowColor  = crashed ? 'rgba(255,61,90,.50)'    : cashed ? 'rgba(0,255,140,.45)'  : 'rgba(255,220,100,.55)';
+
+  // ── Padding ──────────────────────────────────────────────────────────────
+  const PL = W * 0.07, PR = W * 0.04;
+  const PB = H * 0.09, PT = H * 0.07;
+  const CW = W - PL - PR, CH = H - PB - PT;
+
+  // ── Scale: log Y gives exponential visual shape ──────────────────────────
+  const dispM  = Math.max(curM, PTS[PTS.length-1].m);
+  const maxM   = Math.max(dispM * 1.18, 2.2);
+  const logMax = Math.log(maxM);
+  const maxT   = Math.max(_lastTickT + 25, 70);
+
+  const cx = t => PL + (t / maxT) * CW;
+  const cy = m => H - PB - (Math.log(Math.max(m, 1.0001)) / logMax) * CH;
+
+  // ── Build drawn points (subsample + add interpolated tip) ────────────────
+  const MAX_PTS = 180;
+  const step    = Math.max(1, Math.floor(PTS.length / MAX_PTS));
+  const drawn   = [];
+  for (let i = 0; i < PTS.length; i += step) drawn.push(PTS[i]);
+  const lastPt  = PTS[PTS.length - 1];
+  if (drawn[drawn.length-1] !== lastPt) drawn.push(lastPt);
+
+  // Add interpolated tip point for smooth animation
+  if (_running && !crashed) {
+    const interpT = _lastTickT + (performance.now() - _lastTickMs) / _TICK_MS;
+    drawn.push({ t: Math.min(interpT, maxT - 5), m: dispM });
+  }
+
+  const last = drawn[drawn.length - 1];
+  const lx = cx(last.t), ly = cy(last.m);
+  const ox = PL, oy = cy(1.0);
+
+  // ── Catmull-Rom path builder ──────────────────────────────────────────────
+  function catmullPath() {
+    CTX.beginPath();
+    CTX.moveTo(ox, oy);
+    if (drawn.length === 1) { CTX.lineTo(cx(drawn[0].t), cy(drawn[0].m)); return; }
+    for (let i = 0; i < drawn.length - 1; i++) {
+      const p0 = drawn[Math.max(0, i-1)];
+      const p1 = drawn[i];
+      const p2 = drawn[i+1];
+      const p3 = drawn[Math.min(drawn.length-1, i+2)];
+      const alpha = 0.5; // centripetal
+      const cp1x = cx(p1.t) + (cx(p2.t) - cx(p0.t)) * alpha / 3;
+      const cp1y = cy(p1.m) + (cy(p2.m) - cy(p0.m)) * alpha / 3;
+      const cp2x = cx(p2.t) - (cx(p3.t) - cx(p1.t)) * alpha / 3;
+      const cp2y = cy(p2.m) - (cy(p3.m) - cy(p1.m)) * alpha / 3;
+      CTX.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, cx(p2.t), cy(p2.m));
+    }
+  }
+
+  // ── FILL — solid rich fill like the reference ────────────────────────────
+  catmullPath();
+  CTX.lineTo(lx, H - PB);
+  CTX.lineTo(ox, H - PB);
+  CTX.closePath();
+  const fillGr = CTX.createLinearGradient(0, PT, 0, H - PB);
+  fillGr.addColorStop(0,    fillColor0);
+  fillGr.addColorStop(0.45, fillColor1);
+  fillGr.addColorStop(1,    fillColor2);
+  CTX.fillStyle = fillGr;
+  CTX.fill();
+
+  // ── GLOW halo behind line ────────────────────────────────────────────────
+  catmullPath();
+  CTX.strokeStyle = glowColor;
+  CTX.lineWidth   = 10 * devicePixelRatio;
+  CTX.lineCap = CTX.lineJoin = 'round';
+  CTX.globalAlpha = 0.22;
+  CTX.stroke();
+  CTX.globalAlpha = 1;
+
+  // ── MAIN LINE ─────────────────────────────────────────────────────────────
+  catmullPath();
+  CTX.strokeStyle = lineColor;
+  CTX.lineWidth   = 3 * devicePixelRatio;
+  CTX.lineCap = CTX.lineJoin = 'round';
+  CTX.shadowColor = lineColor;
+  CTX.shadowBlur  = 14 * devicePixelRatio;
+  CTX.stroke();
+  CTX.shadowBlur  = 0;
+
+  // ── TIP DOT ───────────────────────────────────────────────────────────────
+  const dot = document.getElementById('tip-dot');
+  if (dot && !crashed) {
+    dot.style.display = 'block';
+    dot.style.left    = (lx / devicePixelRatio) + 'px';
+    dot.style.top     = (ly / devicePixelRatio) + 'px';
+    dot.className     = cashed ? 'cashed' : '';
+  } else if (dot) {
+    dot.style.display = 'none';
+  }
+
+  // ── CRASH EXPLOSION ──────────────────────────────────────────────────────
+  if (crashed) {
+    const rings = [34, 22, 11];
+    rings.forEach((r, i) => {
+      CTX.beginPath();
+      CTX.arc(lx, ly, r * devicePixelRatio, 0, Math.PI * 2);
+      CTX.strokeStyle = `rgba(255,61,90,${0.6 - i * 0.15})`;
+      CTX.lineWidth   = (3.5 - i * 0.8) * devicePixelRatio;
+      CTX.shadowColor = '#ff3d5a';
+      CTX.shadowBlur  = 28 * devicePixelRatio;
+      CTX.stroke();
+      CTX.shadowBlur  = 0;
+    });
+    CTX.beginPath();
+    CTX.arc(lx, ly, 6 * devicePixelRatio, 0, Math.PI * 2);
+    CTX.fillStyle   = '#ff3d5a';
+    CTX.shadowColor = '#ff3d5a';
+    CTX.shadowBlur  = 36 * devicePixelRatio;
+    CTX.fill();
+    CTX.shadowBlur  = 0;
+  }
+
+  _upBetInfo();
+}
+
+window.addEventListener('resize', resize);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   I18N
+═══════════════════════════════════════════════════════════════════════════ */
+function t(k) { return TL[k] !== undefined ? TL[k] : k; }
+
+function applyLang() {
+  const sym = _sym();
+  _tx('t-back',     t('back'));
+  _tx('t-gname',    (t('name') || 'CRASH').toUpperCase());
+  _tx('t-pf',       t('pf_title'));
+  _tx('t-login',    t('e_auth'));
+  _tx('t-bet-lbl',  t('bet_label'));
+  _tx('t-auto-lbl', t('auto_label'));
+  _tx('t-auto-at',  t('auto_at'));
+  _tx('t-tab-pl',   t('players_tab'));
+  _tx('t-tab-hi',   t('history_tab'));
+  _tx('c-sym',      sym);
+  _tx('uc-sym',     sym);
+  _tx('cdlbl',       t('countdown'));
+  // HTP modal i18n
+  _tx('t-pf',          t('htp_button') || 'How to play?');
+  _tx('t-htp-title',   t('htp_title'));
+  _tx('t-htp-s1t',     t('htp_step1_title'));
+  _tx('t-htp-s1d',     t('htp_step1_desc'));
+  _tx('t-htp-s2t',     t('htp_step2_title'));
+  _tx('t-htp-s2d',     t('htp_step2_desc'));
+  _tx('t-htp-s3t',     t('htp_step3_title'));
+  _tx('t-htp-s3d',     t('htp_step3_desc'));
+  _tx('t-htp-s4t',     t('htp_step4_title'));
+  _tx('t-htp-s4d',     t('htp_step4_desc'));
+  _tx('t-htp-tip',     t('htp_tip'));
+  _tx('t-htp-close',   t('htp_close'));
+  _upBtn(); _upStatus();
+}
+
+function _sym() {
+  const map = {UAH:'₴',RUB:'₽',USD:'$',EUR:'€',USDT:'₮'};
+  if (ME?.currency) return map[ME.currency] || '₴';
+  return {ru:'₽',ua:'₴',us:'$'}[LANG] || '₴';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════════════════════════════ */
+async function loadMe() {
+  try {
+    const r = await _gfetch('/api/auth/me', { credentials: 'include' });
+    if (!r.ok) { _setGuest(); return; }
+    const d = await r.json();
+    d.user ? _setAuth(d.user) : _setGuest();
+  } catch { _setGuest(); }
+}
+function _setAuth(u) {
+  ME = u;
+  try { localStorage.setItem('velox_authed', '1'); } catch(e) {}
+  document.getElementById('uc-guest').style.display = 'none';
+  document.getElementById('uc-auth').style.display  = 'flex';
+  _tx('uc-name', u.username);
+  document.getElementById('uc-bal').innerHTML =
+    `${u.balance.toFixed(2)} <span id="uc-sym">${_sym()}</span>`;
+  const avEl = document.getElementById('uc-av');
+  avEl.innerHTML = u.icon_url
+    ? `<img src="${u.icon_url}" alt="">`
+    : `<span id="uc-av-txt">${(u.username||'?')[0].toUpperCase()}</span>`;
+  applyLang();
+}
+function _setGuest() {
+  ME = null;
+  try { localStorage.removeItem('velox_authed'); } catch(e) {}
+  document.getElementById('uc-guest').style.display = '';
+  document.getElementById('uc-auth').style.display  = 'none';
+  applyLang();
+}
+function goLogin() { window.location.href = '/'; }
+window.addEventListener('pageshow', (e) => { if (e.persisted) loadMe(); });
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════════════════ */
+async function loadCfg() {
+  try {
+    const r = await _gfetch('/api/games', { credentials: 'include' });
+    const d = await r.json();
+    CFG = (d.games || []).find(g => g.id === 'crash') || {};
+  } catch {}
+  let langKey = 'ru';
+  try {
+    const saved = localStorage.getItem('velox_lang');
+    if (saved) {
+      const lmap = {RU:'ru',UA:'ua',US:'us',EN:'us',ru:'ru',ua:'ua',us:'us',en:'us'};
+      langKey = lmap[saved] || 'ru';
+    }
+  } catch(e) {}
+  LANG = langKey;
+  TL = (CFG.i18n || {})[langKey] || (CFG.i18n || {})['ru'] || {};
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SSE
+═══════════════════════════════════════════════════════════════════════════ */
+let _es = null, _retry = 800;
+function connectSSE() {
+  if (_es) { try { _es.close(); } catch {} }
+  _es = new EventSource('/api/crash/events');
+  _es.addEventListener('init',      e => _onInit(JSON.parse(e.data)));
+  _es.addEventListener('state',     e => _onState(JSON.parse(e.data)));
+  _es.addEventListener('countdown', e => _onCD(JSON.parse(e.data)));
+  _es.addEventListener('tick',      e => _onTick(JSON.parse(e.data)));
+  _es.addEventListener('crash',     e => _onCrash(JSON.parse(e.data)));
+  _es.addEventListener('players',   e => _onPlayers(JSON.parse(e.data)));
+  _es.onerror = () => { try { _es.close(); } catch {} setTimeout(connectSSE, _retry); _retry = Math.min(_retry*1.5, 12000); };
+  _es.onopen  = () => { _retry = 800; };
+}
+
+function _onInit(d) { Object.assign(G, d); PTS = []; resize(); _renderHist(); _renderPlayers(); _upUI(); }
+
+function _onState(d) {
+  Object.assign(G, d);
+  if (d.status === 'waiting') {
+    MY_BET = 0; MY_CASH = false; _tick = 0;
+    _hideFlash();
+    document.getElementById('cdov').classList.remove('show');
+    // Fade out the curve canvas gracefully, then clear PTS
+    _fadeOutChart();
+  }
+  if (d.status === 'countdown') document.getElementById('cdov').classList.add('show');
+  if (d.status === 'running') {
+    PTS = [{t:0,m:1.0}]; _tick = 0;
+    _lastTickM = 1.0; _lastTickT = 0; _lastTickMs = performance.now(); _TICK_MS = 100;
+    // Reset canvas opacity (may have been faded)
+    if (_fadeTimer) { clearInterval(_fadeTimer); _fadeTimer = null; }
+    CV.style.opacity = 1;
+    document.getElementById('cdov').classList.remove('show');
+    if (d.seed_hash) _tx('seed-txt', d.seed_hash.substring(0,22) + '…');
+    _startRAF();
+    // Mobile: close panel when round starts
+    if (window.innerWidth <= 768) closeMobPanel();
+  }
+  if (d.status === 'waiting' || d.status === 'crashed') {
+    _hideMobCashout();
+  }
+  _upUI(); draw();
+}
+
+function _onCD(d) {
+  G.countdown = d.n; _tx('cdn', d.n);
+  const circ = 2 * Math.PI * 50;
+  const total = CFG.online?.countdown_before_start || 5;
+  document.getElementById('cprg').style.strokeDashoffset = circ * (1 - d.n / total);
+  document.getElementById('cdov').classList.add('show');
+}
+
+function _onTick(d) {
+  G.multiplier = d.m;
+  _tick++;
+  // Measure real tick interval for interpolation accuracy
+  const now = performance.now();
+  if (_lastTickMs > 0) _TICK_MS = _TICK_MS * 0.85 + (now - _lastTickMs) * 0.15;
+  _lastTickMs  = now;
+  _lastTickM   = d.m;
+  _lastTickT   = _tick;
+  PTS.push({ t: _tick, m: d.m });
+  // RAF loop does the drawing — no need to call draw() here
+  _tx('mval', d.m.toFixed(2) + '×');
+  document.getElementById('mval').className = MY_CASH ? 'cashed' : 'running';
+  if (AUTO_ON && MY_BET > 0 && !MY_CASH) {
+    const at = parseFloat(document.getElementById('ai').value) || 2;
+    if (d.m >= at) _doCashout();
+  }
+  _upBtn();
+}
+
+function _onCrash(d) {
+  _stopRAF();
+  G.status = 'crashed'; G.multiplier = d.at;
+  G.history = d.history || G.history;
+  if (d.players) G.players = d.players;
+  _tx('mval', d.at.toFixed(2) + '×');
+  document.getElementById('mval').className    = 'crashed';
+  document.getElementById('mstatus').className = 'crashed';
+  _tx('mstatus', t('crashed'));
+  document.getElementById('cdov').classList.remove('show');
+  RKT.state = 'crashed';
+  const rw2 = document.getElementById('rocket-wrap'); if (rw2) rw2.style.display='none';
+  if (MY_BET > 0 && !MY_CASH) {
+    _showFlash('loss', `${t('loss_msg')||'CRASHED'} ${d.at.toFixed(2)}×`, `-${MY_BET.toFixed(2)} ${_sym()}`);
+    _particles(false);
+  }
+  _renderHist(); _renderPlayers(); _upBtn(); _upBetInfo(); draw();
+}
+
+function _onPlayers(d) { G.players = d.players || []; _renderPlayers(); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════════════════ */
+function _upUI() {
+  const mv = document.getElementById('mval'), ms = document.getElementById('mstatus');
+  const cdov = document.getElementById('cdov');
+  if (G.status === 'waiting') {
+    mv.textContent = '1.00×'; mv.className = 'idle';
+    ms.textContent = t('waiting')||'Waiting...'; ms.className = '';
+    _tx('seed-txt','—'); cdov.classList.remove('show');
+  } else if (G.status === 'countdown') {
+    mv.textContent = '1.00×'; mv.className = 'idle';
+    ms.textContent = (t('countdown')||'Starting') + ' ' + G.countdown; ms.className = '';
+    cdov.classList.add('show'); _tx('cdn', G.countdown);
+  } else if (G.status === 'running') {
+    mv.textContent = G.multiplier.toFixed(2)+'×';
+    mv.className   = MY_CASH ? 'cashed' : 'running';
+    ms.textContent = t('running')||'Flying...'; ms.className = 'running';
+    cdov.classList.remove('show');
+  } else if (G.status === 'crashed') {
+    mv.textContent = G.multiplier.toFixed(2)+'×'; mv.className = 'crashed';
+    ms.textContent = t('crashed')||'Crashed!';  ms.className = 'crashed';
+    cdov.classList.remove('show');
+  }
+  _upBtn(); _upBal();
+}
+
+function _upStatus() {}
+function _upBal() {
+  if (!ME) return;
+  document.getElementById('uc-bal').innerHTML =
+    `${ME.balance.toFixed(2)} <span id="uc-sym">${_sym()}</span>`;
+}
+function _upBetInfo() {
+  const betEl = document.getElementById('binfo-bet');
+  const winEl = document.getElementById('binfo-win');
+  if (!betEl || !winEl) return;
+  if (MY_BET > 0) {
+    betEl.textContent = MY_BET.toFixed(2) + ' ' + _sym(); betEl.className = 'binfo-val';
+    if (MY_CASH) {
+      winEl.textContent = '+' + (MY_BET * G.multiplier).toFixed(2) + ' ' + _sym();
+      winEl.className   = 'binfo-val win';
+    } else if (G.status === 'running') {
+      winEl.textContent = (MY_BET * G.multiplier).toFixed(2) + ' ' + _sym();
+      winEl.className   = 'binfo-val live';
+    } else {
+      winEl.textContent = '—'; winEl.className = 'binfo-val';
+    }
+  } else {
+    betEl.textContent = '—'; betEl.className = 'binfo-val';
+    winEl.textContent = '—'; winEl.className = 'binfo-val';
+  }
+  // auto pill in info grid
+  const autoEl = document.getElementById('binfo-auto');
+  if (autoEl) {
+    if (AUTO_ON) {
+      const at = parseFloat(document.getElementById('ai')?.value||2);
+      autoEl.textContent = at.toFixed(2)+'×';
+      autoEl.className = 'binfo-val live';
+    } else {
+      autoEl.textContent = 'OFF';
+      autoEl.className = 'binfo-val';
+    }
+  }
+}
+
+/* ── Mobile double-tap cashout ── */
+let _mobTapTimer = null;
+let _mobTapCount = 0;
+
+function _initMobTap() {
+  const chart = document.getElementById('chart');
+  if (!chart) return;
+  chart.addEventListener('touchend', function(e) {
+    if (window.innerWidth > 768) return;
+    if (G.status !== 'running' || MY_BET <= 0 || MY_CASH) return;
+    _mobTapCount++;
+    // show ripple at touch point
+    const touch = e.changedTouches[0];
+    const rect = chart.getBoundingClientRect();
+    const rpl = document.getElementById('mob-tap-ripple');
+    if (rpl) {
+      rpl.style.left = (touch.clientX - rect.left) + 'px';
+      rpl.style.top  = (touch.clientY - rect.top) + 'px';
+      rpl.classList.remove('fire');
+      void rpl.offsetWidth; // reflow
+      rpl.classList.add('fire');
+    }
+    if (_mobTapCount >= 2) {
+      _mobTapCount = 0;
+      clearTimeout(_mobTapTimer);
+      _doCashout();
+      return;
+    }
+    // reset after 800ms if second tap doesn't come
+    clearTimeout(_mobTapTimer);
+    _mobTapTimer = setTimeout(() => { _mobTapCount = 0; }, 800);
+  });
+}
+
+function _updateMobCashout() {
+  if (window.innerWidth > 768) return;
+  const hint = document.getElementById('mob-tap-hint');
+  if (!hint) return;
+  if (G.status === 'running' && MY_BET > 0 && !MY_CASH) {
+    hint.classList.add('visible');
+  } else {
+    _hideMobCashout();
+  }
+}
+function _hideMobCashout() {
+  const hint = document.getElementById('mob-tap-hint');
+  if (hint) hint.classList.remove('visible');
+  _mobTapCount = 0;
+  clearTimeout(_mobTapTimer);
+}
+
+function _upBtn() {
+  const btn = document.getElementById('abtn'), lbl = document.getElementById('abtn-lbl');
+  if (!ME) { btn.className = 'place'; btn.disabled = false; lbl.textContent = t('e_auth')||'Войти'; return; }
+  if (G.status === 'running' && MY_BET > 0 && !MY_CASH) {
+    btn.className = 'cashout'; btn.disabled = false;
+    lbl.textContent = `${t('cashout_label')||'Вывести'} ${G.multiplier.toFixed(2)}×`;
+  } else if ((G.status==='waiting'||G.status==='countdown') && MY_BET > 0) {
+    btn.className = 'cancel'; btn.disabled = false;
+    lbl.textContent = t('cancel_bet')||'Отменить';
+  } else if (G.status==='running'||G.status==='crashed') {
+    btn.className = 'place'; btn.disabled = true;
+    lbl.textContent = t('place_bet')||'Поставить';
+  } else {
+    btn.className = 'place'; btn.disabled = false;
+    lbl.textContent = t('place_bet')||'Поставить';
+  }
+}
+
+function _renderPlayers() {
+  const el = document.getElementById('sb-pl'), pl = G.players || [];
+  if (!pl.length) {
+    el.innerHTML = `<div style="color:var(--t3);font:600 9px/1 var(--ffd);text-align:center;margin-top:26px;letter-spacing:1.5px">${t('waiting')||'—'}</div>`;
+    return;
+  }
+  el.innerHTML = pl.map(p => {
+    const av = p.icon_url ? `<img src="${p.icon_url}" alt="">` : `<span>${(p.username||'?')[0].toUpperCase()}</span>`;
+    let ring = 'idle', multHtml = '';
+    if (p.result==='win'||p.cashed) { ring='win'; multHtml=`<div class="pmult win">✓ ${(p.mult||0).toFixed(2)}×</div>`; }
+    else if (p.result==='loss')     { ring='loss';multHtml=`<div class="pmult loss">✗ ${(p.mult||G.multiplier).toFixed(2)}×</div>`; }
+    else if (G.status==='running')  { ring='idle';multHtml=`<div class="pmult live">${G.multiplier.toFixed(2)}×</div>`; }
+    return `<div class="pr"><div class="pav-wrap"><div class="pav">${av}</div><div class="pring ${ring}"></div></div>
+      <div class="pinfo"><div class="pname">${_esc(p.username)}</div><div class="pbet">${(p.bet||0).toFixed(0)} ${_sym()}</div></div>${multHtml}</div>`;
+  }).join('');
+}
+
+// History auto-clears every 30 rounds (configurable)
+const HIST_MAX_DISPLAY = 30;
+let   _histRenderCount = 0;
+
+function _renderHist() {
+  const history = G.history || [];
+
+  // Auto-clear display every HIST_MAX_DISPLAY rounds
+  _histRenderCount++;
+  const displayHistory = history.slice(0, HIST_MAX_DISPLAY);
+
+  // Sidebar history (newest first)
+  const sb = document.getElementById('sb-hi');
+  if (sb) sb.innerHTML = displayHistory.map((h,i) =>
+    `<div class="hr"><span style="color:var(--t3);font-size:9px;font-family:var(--ffd)">#${i+1}</span>
+     <span class="hp ${h.color==='green'?'g':'r'}">${h.multiplier.toFixed(2)}×</span></div>`).join('');
+
+  // Histbar pills — newest on the LEFT (prepend style), limited to 25
+  const pillsEl = document.getElementById('hist-pills');
+  if (!pillsEl) return;
+
+  const pills   = displayHistory.slice(0, 25);
+  pillsEl.innerHTML = pills.map(h =>
+    `<span class="hp ${h.color==='green'?'g':'r'}">${h.multiplier.toFixed(2)}×</span>`
+  ).join('');
+
+  // Scroll to start (newest) with a tiny delay for paint
+  requestAnimationFrame(() => {
+    if (pillsEl) pillsEl.scrollLeft = 0;
+  });
+}
+
+function stab(id) {
+  ['pl','hi'].forEach(k => {
+    document.getElementById(`tab-${k}`).classList.toggle('on', k===id);
+    document.getElementById(`sb-${k}`).style.display = k===id ? '' : 'none';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════════════════════════════ */
+async function handleAction() {
+  if (!ME) { goLogin(); return; }
+  if (G.status==='running' && MY_BET>0 && !MY_CASH) { await _doCashout(); }
+  else if ((G.status==='waiting'||G.status==='countdown') && MY_BET>0) { await _doCancelBet(); }
+  else { await _doPlaceBet(); }
+}
+
+async function _doPlaceBet() {
+  _clearErr();
+  const amount = parseFloat(document.getElementById('bi').value) || 0;
+  if (!amount) { _showErr(t('e_min')); return; }
+  try {
+    const r = await _gfetch('/api/crash/bet', { method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'}, body:JSON.stringify({bet:amount}) });
+    const d = await r.json();
+    if (d.error) { _showErr({e_auth:t('e_auth'),e_funds:t('e_funds'),e_min:t('e_min'),e_time:t('e_time'),e_already:t('e_already')}[d.error]||d.error); return; }
+    MY_BET = d.bet; MY_CASH = false;
+    if (ME) ME.balance = d.balance;
+    _upBal(); _upBtn(); _upBetInfo();
+  } catch { _showErr('Error'); }
+}
+
+async function _doCancelBet() {
+  try {
+    const r = await _gfetch('/api/crash/cancel', { method:'POST', credentials:'include' });
+    const d = await r.json();
+    if (d.ok) {
+      MY_BET = 0;
+      if (ME && d.balance !== undefined) ME.balance = d.balance;
+      _upBal(); _upBtn(); _upBetInfo();
+    } else {
+      _showErr(t(d.error) || d.error);
+    }
+  } catch { _showErr('Error'); }
+}
+
+async function _doCashout() {
+  try {
+    const r = await _gfetch('/api/crash/cashout', { method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'} });
+    const d = await r.json();
+    if (d.ok) {
+      MY_CASH = true;
+      if (ME) ME.balance = d.balance;
+      document.getElementById('mval').className = 'cashed';
+      _showFlash('win', t('win_msg')||'WIN 🚀', `+${d.win.toFixed(2)} ${_sym()}`, `${d.mult.toFixed(2)}×`);
+      _particles(true); _upBal(); _upBetInfo();
+    }
+  } catch {}
+  _upBtn();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════════════════════════════════════ */
+function sb(v) { document.getElementById('bi').value = v; }
+function hb()  { const i=document.getElementById('bi'); i.value=Math.max(10,(parseFloat(i.value||0)/2)|0); }
+function db()  { const i=document.getElementById('bi'); i.value=Math.min(50000,(parseFloat(i.value||0)*2)|0); }
+function toggleAuto() {
+  AUTO_ON = !AUTO_ON;
+  const btn = document.getElementById('auto-btn');
+  const lbl = document.getElementById('auto-btn-lbl');
+  if (btn) { btn.classList.toggle('on', AUTO_ON); }
+  if (lbl) lbl.textContent = AUTO_ON ? 'ON' : 'OFF';
+  _upBetInfo();
+}
+function setAutoAt(v) {
+  document.getElementById('ai').value = v.toFixed(2);
+  // highlight active preset
+  document.querySelectorAll('.auto-preset').forEach(b => {
+    b.classList.toggle('active', parseFloat(b.textContent) === v);
+  });
+  if (!AUTO_ON) toggleAuto(); // auto-enable when preset clicked
+}
+
+function _showErr(m) {
+  const el=document.getElementById('err'); _tx('err-msg',m); el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+function _clearErr() { document.getElementById('err').classList.remove('show'); }
+
+function _showFlash(type, line1, line2, sub) {
+  const fl=document.getElementById('rflash'), ov=document.getElementById('win-overlay');
+  document.getElementById('rfbadge').className  = `rfbadge ${type}`;
+  document.getElementById('rfbadge').textContent = line1;
+  document.getElementById('rfamt').className     = `rfamt ${type}`;
+  document.getElementById('rfamt').textContent   = line2;
+  const se = document.getElementById('rfsub'); if (se) se.textContent = sub||'';
+  fl.classList.add('show'); if (ov) ov.classList.add('show');
+  clearTimeout(_flashTimer);
+  _flashTimer = setTimeout(_hideFlash, 3200);
+}
+let _flashTimer = null;
+function _hideFlash() {
+  document.getElementById('rflash').classList.remove('show');
+  const ov = document.getElementById('win-overlay'); if (ov) ov.classList.remove('show');
+}
+
+function showHTP() {
+  applyLang(); // ensure translations are applied when modal opens
+  document.getElementById('htp-modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeHTP() {
+  document.getElementById('htp-modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function _tx(id,v) { const e=document.getElementById(id); if(e) e.textContent=String(v); }
+function _esc(s)   { return String(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════════════════════════════════════════ */
+function _particles(win) {
+  const colors = win
+    ? ['#4df0ff','#8b7aff','#00ff8c','#ffcb47','#ff8cf7']
+    : ['#ff3d5a','#ff6b87','#ff9aaa'];
+  const cx = window.innerWidth * 0.4, cy = window.innerHeight * 0.42;
+  const n  = win ? 36 : 18;
+  for (let i=0; i<n; i++) {
+    const el = document.createElement('div'); el.className = 'prt';
+    const a    = (i/n)*Math.PI*2 + Math.random()*.5;
+    const dist = win ? 90+Math.random()*220 : 40+Math.random()*90;
+    const sz   = win ? 4+Math.random()*7 : 3+Math.random()*5;
+    const dur  = (.4+Math.random()*.6).toFixed(2);
+    el.style.cssText = `left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;`+
+      `background:${colors[Math.floor(Math.random()*colors.length)]};`+
+      `box-shadow:0 0 ${sz*2}px currentColor;`+
+      `--dx:${(Math.cos(a)*dist).toFixed(0)}px;`+
+      `--dy:${(Math.sin(a)*dist-(win?50:0)).toFixed(0)}px;--d:${dur}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), (parseFloat(dur)+.3)*1000);
+  }
+}
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE PANEL TOGGLE
+═══════════════════════════════════════════════════════════════════════════ */
+function isMobile() { return window.innerWidth <= 768; }
+
+function openMobPanel() {
+  document.getElementById('panel').classList.add('mob-open');
+  document.getElementById('mob-pull').classList.add('panel-open');
+  document.getElementById('mob-backdrop').classList.add('show');
+}
+function closeMobPanel() {
+  document.getElementById('panel').classList.remove('mob-open');
+  document.getElementById('mob-pull').classList.remove('panel-open');
+  document.getElementById('mob-backdrop').classList.remove('show');
+}
+function toggleMobPanel() {
+  if (document.getElementById('panel').classList.contains('mob-open')) {
+    closeMobPanel();
+  } else {
+    openMobPanel();
+  }
+}
+
+window.addEventListener('resize', function() {
+  if (!isMobile()) {
+    document.getElementById('panel').classList.remove('mob-open');
+    document.getElementById('mob-pull').classList.remove('panel-open');
+    document.getElementById('mob-backdrop').classList.remove('show');
+  }
+});
+
+window.addEventListener('resize', resize);
+let _fadeTimer = null;
+function _fadeOutChart() {
+  // Cancel any existing fade
+  if (_fadeTimer) { clearInterval(_fadeTimer); _fadeTimer = null; }
+  let alpha = 1.0;
+  const FADE_DURATION = 2000; // 2 seconds fade
+  const steps = 40;
+  const step_ms = FADE_DURATION / steps;
+  _fadeTimer = setInterval(() => {
+    alpha -= 1 / steps;
+    if (alpha <= 0) {
+      clearInterval(_fadeTimer); _fadeTimer = null;
+      PTS = []; _tick = 0;
+      CTX.clearRect(0, 0, CV.width, CV.height);
+      const dot = document.getElementById('tip-dot');
+      if (dot) dot.style.display = 'none';
+      return;
+    }
+    // Redraw with reduced opacity
+    CV.style.opacity = alpha;
+  }, step_ms);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROCKET ANIMATION
+   States:
+     'idle'    — hidden, waiting
+     'intro'   — appears center, cartoon squash/stretch bounce
+     'shrink'  — scales down, moves to origin corner
+     'fly'     — rides the curve tip, rotates to path direction
+     'crashed' — hides immediately on crash
+═══════════════════════════════════════════════════════════════════════════ */
+const RKT = {
+  state: 'idle',
+  // current screen position (px, relative to #chart)
+  x: 0, y: 0,
+  // target position for lerp
+  tx: 0, ty: 0,
+  scale: 1,
+  angle: -45,  // degrees, -45 = pointing up-right
+  introT: 0,   // intro animation timer 0..1
+  raf: null,
+};
+
+function _chartOrigin() {
+  // Returns canvas coords of the curve origin (bottom-left corner)
+  // in px relative to the chart div (not devicePixelRatio scaled)
+  const chartEl = document.getElementById('chart');
+  const W = chartEl.offsetWidth, H = chartEl.offsetHeight;
+  const PL = W * 0.07, PB = H * 0.09;
+  return { x: PL, y: H - PB };
+}
+
+function rocketIntro() {
+  // Called when a new round starts (status → running)
+  const chartEl = document.getElementById('chart');
+  const W = chartEl.offsetWidth, H = chartEl.offsetHeight;
+  const wrap = document.getElementById('rocket-wrap');
+  if (!wrap) return;
+
+  // Cancel any ongoing raf
+  if (RKT.raf) { cancelAnimationFrame(RKT.raf); RKT.raf = null; }
+
+  RKT.state = 'intro';
+  RKT.introT = 0;
+
+  // Start at center
+  RKT.x = W / 2; RKT.y = H / 2;
+  RKT.scale = 0; RKT.angle = -45;
+
+  wrap.style.display = 'block';
+  wrap.style.left    = RKT.x + 'px';
+  wrap.style.top     = RKT.y + 'px';
+
+  const origin = _chartOrigin();
+  const INTRO_DUR   = 900;   // ms: cartoon bounce
+  const SHRINK_DUR  = 500;   // ms: fly to corner
+  let startTime = null;
+
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = ts - startTime;
+
+    if (RKT.state === 'intro') {
+      // Cartoon squash/stretch: scale pops in 0→1.35→0.85→1.1→1
+      const p = Math.min(elapsed / INTRO_DUR, 1);
+      let s;
+      if (p < 0.25)      s = easeOut(p / 0.25) * 1.35;
+      else if (p < 0.50) s = 1.35 - (p - 0.25) / 0.25 * 0.5;   // 1.35→0.85
+      else if (p < 0.75) s = 0.85 + (p - 0.5)  / 0.25 * 0.25;  // 0.85→1.10
+      else               s = 1.10 - (p - 0.75) / 0.25 * 0.10;  // 1.10→1.00
+
+      // gentle wobble on x during intro
+      const wobble = Math.sin(p * Math.PI * 4) * 8 * (1 - p);
+      RKT.scale = s;
+      RKT.x = W / 2 + wobble;
+      RKT.y = H / 2;
+      _applyRocket();
+
+      if (p >= 1) {
+        RKT.state = 'shrink';
+        startTime = ts; // reset timer for next phase
+      }
+    } else if (RKT.state === 'shrink') {
+      const p = Math.min(elapsed / SHRINK_DUR, 1);
+      const ep = easeInOut(p);
+      RKT.x = lerp(W / 2, origin.x, ep);
+      RKT.y = lerp(H / 2, origin.y, ep);
+      RKT.scale = lerp(1, 0.6, ep);
+      _applyRocket();
+
+      if (p >= 1) {
+        RKT.state = 'fly';
+        // from here, rocket follows curve tip — handled in draw()
+      }
+    }
+
+    if (RKT.state === 'intro' || RKT.state === 'shrink') {
+      RKT.raf = requestAnimationFrame(step);
+    }
+  }
+
+  RKT.raf = requestAnimationFrame(step);
+}
+
+function _applyRocket() {
+  const wrap = document.getElementById('rocket-wrap');
+  if (!wrap) return;
+  wrap.style.left      = RKT.x + 'px';
+  wrap.style.top       = RKT.y + 'px';
+  wrap.style.transform = `translate(-50%,-50%) rotate(${RKT.angle}deg) scale(${RKT.scale})`;
+  // show/hide flame during fly state
+  const flame = document.getElementById('rocket-flame');
+  if (flame) flame.style.opacity = RKT.state === 'fly' ? '1' : '0';
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeOut(t)    { return 1 - Math.pow(1 - t, 3); }
+function easeInOut(t)  { return t < .5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════════════ */
+async function init() {
+  resize(); drawGrid();
+  await loadCfg();
+  await loadMe();
+  applyLang();
+  connectSSE();
+  _initMobTap();
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "_comment": "Настройки промокодов и бонусной системы",
+
+  "display": {
+    "show_promo_banner":     true,
+    "show_in_lobby":         true,
+    "show_in_deposit_page":  true
+  },
+
+  "rules": {
+    "one_promo_per_session":  false,
+    "require_deposit_first":  false,
+    "min_deposit_for_promo":  0,
+    "max_bonus_per_day":      500,
+    "wagering_multiplier":    20
+  },
+
+  "types": {
+    "balance": {
+      "label":       "Бонус на баланс",
+      "description": "Сумма зачисляется сразу на игровой баланс"
+    },
+    "freespin": {
+      "label":       "Фриспины",
+      "description": "Бесплатные вращения в слотах"
+    },
+    "percent": {
+      "label":       "Процент от депозита",
+      "description": "Бонус в процентах от следующего пополнения"
+    }
+  },
+
+  "ui": {
+    "promo_input_placeholder": "Введи промокод",
+    "success_message":         "Промокод применён! Бонус зачислен.",
+    "error_not_found":         "Промокод не найден или неактивен.",
+    "error_expired":           "Срок действия промокода истёк.",
+    "error_already_used":      "Ты уже использовал этот промокод.",
+    "error_exhausted":         "Промокод исчерпан."
+  }
+}

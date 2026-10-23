@@ -1,0 +1,58 @@
+{
+  "_readme": {
+    "page_banners_image_size": "Рекомендуемый размер: 1280×340px (Full HD: 1920×510px) — PNG / JPG / WEBP",
+    "sidebar_banner_image_size": "Рекомендуемый размер: 220×110px (Full HD: 440×220px) — PNG / JPG / WEBP",
+    "invisible_note": "invisible=false → баннер виден. invisible=true → баннер полностью скрыт. image_ad пустой → показывается тёмный фон-заглушка",
+    "image_ad_note": "Если image_ad пустое — баннер скрыт даже при invisible=false",
+    "modal_video_note": "modal_video=true показывает <video> тег с modal_mp4 внутри модального окна",
+    "icon_note": "Если modal_tgButtonIcon / modal_YTButtonIcon пустые — используется встроенная SVG иконка"
+  },
+  "sidebar_banner": {
+    "id": "sidebar_banner",
+    "invisible": true,
+    "image_ad": null,
+    "_image_ad_size": "220x110px (Full HD: 440x220px)",
+    "modal_window": true,
+    "modal_text": "Подписывайся на наши каналы — акции, бонусы и стримы каждый день!",
+    "modal_video": false,
+    "modal_mp4": "",
+    "modal_telegramButton": "https://t.me/acultist1",
+    "modal_tgButtonIcon": "",
+    "modal_youtubeButton": "https://youtube.com/@veloxcasino",
+    "modal_YTButtonIcon": ""
+  },
+  "page_banners": [
+    {
+      "id": "Ad_bonus",
+      "invisible": false,
+      "image_ad": "/static/uploads/banners/velox_best.png",
+      "_image_ad_size": "1280x340px (Full HD: 1920x510px)",
+      "modal_window": true,
+      "modal_text": "Пополни баланс и получи 100% бонус на первый депозит! Минимальный депозит — 50 ₴.",
+      "modal_video": false,
+      "modal_mp4": "",
+      "modal_telegramButton": "https://t.me/veloxcasino",
+      "modal_tgButtonIcon": "",
+      "modal_youtubeButton": "",
+      "modal_YTButtonIcon": "",
+      "timer_change": 6,
+      "title": "Ad_bonus"
+    },
+    {
+      "id": "Ad_promo",
+      "invisible": false,
+      "image_ad": "/static/uploads/banners/velox_200.jpg",
+      "_image_ad_size": "1280x340px (Full HD: 1920x510px)",
+      "modal_window": true,
+      "modal_text": "🎟️ Промокод VELOX200 — введи и получи 200 ₴ на баланс прямо сейчас!",
+      "modal_video": false,
+      "modal_mp4": "",
+      "modal_telegramButton": "https://t.me/veloxcasino",
+      "modal_tgButtonIcon": "",
+      "modal_youtubeButton": "https://youtube.com/@veloxcasino",
+      "modal_YTButtonIcon": "",
+      "timer_change": 4,
+      "title": "Ad_promo"
+    }
+  ]
+}

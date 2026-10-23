@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "macros.html" import sidebar, topbar %}
+{% block title %}My Reports — VELOX Support{% endblock %}
+{% block page_id %}reports{% endblock %}
+
+{% block body %}
+<div class="panel-wrap">
+  {{ sidebar('reports') }}
+  <div class="panel-main">
+    {{ topbar('nav.reports', 'My Reports') }}
+    <div class="panel-body">
+
+      <!-- Summary cards -->
+      <div class="stat-grid" style="margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="reports.total_closed">Closed Tickets</div>
+          <div class="stat-card-val accent" id="rep-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="reports.kyc_closed">KYC Resolved</div>
+          <div class="stat-card-val green" id="rep-kyc">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" data-t="reports.period_label">Period</div>
+          <div class="stat-card-val" id="rep-period-label"
+               style="font-size:16px;letter-spacing:1px">—</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div class="tbl-head-title" data-t="reports.my_tickets">My Closed Tickets</div>
+          <div class="tbl-spacer"></div>
+          <!-- Period filters -->
+          <button class="tbl-filter-btn active" data-period="week"
+                  data-t="reports.week">Week</button>
+          <button class="tbl-filter-btn" data-period="month"
+                  data-t="reports.month">Month</button>
+          <button class="tbl-filter-btn" data-period="year"
+                  data-t="reports.year">Year</button>
+          <button class="tbl-filter-btn" data-period="all"
+                  data-t="reports.all">All time</button>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th data-t="tickets.col_subject">Subject</th>
+              <th data-t="tickets.col_user">User</th>
+              <th data-t="tickets.col_status">Status</th>
+              <th data-t="tickets.col_date">Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="reports-body">
+            <tr>
+              <td colspan="6" class="loading-center">
+                <span class="spinner"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div id="pagination" class="pagination"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

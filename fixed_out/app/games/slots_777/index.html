@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLOTS 777</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CSS VARIABLES — змінити тему тут
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --bg:           #090910;
+  --bg2:          #0d0d1a;
+  --panel:        #111128;
+  --panel2:       #16163a;
+  --border:       #2a2a5a;
+  --neon-gold:    #f5c518;
+  --neon-red:     #ff2b4a;
+  --neon-blue:    #00d4ff;
+  --neon-green:   #00ff88;
+  --neon-purple:  #b44fff;
+  --text:         #e8e8ff;
+  --text-dim:     #5a5a8a;
+  --reel-bg:      #07071a;
+  --reel-border:  #2a2a6a;
+  --win-glow:     0 0 20px var(--neon-gold), 0 0 60px #f5c51840;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-mono:    'Share Tech Mono', monospace;
+  --font-ui:      'Oswald', sans-serif;
+}
+
+/* ═══ RESET & BASE ═══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ═══ SCANLINE OVERLAY ═══ */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ═══ NOISE TEXTURE ═══ */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* ═══ BACKGROUND GLOW ═══ */
+.bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.bg-glow-1 {
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, #1a006640 0%, transparent 70%);
+  top: -100px; left: -200px;
+  animation: drift1 20s ease-in-out infinite alternate;
+}
+.bg-glow-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(ellipse, #00003340 0%, transparent 70%);
+  bottom: 0; right: -150px;
+  animation: drift2 25s ease-in-out infinite alternate;
+}
+@keyframes drift1 { to { transform: translate(100px, 50px); } }
+@keyframes drift2 { to { transform: translate(-80px, -60px); } }
+
+/* ═══ WRAPPER ═══ */
+.wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 680px;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ═══ HEADER ═══ */
+.game-header {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.game-logo {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 6px;
+  color: var(--neon-blue);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+.logo-main {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 14vw, 86px);
+  letter-spacing: 4px;
+  line-height: 1;
+  background: linear-gradient(135deg, #f5c518 0%, #ff8c00 40%, #f5c518 60%, #ffe066 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px #f5c51880);
+  animation: logo-pulse 3s ease-in-out infinite;
+}
+@keyframes logo-pulse {
+  0%,100% { filter: drop-shadow(0 0 20px #f5c51880); }
+  50%      { filter: drop-shadow(0 0 40px #f5c518bb) drop-shadow(0 0 80px #f5c51840); }
+}
+.logo-stars {
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 8px;
+  color: var(--neon-gold);
+  text-shadow: 0 0 10px var(--neon-gold);
+}
+
+/* ═══ INFO BAR ═══ */
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 18px;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.info-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.info-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.info-value.balance { color: var(--neon-green); text-shadow: 0 0 12px var(--neon-green); }
+.info-value.win     { color: var(--neon-gold);  text-shadow: 0 0 12px var(--neon-gold); }
+.info-value.fs      { color: var(--neon-blue);  text-shadow: 0 0 12px var(--neon-blue); }
+
+/* FS badge */
+.fs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #001a4a, #001040);
+  border: 1px solid var(--neon-blue);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--neon-blue);
+  text-shadow: 0 0 8px var(--neon-blue);
+  box-shadow: 0 0 10px #00d4ff20, inset 0 0 10px #00d4ff10;
+  animation: fs-pulse 2s ease-in-out infinite;
+}
+.fs-badge.hidden { display: none; }
+@keyframes fs-pulse {
+  0%,100% { box-shadow: 0 0 10px #00d4ff20, inset 0 0 10px #00d4ff10; }
+  50%      { box-shadow: 0 0 20px #00d4ff40, inset 0 0 20px #00d4ff20; }
+}
+
+/* ═══ MACHINE BODY ═══ */
+.machine {
+  background: linear-gradient(180deg, #10103a 0%, #0a0a22 100%);
+  border: 2px solid #2a2a6a;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px #1a1a4a,
+    0 0 40px #0a0a2060,
+    inset 0 1px 0 #3a3a7a,
+    inset 0 -1px 0 #050520;
+}
+.machine::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #5a5aff60, transparent);
+}
+
+/* Corner ornaments */
+.machine::after {
+  content: '◆';
+  position: absolute;
+  top: 8px; right: 14px;
+  color: #2a2a6a;
+  font-size: 16px;
+}
+
+/* ═══ REELS CONTAINER ═══ */
+.reels-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+/* Середня лінія виграшу */
+.win-line {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 5;
+}
+.win-line.visible { opacity: 1; animation: line-flash 0.6s ease-in-out 3; }
+@keyframes line-flash {
+  0%,100% { opacity: 1; box-shadow: none; }
+  50%      { opacity: 1; box-shadow: 0 0 12px var(--neon-gold), 0 0 30px #f5c51840; }
+}
+
+/* ═══ SINGLE REEL ═══ */
+.reel-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.reel-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+.reel {
+  width: 100%;
+  max-width: 160px;
+  height: 150px;
+  background: var(--reel-bg);
+  border: 1px solid var(--reel-border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    inset 0 0 30px #00000080,
+    inset 0 2px 0 #2a2a5a,
+    inset 0 -2px 0 #050518;
+}
+
+/* Маски зверху/знизу для ефекту "за скло" */
+.reel::before, .reel::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 40px;
+  z-index: 3;
+  pointer-events: none;
+}
+.reel::before {
+  top: 0;
+  background: linear-gradient(180deg, #07071aee 0%, transparent 100%);
+}
+.reel::after {
+  bottom: 0;
+  background: linear-gradient(0deg, #07071aee 0%, transparent 100%);
+}
+
+/* Підсвічування вибраного символу */
+.reel-highlight {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 80px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(255,255,255,0.025) 40%,
+    rgba(255,255,255,0.025) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.reel-inner {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.05s linear;
+  will-change: transform;
+}
+
+/* ═══ SYMBOL CELL ═══ */
+.symbol-cell {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.symbol-icon {
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  transition: transform 0.2s;
+  user-select: none;
+}
+.symbol-name {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  opacity: 0;
+}
+
+/* Виграшна підсвітка символу */
+.symbol-cell.winning .symbol-icon {
+  animation: sym-win 0.4s ease-in-out 4 alternate;
+  filter: drop-shadow(0 0 10px var(--neon-gold)) drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+@keyframes sym-win {
+  from { transform: scale(1); }
+  to   { transform: scale(1.15); }
+}
+
+/* ═══ SPIN BUTTON ═══ */
+.spin-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.bet-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.bet-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.bet-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.bet-display {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--neon-gold);
+  line-height: 1;
+}
+
+.bet-btns {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.bet-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 1px;
+}
+.bet-btn:hover:not(:disabled) {
+  border-color: var(--neon-gold);
+  color: var(--neon-gold);
+  box-shadow: 0 0 8px #f5c51830;
+}
+.bet-btn.active {
+  border-color: var(--neon-gold);
+  color: var(--neon-gold);
+  background: #f5c51815;
+}
+
+/* Кнопка спін */
+.spin-btn {
+  width: 100%;
+  height: 62px;
+  background: linear-gradient(135deg, #1a0800 0%, #2d1000 50%, #1a0800 100%);
+  border: 2px solid var(--neon-gold);
+  border-radius: 8px;
+  color: var(--neon-gold);
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s;
+  box-shadow:
+    0 0 20px #f5c51820,
+    inset 0 1px 0 #f5c51830;
+}
+.spin-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    transparent 0%,
+    rgba(245,197,24,0.08) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+.spin-btn:hover:not(:disabled)::before { transform: translateX(100%); }
+.spin-btn:hover:not(:disabled) {
+  box-shadow: 0 0 30px #f5c51840, inset 0 1px 0 #f5c51850;
+  transform: translateY(-1px);
+}
+.spin-btn:active:not(:disabled) { transform: translateY(1px); }
+.spin-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+/* FS режим кнопки */
+.spin-btn.fs-mode {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  background: linear-gradient(135deg, #000a1a 0%, #001228 50%, #000a1a 100%);
+  box-shadow: 0 0 20px #00d4ff20, inset 0 1px 0 #00d4ff30;
+}
+.spin-btn.fs-mode:hover:not(:disabled) {
+  box-shadow: 0 0 30px #00d4ff40, inset 0 1px 0 #00d4ff50;
+}
+
+/* ═══ WIN DISPLAY ═══ */
+.win-display {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.win-message {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  transition: all 0.3s;
+  text-align: center;
+  padding: 8px 16px;
+}
+.win-message.big-win {
+  color: var(--neon-gold);
+  font-size: 28px;
+  text-shadow: 0 0 20px var(--neon-gold), 0 0 40px #f5c51860;
+  animation: big-win-pulse 0.5s ease-in-out infinite alternate;
+}
+.win-message.small-win {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green);
+}
+.win-message.fs-win {
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px var(--neon-blue);
+}
+.win-message.lose {
+  color: var(--neon-red);
+  opacity: 0.7;
+}
+@keyframes big-win-pulse {
+  from { text-shadow: 0 0 20px var(--neon-gold), 0 0 40px #f5c51860; }
+  to   { text-shadow: 0 0 40px var(--neon-gold), 0 0 80px #f5c51880, 0 0 120px #f5c51840; }
+}
+
+/* ═══ РЯДОК PAYOUTS ═══ */
+.payouts {
+  margin-top: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.payouts-header {
+  background: linear-gradient(90deg, #1a1a4a, #111128);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+.payouts-header-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  flex: 1;
+}
+.payouts-toggle {
+  color: var(--text-dim);
+  font-size: 12px;
+  transition: transform 0.3s;
+}
+.payouts-toggle.open { transform: rotate(180deg); }
+.payouts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.payouts-grid.open { max-height: 400px; }
+.payout-row {
+  background: var(--panel2);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.payout-symbols {
+  font-size: 16px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.payout-mult {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--neon-gold);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px #f5c51840;
+  white-space: nowrap;
+}
+
+/* ═══ HISTORY ═══ */
+.history-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  padding: 0 4px;
+}
+.history-chip {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.history-chip.win  { border-color: #00ff8840; color: var(--neon-green); background: #00ff8810; }
+.history-chip.lose { border-color: #ff2b4a30; color: #ff2b4a80; background: transparent; }
+.history-chip.fs   { border-color: #00d4ff40; color: var(--neon-blue); background: #00d4ff10; }
+
+/* ═══ MODE SWITCH ═══ */
+.mode-notice {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-top: -4px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.mode-notice.visible { opacity: 1; }
+.mode-notice.freespin {
+  color: var(--neon-blue);
+  background: #00d4ff0a;
+  border: 1px solid #00d4ff30;
+}
+.mode-notice.balance {
+  color: var(--neon-green);
+  background: #00ff880a;
+  border: 1px solid #00ff8830;
+}
+
+/* ═══ ЧАСТИНКИ ═══ */
+#particles-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#particles-canvas.active { opacity: 1; }
+
+/* ═══ АНІМАЦІЯ ВХОДУ ═══ */
+.wrapper { animation: fade-in-up 0.6s ease both; }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══ LOADING OVERLAY ═══ */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 9999;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+.loading-overlay.hidden { opacity: 0; visibility: hidden; }
+.loading-logo {
+  font-family: var(--font-display);
+  font-size: 64px;
+  background: linear-gradient(135deg, #f5c518, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: logo-pulse 1.5s ease-in-out infinite;
+}
+.loading-bar-wrap {
+  width: 200px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-gold), var(--neon-red));
+  border-radius: 2px;
+  animation: loading-fill 1.2s ease forwards;
+}
+@keyframes loading-fill { from { width: 0; } to { width: 100%; } }
+.loading-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* ═══ АДАПТИВ ═══ */
+@media (max-width: 480px) {
+  .reels-container { gap: 6px; }
+  .machine { padding: 14px; }
+  .info-bar { padding: 8px 12px; }
+  .info-value { font-size: 18px; }
+  .payouts-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-logo">777</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <div class="loading-text">ІНІЦІАЛІЗАЦІЯ...</div>
+</div>
+
+<!-- BG -->
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<!-- Particles canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="game-header">
+    <div class="game-logo">
+      <div class="logo-sub">VELOX CASINO</div>
+      <div class="logo-main">777</div>
+      <div class="logo-stars">★ ★ ★</div>
+    </div>
+  </div>
+
+  <!-- INFO BAR -->
+  <div class="info-bar">
+    <div class="info-item">
+      <span class="info-label">БАЛАНС</span>
+      <span class="info-value balance" id="balanceDisplay">—</span>
+    </div>
+    <div id="fsBadge" class="fs-badge hidden">
+      ⚡ <span id="fsCount">0</span> ФРІСПІН
+    </div>
+    <div class="info-item">
+      <span class="info-label">ВИГРАШ</span>
+      <span class="info-value win" id="winDisplay">0.00</span>
+    </div>
+  </div>
+
+  <!-- MACHINE -->
+  <div class="machine">
+
+    <!-- REELS -->
+    <div class="reels-container" id="reelsContainer">
+      <div class="win-line" id="winLine"></div>
+
+      <!-- Reel 1 -->
+      <div class="reel-wrap">
+        <div class="reel-label">REEL 1</div>
+        <div class="reel" id="reel0">
+          <div class="reel-highlight"></div>
+          <div class="reel-inner" id="inner0"></div>
+        </div>
+      </div>
+
+      <!-- Reel 2 -->
+      <div class="reel-wrap">
+        <div class="reel-label">REEL 2</div>
+        <div class="reel" id="reel1">
+          <div class="reel-highlight"></div>
+          <div class="reel-inner" id="inner1"></div>
+        </div>
+      </div>
+
+      <!-- Reel 3 -->
+      <div class="reel-wrap">
+        <div class="reel-label">REEL 3</div>
+        <div class="reel" id="reel2">
+          <div class="reel-highlight"></div>
+          <div class="reel-inner" id="inner2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIN DISPLAY -->
+    <div class="win-display">
+      <div class="win-message" id="winMessage">ЗРОБІТЬ СТАВКУ</div>
+    </div>
+
+    <!-- MODE NOTICE -->
+    <div class="mode-notice" id="modeNotice"></div>
+
+    <!-- SPIN SECTION -->
+    <div class="spin-section" style="margin-top:14px;">
+
+      <!-- BET CONTROLS -->
+      <div class="bet-controls">
+        <div class="bet-label-group">
+          <span class="bet-lbl">СТАВКА (UAH)</span>
+          <span class="bet-display" id="betDisplay">5.00</span>
+        </div>
+        <div class="bet-btns">
+          <button class="bet-btn active" data-bet="5">5</button>
+          <button class="bet-btn" data-bet="10">10</button>
+          <button class="bet-btn" data-bet="25">25</button>
+          <button class="bet-btn" data-bet="50">50</button>
+          <button class="bet-btn" data-bet="100">100</button>
+        </div>
+      </div>
+
+      <!-- SPIN BUTTON -->
+      <button class="spin-btn" id="spinBtn">SPIN</button>
+
+      <!-- HISTORY -->
+      <div class="history-row" id="historyRow"></div>
+    </div>
+
+  </div><!-- /machine -->
+
+  <!-- PAYOUTS TABLE -->
+  <div class="payouts">
+    <div class="payouts-header" id="payoutsToggle">
+      <span class="payouts-header-text">◆ ТАБЛИЦЯ ВИПЛАТ</span>
+      <span class="payouts-toggle" id="payoutsArrow">▼</span>
+    </div>
+    <div class="payouts-grid" id="payoutsGrid">
+      <div class="payout-row"><span class="payout-symbols">★ ★ ★</span><span class="payout-mult">×107</span></div>
+      <div class="payout-row"><span class="payout-symbols">7️⃣ 7️⃣ 7️⃣</span><span class="payout-mult">×64</span></div>
+      <div class="payout-row"><span class="payout-symbols">▓▓▓ ▓▓▓ ▓▓▓</span><span class="payout-mult">×43</span></div>
+      <div class="payout-row"><span class="payout-symbols">▓▓ ▓▓ ▓▓</span><span class="payout-mult">×26</span></div>
+      <div class="payout-row"><span class="payout-symbols">▓ ▓ ▓</span><span class="payout-mult">×17</span></div>
+      <div class="payout-row"><span class="payout-symbols">🍒 🍒 🍒</span><span class="payout-mult">×13</span></div>
+      <div class="payout-row"><span class="payout-symbols">BAR ✕ BAR ✕ BAR</span><span class="payout-mult">×8.5</span></div>
+      <div class="payout-row"><span class="payout-symbols">🍋 🍋 🍋</span><span class="payout-mult">×6.4</span></div>
+      <div class="payout-row"><span class="payout-symbols">🍒 🍒 ✕</span><span class="payout-mult">×6.4</span></div>
+      <div class="payout-row"><span class="payout-symbols">🍊 🍊 🍊</span><span class="payout-mult">×5.3</span></div>
+      <div class="payout-row"><span class="payout-symbols">🔔 🔔 🔔</span><span class="payout-mult">×4.3</span></div>
+      <div class="payout-row"><span class="payout-symbols">🍒 ✕ ✕</span><span class="payout-mult">×3.2</span></div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   КОНФІГ
+═══════════════════════════════════════════════════════════════ */
+const GAME_ID   = 'slots_777';
+const CURRENCY  = 'UAH';
+const API_BASE  = '';  // '' = same origin
+
+/* ═══ СИМВОЛИ (повинні збігатися з бекендом) ═══ */
+const SYMBOLS = [
+  { id: 'WILD',   icon: '★',  color: '#f5c518' },
+  { id: '777',    icon: '7️⃣',  color: '#ff2b4a' },
+  { id: 'BAR3',   icon: '▓▓▓', color: '#b44fff' },
+  { id: 'BAR2',   icon: '▓▓',  color: '#9030ee' },
+  { id: 'BAR',    icon: '▓',   color: '#7020cc' },
+  { id: 'CHERRY', icon: '🍒',  color: '#ff4060' },
+  { id: 'LEMON',  icon: '🍋',  color: '#ffe500' },
+  { id: 'ORANGE', icon: '🍊',  color: '#ff8c00' },
+  { id: 'BELL',   icon: '🔔',  color: '#ffd700' },
+];
+const SYM_BY_ID = Object.fromEntries(SYMBOLS.map(s => [s.id, s]));
+
+/* ═══ СТАН ═══ */
+const state = {
+  balance:     0,
+  fsRemaining: 0,
+  fsMode:      false,
+  fsBet:       1.0,
+  bet:         5,
+  spinning:    false,
+  reels:       [null, null, null],
+  history:     [],   // [{win, fs}]
+};
+
+/* ═══ DOM ═══ */
+const $ = id => document.getElementById(id);
+const spinBtn    = $('spinBtn');
+const balanceEl  = $('balanceDisplay');
+const winEl      = $('winDisplay');
+const winMsgEl   = $('winMessage');
+const winLineEl  = $('winLine');
+const fsCountEl  = $('fsCount');
+const fsBadgeEl  = $('fsBadge');
+const betDisplay = $('betDisplay');
+const modeNotice = $('modeNotice');
+const historyRow = $('historyRow');
+
+/* ═══════════════════════════════════════════════════════════════
+   ІНІЦІАЛІЗАЦІЯ БАРАБАНІВ
+═══════════════════════════════════════════════════════════════ */
+const VISIBLE_CELLS = 3;  // скільки символів видно
+const CELL_H = 80;
+
+function makeCell(symId) {
+  const sym = SYM_BY_ID[symId] || SYMBOLS[8];
+  const div = document.createElement('div');
+  div.className = 'symbol-cell';
+  div.dataset.sym = symId;
+  div.innerHTML = `<span class="symbol-icon">${sym.icon}</span>`;
+  div.style.setProperty('--sym-color', sym.color);
+  return div;
+}
+
+function buildReel(innerEl) {
+  innerEl.innerHTML = '';
+  // 3 зайвих зверху + 3 видимих + 3 зайвих знизу
+  const strip = [...SYMBOLS, ...SYMBOLS, ...SYMBOLS];
+  for (const s of strip) innerEl.appendChild(makeCell(s.id));
+  // Позиція: щоб середній ряд був у центрі
+  const totalCells = innerEl.children.length;
+  const startIdx = Math.floor(totalCells / 2) - 1;
+  innerEl.style.transform = `translateY(-${startIdx * CELL_H}px)`;
+}
+
+[0,1,2].forEach(i => buildReel($(`inner${i}`)));
+
+/* ═══════════════════════════════════════════════════════════════
+   АНІМАЦІЯ БАРАБАНІВ
+═══════════════════════════════════════════════════════════════ */
+function spinReel(innerEl, finalSymId, delay, duration) {
+  return new Promise(resolve => {
+    const symIds = SYMBOLS.map(s => s.id);
+    const totalStrips = 8;  // кількість "обертів"
+
+    // Будуємо довгу стрічку для спіну
+    innerEl.innerHTML = '';
+    const spinSymbols = [];
+    for (let i = 0; i < totalStrips * SYMBOLS.length; i++) {
+      spinSymbols.push(symIds[i % symIds.length]);
+    }
+    // Додаємо фінальний символ в кінці
+    spinSymbols.push(finalSymId);
+    // І ще 2 для паддингу
+    const finalIdx = spinSymbols.length - 1;
+    spinSymbols.unshift(symIds[Math.floor(Math.random() * symIds.length)]);
+    spinSymbols.unshift(symIds[Math.floor(Math.random() * symIds.length)]);
+
+    spinSymbols.forEach(id => innerEl.appendChild(makeCell(id)));
+
+    // Стартова позиція
+    innerEl.style.transition = 'none';
+    innerEl.style.transform = 'translateY(0)';
+
+    const targetPos = (finalIdx + 2 - 1) * CELL_H;  // +2 паддинг, -1 щоб по центру
+
+    setTimeout(() => {
+      // Спін з ease-out
+      innerEl.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.85, 0.35, 1.0)`;
+      innerEl.style.transform  = `translateY(-${targetPos}px)`;
+
+      setTimeout(() => {
+        // Bounce ефект
+        innerEl.style.transition = 'transform 0.08s ease-out';
+        innerEl.style.transform  = `translateY(-${targetPos - 5}px)`;
+        setTimeout(() => {
+          innerEl.style.transition = 'transform 0.1s ease-in';
+          innerEl.style.transform  = `translateY(-${targetPos}px)`;
+          setTimeout(resolve, 120);
+        }, 80);
+      }, duration + 10);
+
+    }, delay);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   API
+═══════════════════════════════════════════════════════════════ */
+async function apiStatus() {
+  try {
+    const r = await fetch(`${API_BASE}/api/slots/${GAME_ID}/status`);
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+async function apiSpin(betAmount, forceBalance) {
+  try {
+    const r = await fetch(`${API_BASE}/api/slots/${GAME_ID}/spin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bet_amount: betAmount, force_balance: forceBalance }),
+    });
+    return r.json();
+  } catch(e) { return { error: e.message }; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ЛОКАЛЬНИЙ RNG (DEMO-режим — коли нема авторизації)
+═══════════════════════════════════════════════════════════════ */
+const WEIGHTS = SYMBOLS.map((_, i) => [1, 2, 4, 6, 10, 14, 18, 22, 23][i]);
+const W_TOTAL = WEIGHTS.reduce((a, b) => a + b, 0);
+
+function weightedRandom() {
+  let r = Math.random() * W_TOTAL, cum = 0;
+  for (let i = 0; i < SYMBOLS.length; i++) {
+    cum += WEIGHTS[i];
+    if (r <= cum) return SYMBOLS[i].id;
+  }
+  return SYMBOLS[SYMBOLS.length - 1].id;
+}
+
+function localSpin(bet) {
+  const reels = [weightedRandom(), weightedRandom(), weightedRandom()];
+  const win   = calcWin(reels, bet);
+  return {
+    ok: true, mode: 'balance', mode_next: 'balance',
+    bet_amount: bet, win_amount: win,
+    balance: state.balance - bet + win,
+    fs_remaining: state.fsRemaining,
+    symbols: reels.map((id, i) => ({ reel: i, id, label: SYM_BY_ID[id]?.icon || '?' })),
+    win_lines: win > 0 ? ['Виграшна комбінація!'] : [],
+    multiplier: bet > 0 && win > 0 ? win / bet : 0,
+  };
+}
+
+function calcWin(reels, bet) {
+  const [r0, r1, r2] = reels;
+  const isBar = s => ['BAR','BAR2','BAR3'].includes(s);
+  const resolve = pos => {
+    if (reels[pos] !== 'WILD') return reels[pos];
+    for (const s of reels) if (s !== 'WILD') return s;
+    return 'WILD';
+  };
+
+  if (r0 === 'WILD' && r1 === 'WILD' && r2 === 'WILD') return Math.round(bet * 107 * 100) / 100;
+
+  const res = [resolve(0), resolve(1), resolve(2)];
+  if (res[0] === res[1] && res[1] === res[2]) {
+    const m = { '777':64,'BAR3':43,'BAR2':26,'BAR':17,'CHERRY':13,'LEMON':6.4,'ORANGE':5.3,'BELL':4.3 };
+    if (m[res[0]]) return Math.round(bet * m[res[0]] * 100) / 100;
+  }
+
+  if ((isBar(r0) || r0==='WILD') && (isBar(r1) || r1==='WILD') && (isBar(r2) || r2==='WILD'))
+    return Math.round(bet * 8.5 * 100) / 100;
+
+  const cherries = reels.filter(r => r === 'CHERRY').length;
+  if (cherries === 2) return Math.round(bet * 6.4 * 100) / 100;
+  if (cherries === 1 && r0 === 'CHERRY') return Math.round(bet * 3.2 * 100) / 100;
+
+  return 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UI
+═══════════════════════════════════════════════════════════════ */
+let demoMode = false;
+
+function updateBalance(val) {
+  state.balance = val;
+  balanceEl.textContent = val.toFixed(2);
+}
+
+function updateFS(count) {
+  state.fsRemaining = count;
+  fsCountEl.textContent = count;
+  fsBadgeEl.classList.toggle('hidden', count <= 0);
+  const isFSMode = count > 0 && !demoMode;
+  state.fsMode = isFSMode;
+  spinBtn.classList.toggle('fs-mode', isFSMode);
+  if (isFSMode) {
+    spinBtn.textContent = `⚡ ФРІСПІН (${count})`;
+  } else {
+    spinBtn.textContent = 'SPIN';
+  }
+}
+
+function setWinMessage(type, text) {
+  winMsgEl.className = `win-message ${type}`;
+  winMsgEl.textContent = text;
+}
+
+function showModeNotice(type, text) {
+  modeNotice.className = `mode-notice ${type} visible`;
+  modeNotice.textContent = text;
+  setTimeout(() => modeNotice.classList.remove('visible'), 3000);
+}
+
+function addHistory(win, fs) {
+  state.history.unshift({ win, fs });
+  if (state.history.length > 12) state.history.pop();
+
+  historyRow.innerHTML = state.history.map(h => {
+    if (h.fs && h.win > 0) return `<span class="history-chip fs">FS +${h.win.toFixed(2)}</span>`;
+    if (h.win > 0)  return `<span class="history-chip win">+${h.win.toFixed(2)}</span>`;
+    return `<span class="history-chip lose">✕</span>`;
+  }).join('');
+}
+
+function updateWinDisplay(win, mode) {
+  const prev = parseFloat(winEl.textContent) || 0;
+  winEl.textContent = win.toFixed(2);
+
+  if (win > 0) {
+    winEl.style.transition = 'none';
+    winEl.style.transform  = 'scale(1.3)';
+    winEl.style.color = mode === 'freespin' ? 'var(--neon-blue)' : 'var(--neon-gold)';
+    setTimeout(() => {
+      winEl.style.transition = 'all 0.4s ease';
+      winEl.style.transform  = 'scale(1)';
+    }, 50);
+  }
+}
+
+/* Bet buttons */
+document.querySelectorAll('.bet-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.bet = parseFloat(btn.dataset.bet);
+    betDisplay.textContent = state.bet.toFixed(2);
+  });
+});
+
+/* Payouts toggle */
+$('payoutsToggle').addEventListener('click', () => {
+  const grid  = $('payoutsGrid');
+  const arrow = $('payoutsArrow');
+  grid.classList.toggle('open');
+  arrow.classList.toggle('open');
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   ЧАСТИНКИ
+═══════════════════════════════════════════════════════════════ */
+const canvas = $('particles-canvas');
+const ctx    = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function spawnParticles(count, color) {
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight * 0.4;
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.random() * Math.PI * 2);
+    const speed = 2 + Math.random() * 6;
+    particles.push({
+      x: cx + (Math.random() - 0.5) * 200,
+      y: cy + (Math.random() - 0.5) * 100,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      size: 3 + Math.random() * 5,
+      color,
+      alpha: 1,
+      gravity: 0.15 + Math.random() * 0.1,
+      life: 1,
+    });
+  }
+}
+
+function animParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.alpha > 0.01);
+
+  for (const p of particles) {
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy += p.gravity;
+    p.vx *= 0.99;
+    p.life -= 0.018;
+    p.alpha = Math.max(0, p.life);
+
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur  = 6;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    ctx.restore();
+  }
+
+  if (particles.length > 0) {
+    canvas.classList.add('active');
+    requestAnimationFrame(animParticles);
+  } else {
+    canvas.classList.remove('active');
+  }
+}
+
+function celebrate(big) {
+  const colors = big
+    ? ['#f5c518','#ff8c00','#ffe066','#ffffff','#ff2b4a']
+    : ['#00ff88','#f5c518','#00d4ff'];
+  const count = big ? 120 : 40;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => spawnParticles(3, colors[Math.floor(Math.random() * colors.length)]), i * 15);
+  }
+  canvas.classList.add('active');
+  animParticles();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ОСНОВНА ЛОГІКА СПІНУ
+═══════════════════════════════════════════════════════════════ */
+async function doSpin() {
+  if (state.spinning) return;
+  state.spinning = true;
+  spinBtn.disabled = true;
+
+  // Скидаємо UI
+  setWinMessage('', 'КРУТИТЬСЯ...');
+  winLineEl.classList.remove('visible');
+  winEl.textContent = '0.00';
+  winEl.style.color = 'var(--neon-gold)';
+
+  // Отримуємо результат з API або локально
+  let result;
+  if (demoMode) {
+    // Демо: симулюємо затримку "мережі"
+    await new Promise(r => setTimeout(r, 200));
+    result = localSpin(state.bet);
+    // Оновлюємо демо-баланс
+    updateBalance(Math.max(0, state.balance - state.bet + result.win_amount));
+  } else {
+    const betForAPI = state.fsMode ? undefined : state.bet;
+    result = await apiSpin(betForAPI, false);
+  }
+
+  if (result.error) {
+    setWinMessage('lose', result.error);
+    state.spinning = false;
+    spinBtn.disabled = false;
+    return;
+  }
+
+  // Символи з результату
+  const finalSymbols = result.symbols && result.symbols.length === 3
+    ? result.symbols.map(s => s.id)
+    : [weightedRandom(), weightedRandom(), weightedRandom()];
+
+  state.reels = finalSymbols;
+
+  // Анімуємо барабани з затримкою
+  const inners = [0,1,2].map(i => $(`inner${i}`));
+  const durations = [800, 1000, 1200];
+  const delays    = [0,   200,  400];
+
+  await Promise.all(inners.map((el, i) =>
+    spinReel(el, finalSymbols[i], delays[i], durations[i])
+  ));
+
+  // Після зупинки
+  const win      = result.win_amount || 0;
+  const isFS     = result.mode === 'freespin';
+  const isBigWin = win >= state.bet * 10;
+  const nextFS   = result.fs_remaining || 0;
+
+  // Оновлюємо стан
+  if (!demoMode) {
+    updateBalance(result.balance || state.balance);
+    updateFS(nextFS);
+  }
+  updateWinDisplay(win, result.mode);
+  addHistory(win, isFS);
+
+  // Повідомлення
+  if (win > 0) {
+    if (isBigWin) {
+      setWinMessage('big-win', `★ ВЕЛИКИЙ ВИГРАШ! +${win.toFixed(2)} ★`);
+    } else if (isFS) {
+      setWinMessage('fs-win', `⚡ ФРІСПІН +${win.toFixed(2)}`);
+    } else {
+      setWinMessage('small-win', `ВИГРАШ! +${win.toFixed(2)}`);
+    }
+    winLineEl.classList.add('visible');
+    celebrate(isBigWin);
+
+    // Підсвічуємо виграшні символи
+    [0,1,2].forEach(i => {
+      const inner  = $(`inner${i}`);
+      const cells  = inner.querySelectorAll('.symbol-cell');
+      const midIdx = Math.floor(cells.length / 2);
+      if (cells[midIdx]) cells[midIdx].classList.add('winning');
+      setTimeout(() => cells[midIdx]?.classList.remove('winning'), 2500);
+    });
+  } else {
+    setWinMessage('lose', '— НАСТУПНОГО РАЗУ —');
+  }
+
+  // Режим переключення FS → balance
+  if (isFS && nextFS === 0) {
+    showModeNotice('balance', '⚡ ФРІСПІНИ ЗАКІНЧИЛИСЬ → БАЛАНС');
+  } else if (isFS && nextFS > 0) {
+    showModeNotice('freespin', `⚡ ФРІСПІН! ЗАЛИШИЛОСЬ: ${nextFS}`);
+  }
+
+  state.spinning = false;
+  spinBtn.disabled = false;
+}
+
+spinBtn.addEventListener('click', doSpin);
+
+/* Space = spin */
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !e.target.matches('input,button')) {
+    e.preventDefault();
+    doSpin();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   СТАРТ — перевіряємо авторизацію
+═══════════════════════════════════════════════════════════════ */
+async function init() {
+  const status = await apiStatus();
+
+  if (!status || status.error) {
+    // Демо-режим
+    demoMode = true;
+    updateBalance(500.00);
+    updateFS(0);
+    setWinMessage('', 'ДЕМО РЕЖИМ');
+    showModeNotice('balance', '🎮 ДЕМО — увійдіть для реальної гри');
+  } else {
+    demoMode = false;
+    updateBalance(status.balance || 0);
+    updateFS(status.fs_remaining || 0);
+
+    if (status.fs_remaining > 0) {
+      showModeNotice('freespin', `⚡ У ВАС ${status.fs_remaining} ФРІСПІНІВ!`);
+      setWinMessage('fs-win', `⚡ ${status.fs_remaining} ФРІСПІНІВ ДОСТУПНО`);
+    } else {
+      setWinMessage('', 'ЗРОБІТЬ СТАВКУ');
+    }
+  }
+
+  // Ховаємо loading
+  setTimeout(() => $('loadingOverlay').classList.add('hidden'), 800);
+}
+
+init();
+</script>
+</body>
+</html>

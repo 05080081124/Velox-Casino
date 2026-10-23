@@ -1,0 +1,74 @@
+{
+  "_readme": "KYC System Configuration. Three modes: workflow, scan, both.",
+  "_mode_description": {
+    "workflow": "Video liveness check + random word. Operator reviews manually via support ticket.",
+    "scan":     "Automated document scan via Onfido / Jumio / Sumsub. Instant result.",
+    "both":     "Try scan provider first. If not configured, fallback to workflow.",
+    "manual":   "Classic document upload only. Operator reviews file."
+  },
+
+  "mode": "workflow",
+  "_mode": "workflow | scan | both | manual",
+
+  "word_ttl_minutes": 120,
+  "_word_ttl": "How long the liveness word is valid (minutes). New word generated after expiry.",
+
+  "card_verification": {
+    "enabled": false,
+    "_enabled_note": "If true: require KYC verified before large deposits, or match card holder name to KYC name.",
+    "require_verified_for_deposit": false,
+    "min_deposit_require_kyc": 10000,
+    "_min_deposit_note": "Require KYC if single deposit exceeds this amount (in user currency).",
+    "match_card_holder_name": false,
+    "_match_note": "Check that card holder name matches KYC document name (requires scan provider)."
+  },
+
+  "providers": {
+
+    "onfido": {
+      "enabled": false,
+      "_docs": "https://documentation.onfido.com/",
+      "_registration": "https://onfido.com/signup/",
+      "_keys_where": "Onfido Dashboard → Developers → API Tokens",
+      "api_token": "",
+      "region": "eu",
+      "_region": "eu | us | ca",
+      "workflow_run_id": "",
+      "_workflow_note": "Optional Onfido Studio workflow ID. Leave empty to use default."
+    },
+
+    "sumsub": {
+      "enabled": false,
+      "_docs": "https://developers.sumsub.com/",
+      "_registration": "https://sumsub.com/",
+      "_keys_where": "Sumsub Dashboard → Developers → App tokens",
+      "app_token": "",
+      "secret_key": "",
+      "level_name": "basic-kyc-level",
+      "_level_note": "Verification level name configured in Sumsub dashboard."
+    },
+
+    "jumio": {
+      "enabled": false,
+      "_docs": "https://developer.jumio.com/",
+      "_registration": "https://www.jumio.com/contact/",
+      "_keys_where": "Jumio Portal → Settings → API credentials",
+      "api_token": "",
+      "api_secret": "",
+      "datacenter": "EU",
+      "_datacenter": "EU | US | SGP"
+    }
+  },
+
+  "upload_dir": "static/uploads/kyc",
+  "max_file_mb": 50,
+  "_max_file_note": "Max upload size for videos and documents (MB).",
+  "allowed_doc_extensions": ["jpg", "jpeg", "png", "pdf"],
+  "allowed_video_extensions": ["mp4", "webm", "mov"],
+
+  "notify_email": "",
+  "_notify_note": "Operator email for KYC ticket notifications. Leave empty to disable.",
+
+  "ticket_tag": "kyc_verification",
+  "_ticket_tag": "Tag added to support ticket subject for operator to filter KYC tickets."
+}

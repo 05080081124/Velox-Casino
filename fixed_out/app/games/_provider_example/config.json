@@ -1,0 +1,97 @@
+{
+  "_readme": "Провайдерский пакет игр. Скопируй папку, переименуй в имя провайдера, заполни.",
+  "_how_to_add": [
+    "1. Создай папку app/games/<provider_name>/",
+    "2. Скопируй сюда config.json и provider.py",
+    "3. Заполни provider, provider_tag, и массив games[]",
+    "4. Перезапусти сервер — игры появятся в каталоге автоматически",
+    "5. В config/games.json добавь id каждой игры и active: true/false"
+  ],
+
+  "provider":     "MyProvider",
+  "provider_tag": "myprovider",
+
+  "_wallet_api_note": [
+    "Для получения выплат провайдер должен вызывать Wallet API:",
+    "  POST /api/provider/wallet/balance  — X-Provider-ID + X-Signature",
+    "  POST /api/provider/wallet/debit    — списание ставки",
+    "  POST /api/provider/wallet/credit   — зачисление выигрыша",
+    "  POST /api/provider/wallet/rollback — отмена транзакции",
+    "secret для подписи берётся из config/providers.json -> providers[id].secret"
+  ],
+
+  "_game_type_note": [
+    "game_type / category определяет какая панель ставок показывается:",
+    "  slots    — ставка + авто-спин (5/10/25/50/100/∞)",
+    "  crash    — ставка + авто-кешаут с множителем",
+    "  table    — стек фишек (5/10/25/50/100/500) + ставка",
+    "  blackjack, roulette, baccarat, poker — то же что table",
+    "  live     — ставка + кнопка присоединиться",
+    "  default  — просто ставка + кнопка играть"
+  ],
+
+  "games": [
+    {
+      "_note": "Minimal example - slots",
+      "id":       "myprovider_slots_1",
+      "name":     "Magic Slots",
+      "category": "slots",
+      "icon":     "🎰",
+      "game_url": "https://provider.com/launch?game=magic_slots&token={token}&lang={lang}&currency={currency}",
+      "active":   true,
+      "hot":      false,
+      "new":      true,
+      "rtp":      0.96,
+      "tags":     ["slots", "bonus"],
+      "bet": {
+        "min": 10,
+        "max": 50000,
+        "currency_min": { "UAH": 10, "USD": 0.5, "EUR": 0.5, "RUB": 30 }
+      }
+    },
+    {
+      "_note": "Crash game by provider",
+      "id":       "myprovider_crash_1",
+      "name":     "Turbo Crash",
+      "category": "crash",
+      "icon":     "🚀",
+      "game_url": "https://provider.com/launch?game=turbo_crash&token={token}&user={user_id}&cur={currency}&lang={lang}",
+      "active":   true,
+      "hot":      true,
+      "new":      false,
+      "rtp":      0.97,
+      "tags":     ["crash", "live", "multiplier"],
+      "bet": {
+        "min": 10,
+        "max": 100000,
+        "currency_min": { "UAH": 10, "USD": 0.5, "EUR": 0.5, "RUB": 30 }
+      }
+    },
+    {
+      "_note": "Полный пример — блэкджек со всеми полями",
+      "id":       "myprovider_blackjack_1",
+      "name":     "Blackjack VIP",
+      "category": "blackjack",
+      "icon":     "🃏",
+      "logo":     "/static/uploads/providers/myprovider/blackjack.jpg",
+      "bg_gradient": "linear-gradient(135deg,#0a1628 0%,#1a2840 100%)",
+      "game_url": "https://provider.com/launch?game=blackjack_vip&token={token}&user={user_id}&cur={currency}&lang={lang}",
+      "active":   false,
+      "hot":      false,
+      "new":      true,
+      "featured": false,
+      "rtp":      0.995,
+      "tags":     ["table", "blackjack", "live"],
+      "bet": {
+        "min": 50,
+        "max": 100000,
+        "currency_min": { "UAH": 50, "USD": 2, "EUR": 2, "RUB": 100 }
+      },
+      "i18n": {
+        "ru": { "name": "Блэкджек VIP", "description": "Классический блэкджек с живыми дилерами" },
+        "ua": { "name": "Блекджек VIP", "description": "Класичний блекджек з живими дилерами" },
+        "us": { "name": "Blackjack VIP", "description": "Classic blackjack with live dealers" }
+      }
+    }
+  ]
+}

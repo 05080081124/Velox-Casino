@@ -1,0 +1,195 @@
+{
+  "_comment": "Порядок и содержимое сайдбара. Типы элементов: lucky_ticket | section_header | nav_item | separator | details",
+  "items": [
+    {
+      "enabled": true,
+      "icon": "ticket",
+      "id": "lucky-ticket",
+      "label": "Лаки-тикет",
+      "type": "lucky_ticket"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "action": "view",
+      "enabled": true,
+      "i18n_key": "sidebar.home",
+      "icon": "home",
+      "id": "home",
+      "label": "Главная",
+      "type": "nav_item",
+      "view": "home"
+    },
+    {
+      "action": "daily_spin",
+      "enabled": false,
+      "i18n_key": "sidebar.daily_spin",
+      "icon": "spin",
+      "id": "daily-spin",
+      "label": "Дейли-крут",
+      "type": "nav_item"
+    },
+    {
+      "action": "modal_vip",
+      "enabled": true,
+      "i18n_key": "sidebar.vip_club",
+      "icon": "vip",
+      "id": "vip",
+      "label": "VIP-Клуб",
+      "type": "nav_item"
+    },
+    {
+      "action": "view",
+      "enabled": true,
+      "i18n_key": "sidebar.tournaments",
+      "icon": "tournament",
+      "id": "tournaments",
+      "label": "Турниры",
+      "type": "nav_item",
+      "view": "tournaments"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "action": "smart_search",
+      "enabled": true,
+      "i18n_key": "sidebar.smart_search",
+      "icon": "search",
+      "id": "smart-search",
+      "label": "Смарт-поиск",
+      "type": "nav_item"
+    },
+    {
+      "children": [
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.live_game",
+          "icon": "live",
+          "id": "live-game",
+          "label": "Live Game",
+          "tag": "live",
+          "type": "nav_item"
+        },
+        {
+          "action": "view",
+          "enabled": true,
+          "i18n_key": "sidebar.sport",
+          "icon": "sport",
+          "id": "sport",
+          "label": "Спорт",
+          "type": "nav_item",
+          "view": "sport"
+        },
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.slots",
+          "icon": "slots",
+          "id": "slots",
+          "label": "Слоты",
+          "tag": "slots",
+          "type": "nav_item"
+        },
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.blackjack",
+          "icon": "blackjack",
+          "id": "blackjack",
+          "label": "Блек-джек",
+          "tag": "blackjack",
+          "type": "nav_item"
+        },
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.roulette",
+          "icon": "roulette",
+          "id": "roulette",
+          "label": "Рулетки",
+          "tag": "roulette",
+          "type": "nav_item"
+        },
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.crash_games",
+          "icon": "crash",
+          "id": "crash-games",
+          "label": "Краш игры",
+          "tag": "crash",
+          "type": "nav_item"
+        },
+        {
+          "action": "filter_tag",
+          "enabled": true,
+          "i18n_key": "sidebar.game_shows",
+          "icon": "show",
+          "id": "game-shows",
+          "label": "Игровые Шоу",
+          "tag": "show",
+          "type": "nav_item"
+        },
+        {
+          "action": "view",
+          "enabled": true,
+          "i18n_key": "sidebar.more",
+          "icon": "more",
+          "id": "more-games",
+          "label": "Ещё...",
+          "type": "nav_item",
+          "view": "games"
+        }
+      ],
+      "collapsible": true,
+      "enabled": true,
+      "i18n_key": "sidebar.games",
+      "icon": "live",
+      "id": "live-games-header",
+      "label": "Игры",
+      "type": "section_header"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "enabled": true,
+      "i18n_key": "sidebar.partners",
+      "icon": "partners",
+      "id": "partners",
+      "label": "Partners",
+      "type": "partners"
+    },
+    {
+      "action": "view",
+      "enabled": true,
+      "i18n_key": "sidebar.promotions",
+      "icon": "promotions",
+      "id": "promotions",
+      "label": "Акции",
+      "type": "nav_item",
+      "view": "promotions"
+    },
+    {
+      "action": "view",
+      "enabled": true,
+      "i18n_key": "sidebar.raffles",
+      "icon": "raffles",
+      "id": "raffles",
+      "label": "Розыгрыши",
+      "type": "nav_item",
+      "view": "raffles"
+    },
+    {
+      "enabled": true,
+      "i18n_key": "sidebar.details",
+      "icon": "details",
+      "id": "details",
+      "label": "Детали",
+      "type": "details"
+    }
+  ]
+}

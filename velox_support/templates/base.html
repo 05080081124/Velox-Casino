@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>{% block title %}VELOX Support{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  {% block head_extra %}{% endblock %}
+</head>
+<body data-page="{% block page_id %}{% endblock %}" {% block body_attrs %}{% endblock %}>
+
+{% block body %}{% endblock %}
+
+<div id="toast"></div>
+
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
